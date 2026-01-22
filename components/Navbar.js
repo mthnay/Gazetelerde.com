@@ -24,15 +24,6 @@ export default function Navbar() {
     router.refresh();
   };
 
-  const links = [
-    { name: 'GÜNDEM', href: '/category/gundem' },
-    { name: 'DÜNYA', href: '/category/dunya' },
-    { name: 'EKONOMİ', href: '/category/ekonomi' },
-    { name: 'SPOR', href: '/category/spor' },
-    { name: 'TEKNOLOJİ', href: '/category/teknoloji' },
-    { name: 'YAŞAM', href: '/category/yasam' },
-  ];
-
   return (
     <>
       <nav style={{
@@ -46,37 +37,25 @@ export default function Navbar() {
         borderBottom: '1px solid var(--border)',
         height: 'var(--header-height)'
       }}>
-        <div className="container" style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div className="container" style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'relative' }}>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '40px' }}>
-            {/* Logo */}
+          {/* LEFT: Search Bar */}
+          <div className="search-bar">
+            <Search size={16} color="var(--text-muted)" />
+            <input type="text" placeholder="Haber ara..." />
+          </div>
+
+          {/* CENTER: Logo */}
+          <div style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}>
             <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
               <div style={{ background: 'var(--primary)', color: 'black', fontWeight: '900', fontSize: '20px', padding: '0 12px', borderRadius: '4px', height: '40px', display: 'flex', alignItems: 'center' }}>
                 GAZETELERDE
               </div>
             </Link>
-
-            {/* Desktop Menu */}
-            <div className="desktop-menu" style={{ display: 'flex', gap: '24px' }}>
-              {links.map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className={`nav-link ${pathname === item.href ? 'active' : ''}`}
-                >
-                  {item.name}
-                </Link>
-              ))}
-            </div>
           </div>
 
-          {/* Right Actions */}
+          {/* RIGHT: User Actions */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <div className="search-bar">
-              <Search size={16} color="var(--text-muted)" />
-              <input type="text" placeholder="Haber ara..." />
-            </div>
-
             <button className="icon-btn">
               <Bell size={20} />
             </button>
@@ -90,7 +69,6 @@ export default function Navbar() {
                 <button onClick={handleLogout} className="icon-btn" title="Çıkış Yap">
                   <LogOut size={18} />
                 </button>
-                {/* Admin Access hidden for normal users, purely URL based for now */}
               </div>
             ) : (
               <Link href="/login" className="btn btn-primary" style={{ padding: '8px 20px', fontSize: '13px' }}>
@@ -103,19 +81,6 @@ export default function Navbar() {
       </nav>
 
       <style jsx>{`
-        .nav-link {
-          font-size: 13px;
-          font-weight: 700;
-          color: var(--text-muted);
-          padding: 8px 0;
-          border-bottom: 2px solid transparent;
-          transition: all 0.2s;
-          letter-spacing: 0.5px;
-        }
-        .nav-link:hover, .nav-link.active {
-          color: white;
-          border-bottom-color: var(--primary);
-        }
         .search-bar {
             background: rgba(255,255,255,0.05);
             border: 1px solid var(--border);

@@ -2,12 +2,13 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Mail, Lock, ArrowRight, Sparkles } from 'lucide-react';
+import { User, Lock, ArrowRight, Sparkles } from 'lucide-react';
 
 export default function LoginPage() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
     const router = useRouter();
     const [mounted, setMounted] = useState(false);
 
@@ -16,16 +17,31 @@ export default function LoginPage() {
     const handleLogin = async (e) => {
         e.preventDefault();
         setLoading(true);
-        await new Promise(r => setTimeout(r, 1200));
+        setError('');
 
-        // Mock Login
-        if (email && password) {
-            document.cookie = `user_token=demo-user-token; path=/; max-age=86400`;
-            localStorage.setItem('user', JSON.stringify({ email, name: email.split('@')[0] }));
-            router.push('/');
-            router.refresh();
+        try {
+            const res = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+
+            const data = await res.json();
+
+            if (data.success) {
+                if (data.user) {
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                }
+                router.push(data.redirectUrl || '/');
+                router.refresh();
+            } else {
+                setError(data.message || 'Giriş yapılamadı.');
+                setLoading(false);
+            }
+        } catch (err) {
+            setError('Bir bağlantı hatası oluştu.');
+            setLoading(false);
         }
-        setLoading(false);
     };
 
     return (
@@ -66,10 +82,10 @@ export default function LoginPage() {
                         <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
 
                             <div className="input-group">
-                                <label className={email ? 'filled' : ''}>E-posta Adresi</label>
-                                <Mail size={18} className="input-icon" />
+                                <label className={email ? 'filled' : ''}>E-posta veya Kullanıcı Adı</label>
+                                <User size={18} className="input-icon" />
                                 <input
-                                    type="email"
+                                    type="text"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     required
@@ -94,6 +110,20 @@ export default function LoginPage() {
                                 </label>
                                 <a href="#" className="forgot-link">Şifremi Unuttum?</a>
                             </div>
+
+                            {error && (
+                                <div style={{
+                                    padding: '10px',
+                                    background: 'rgba(239, 68, 68, 0.1)',
+                                    border: '1px solid rgba(239, 68, 68, 0.2)',
+                                    borderRadius: '8px',
+                                    color: '#ef4444',
+                                    fontSize: '13px',
+                                    textAlign: 'center'
+                                }}>
+                                    {error}
+                                </div>
+                            )}
 
                             <button type="submit" className="login-btn" disabled={loading}>
                                 {loading ? (
