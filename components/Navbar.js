@@ -13,6 +13,7 @@ export default function Navbar() {
     // Check for user in localStorage (Mock Auth)
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setUser(JSON.parse(storedUser));
     }
   }, []);

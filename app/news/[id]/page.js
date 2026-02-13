@@ -34,7 +34,7 @@ export default function NewsDetail({ params }) {
             <div style={{ marginBottom: '24px' }}>
                 <span className="badge">TEKNOLOJİ</span>
                 <h1 style={{ fontSize: '2.5rem', lineHeight: '1.2', marginTop: '16px', marginBottom: '16px' }}>
-                    Türkiye'nin Teknoloji Hamlesi: Yeni Yongalar Seri Üretime Geçiyor
+                    Türkiye&apos;nin Teknoloji Hamlesi: Yeni Yongalar Seri Üretime Geçiyor
                 </h1>
                 <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-muted)', fontSize: '14px' }}>
                     <span>12 Ocak 2026 - 14:30</span>

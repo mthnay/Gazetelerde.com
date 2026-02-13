@@ -21,9 +21,10 @@ export default function ProfilePage() {
         if (!userData) {
             router.push('/login');
         } else {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setUser(JSON.parse(userData));
         }
-    }, []);
+    }, [router]);
 
     const handleUpdate = async (e) => {
         e.preventDefault();

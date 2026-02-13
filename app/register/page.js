@@ -103,12 +103,12 @@ export default function RegisterPage() {
                                 style={{ color: 'white', textDecoration: 'underline', cursor: 'pointer' }}
                             >
                                 KVKK Aydınlatma Metni
-                            </span>'ni ve <span
+                            </span>&apos;ni ve <span
                                 onClick={() => setShowRiza(true)}
                                 style={{ color: 'white', textDecoration: 'underline', cursor: 'pointer' }}
                             >
                                 Açık Rıza Metni
-                            </span>'ni okudum, onaylıyorum.
+                            </span>&apos;ni okudum, onaylıyorum.
                         </span>
                     </div>
 
@@ -142,7 +142,7 @@ export default function RegisterPage() {
             {/* KVKK MODAL */}
             <Modal isOpen={showKVKK} onClose={() => setShowKVKK(false)} title="KVKK Aydınlatma Metni">
                 <h4 style={{ color: 'white', marginBottom: '10px' }}>Veri Sorumlusu</h4>
-                <p style={{ marginBottom: '16px' }}>6698 sayılı Kişisel Verilerin Korunması Kanunu ("KVKK") uyarınca, Gazetelerde.com olarak, veri sorumlusu sıfatıyla, kişisel verilerinizi aşağıda açıklanan amaçlar kapsamında işlemekteyiz.</p>
+                <p style={{ marginBottom: '16px' }}>6698 sayılı Kişisel Verilerin Korunması Kanunu (&quot;KVKK&quot;) uyarınca, Gazetelerde.com olarak, veri sorumlusu sıfatıyla, kişisel verilerinizi aşağıda açıklanan amaçlar kapsamında işlemekteyiz.</p>
 
                 <h4 style={{ color: 'white', marginBottom: '10px' }}>İşlenen Kişisel Verileriniz</h4>
                 <p style={{ marginBottom: '16px' }}>Adınız, soyadınız, e-posta adresiniz, IP adresiniz ve site içi hareketleriniz gibi veriler tarafımızca işlenmektedir.</p>
@@ -158,7 +158,7 @@ export default function RegisterPage() {
             {/* AÇIK RIZA MODAL */}
             <Modal isOpen={showRiza} onClose={() => setShowRiza(false)} title="Açık Rıza Beyanı">
                 <p style={{ marginBottom: '16px' }}>
-                    Gazetelerde.com tarafından sunulan hizmetlerden faydalanmak amacıyla paylaştığım kişisel verilerimin, KVKK Aydınlatma Metni'nde belirtilen amaçlarla sınırlı olmak üzere işlenmesine, saklanmasına ve gerektiğinde yetkili kamu kurum ve kuruluşları ile paylaşılmasına <strong>açık rıza gösteriyorum.</strong>
+                    Gazetelerde.com tarafından sunulan hizmetlerden faydalanmak amacıyla paylaştığım kişisel verilerimin, KVKK Aydınlatma Metni&apos;nde belirtilen amaçlarla sınırlı olmak üzere işlenmesine, saklanmasına ve gerektiğinde yetkili kamu kurum ve kuruluşları ile paylaşılmasına <strong>açık rıza gösteriyorum.</strong>
                 </p>
                 <p>
                     Bu onayı dilediğim zaman geri alma hakkına sahip olduğumu biliyorum.

@@ -143,7 +143,7 @@ export default function Home() {
           <div className="glass-panel newsletter-box">
             <div className="nl-content">
               <h2>Gündemi Kaçırma!</h2>
-              <p>En önemli gelişmeler, her sabah 08:00'de e-posta kutunda.</p>
+              <p>En önemli gelişmeler, her sabah 08:00&apos;de e-posta kutunda.</p>
               <div className="input-group">
                 <input
                   type="email"

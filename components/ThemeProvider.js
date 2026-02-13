@@ -11,6 +11,7 @@ export function ThemeProvider({ children }) {
         // Check local storage or system preference
         const savedTheme = localStorage.getItem('theme');
         if (savedTheme) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setTheme(savedTheme);
         } else if (window.matchMedia('(prefers-color-scheme: light)').matches) {
             // Optional: Default to light if system is light, but we prefer dark initial for this brand

@@ -12,7 +12,10 @@ export default function LoginPage() {
     const router = useRouter();
     const [mounted, setMounted] = useState(false);
 
-    useEffect(() => setMounted(true), []);
+    useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setMounted(true);
+    }, []);
 
     const handleLogin = async (e) => {
         e.preventDefault();

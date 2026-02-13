@@ -1,0 +1,16 @@
+{
+  "/_global-error/page": "/_global-error",
+  "/_not-found/page": "/_not-found",
+  "/admin/page": "/admin",
+  "/api/auth/login/route": "/api/auth/login",
+  "/api/auth/logout/route": "/api/auth/logout",
+  "/api/automation/route": "/api/automation",
+  "/api/scrape/route": "/api/scrape",
+  "/category/[slug]/page": "/category/[slug]",
+  "/favicon.ico/route": "/favicon.ico",
+  "/login/page": "/login",
+  "/news/[id]/page": "/news/[id]",
+  "/page": "/",
+  "/profile/page": "/profile",
+  "/register/page": "/register"
+}
