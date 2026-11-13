@@ -1,12 +1,13 @@
 "use client";
 import { Clock, ArrowRight } from 'lucide-react';
 import { formatDate } from '@/lib/format';
+import SmartImage from '@/components/SmartImage';
 
 export default function NewsCard({ news }) {
     return (
         <div className="news-card">
             <div className="img-container">
-                {news.img ? <img src={news.img} alt={news.title} /> : <div className="img-fallback" />}
+                {news.img ? <SmartImage src={news.img} alt={news.title} sizes="(max-width: 600px) 100vw, (max-width: 1024px) 33vw, 300px" className="card-img" /> : <div className="img-fallback" />}
                 <div className="category-tag">{news.categoryLabel || news.category}</div>
             </div>
 
@@ -44,14 +45,14 @@ export default function NewsCard({ news }) {
            position: relative;
         }
 
-        .img-container img {
+        .img-container :global(.card-img) {
            width: 100%;
            height: 100%;
            object-fit: cover;
            transition: transform 0.5s ease;
         }
 
-        .news-card:hover .img-container img {
+        .news-card:hover .img-container :global(.card-img) {
            transform: scale(1.08); /* Subtle zoom */
         }
         

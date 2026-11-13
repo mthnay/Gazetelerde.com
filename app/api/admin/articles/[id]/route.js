@@ -1,9 +1,10 @@
-import { revalidatePath } from 'next/cache';
 import { prisma } from '@/lib/db';
 import { ok, fail, readJson } from '@/lib/api';
 import { requireStaff, idParam } from '@/lib/adminApi';
 import { parseArticleInput, uniqueSlug } from '@/lib/articleInput';
 import { canEditArticle, canDeleteArticle } from '@/lib/permissions';
+import { revalidateArticle } from '@/lib/revalidate';
+import { revalidatePath } from 'next/cache';
 
 async function load(params) {
     const id = await idParam(params);
@@ -31,7 +32,10 @@ export async function PATCH(request, { params }) {
         data: { ...parsed.data, slug },
         select: { id: true, slug: true, status: true },
     });
-    revalidatePath(`/haber/${article.slug}`);
+    // Eski kategori sayfası da tazelensin
+    const oldCat = await prisma.category.findUnique({ where: { id: existing.categoryId }, select: { slug: true } });
+    if (oldCat) revalidatePath(`/category/${oldCat.slug}`);
+    await revalidateArticle(article.id, [existing.slug]);
     return ok({ article });
 }
 
@@ -41,6 +45,9 @@ export async function DELETE(_request, { params }) {
     const existing = await load(params);
     if (!existing) return fail('Haber bulunamadı.', 404);
     if (!canDeleteArticle(user, existing)) return fail('Bu haberi silme yetkiniz yok.', 403);
+    const cat = await prisma.category.findUnique({ where: { id: existing.categoryId }, select: { slug: true } });
     await prisma.article.delete({ where: { id: existing.id } });
+    await revalidateArticle(existing.id, [existing.slug]); // haber silindiği için sadece genel sayfalar + eski adres
+    if (cat) revalidatePath(`/category/${cat.slug}`);
     return ok();
 }

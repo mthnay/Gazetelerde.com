@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/db';
 import { getCurrentUser } from '@/lib/auth';
 import { ok, fail, readJson, rateLimit } from '@/lib/api';
+import { revalidateCommentArticle } from '@/lib/revalidate';
 
 // Bu kadar farklı kullanıcı şikayet ederse yorum otomatik gizlenir (editör tekrar açabilir)
 const AUTO_HIDE_AT = 3;
@@ -28,5 +29,6 @@ export async function POST(request, { params }) {
         where: { id: comment.id },
         data: { reportCount, ...(reportCount >= AUTO_HIDE_AT ? { status: 'HIDDEN' } : {}) },
     });
+    if (reportCount >= AUTO_HIDE_AT) await revalidateCommentArticle(comment.id);
     return ok({ reported: true });
 }

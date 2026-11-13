@@ -1,19 +1,48 @@
 "use client";
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useSession } from '@/components/SessionProvider';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Heart, MessageCircle, Share2, Send, Bookmark, CornerDownRight, Flag } from 'lucide-react';
 import { formatShortDate } from '@/lib/format';
 
-export default function NewsInteractions({
-    articleId, title, isLoggedIn,
-    initialLiked = false, initialSaved = false, initialLikeCount = 0, initialComments = [],
-}) {
+export default function NewsInteractions({ articleId, title, initialLikeCount = 0, initialComments = [] }) {
     const pathname = usePathname();
-    const [liked, setLiked] = useState(initialLiked);
+    const { user } = useSession();
+    const isLoggedIn = !!user;
+    const [liked, setLiked] = useState(false);
     const [likeCount, setLikeCount] = useState(initialLikeCount);
-    const [saved, setSaved] = useState(initialSaved);
+    const [saved, setSaved] = useState(false);
     const [comments, setComments] = useState(initialComments);
+    const [mineIds, setMineIds] = useState([]);
+
+    // Okunma sayacı (sekme başına bir kez)
+    useEffect(() => {
+        const key = `viewed:${articleId}`;
+        try {
+            if (sessionStorage.getItem(key)) return;
+            sessionStorage.setItem(key, '1');
+        } catch { /* yoksay */ }
+        fetch(`/api/articles/${articleId}/view`, { method: 'POST', keepalive: true }).catch(() => { });
+    }, [articleId]);
+
+    // Kişiye özel durum: beğendim mi, kaydettim mi, hangi yorumlar benim + güncel beğeni sayısı
+    useEffect(() => {
+        let alive = true;
+        fetch(`/api/articles/${articleId}/me`, { cache: 'no-store' })
+            .then((r) => r.json())
+            .then((d) => {
+                if (!alive || !d.success) return;
+                setLiked(d.liked);
+                setSaved(d.saved);
+                setLikeCount(d.likeCount);
+                setMineIds(d.mine);
+            })
+            .catch(() => { });
+        return () => { alive = false; };
+    }, [articleId, user?.id]);
+
+    const withMine = (c) => ({ ...c, mine: c.mine || mineIds.includes(c.id) });
     const [newComment, setNewComment] = useState('');
     const [msg, setMsg] = useState('');
     const [sending, setSending] = useState(false);
@@ -150,11 +179,11 @@ export default function NewsInteractions({
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                     {comments.map((c) => (
-                        <CommentItem key={c.id} c={c} isLoggedIn={isLoggedIn} onReply={handleReply} onReport={handleReport}>
+                        <CommentItem key={c.id} c={withMine(c)} isLoggedIn={isLoggedIn} onReply={handleReply} onReport={handleReport}>
                             {c.replies?.length > 0 && (
                                 <div className="replies">
                                     {c.replies.map((r) => (
-                                        <CommentItem key={r.id} c={r} isLoggedIn={isLoggedIn} onReport={handleReport} isReply />
+                                        <CommentItem key={r.id} c={withMine(r)} isLoggedIn={isLoggedIn} onReport={handleReport} isReply />
                                     ))}
                                 </div>
                             )}

@@ -20,5 +20,13 @@ async function toggle(params, on) {
     return ok({ following: on });
 }
 
+export async function GET(_r, { params }) {
+    const me = await getCurrentUser();
+    if (!me) return ok({ following: false });
+    const { slug } = await params;
+    const f = await prisma.categoryFollow.findFirst({ where: { userId: me.id, category: { slug: String(slug) } } });
+    return ok({ following: !!f });
+}
+
 export const POST = (_r, { params }) => toggle(params, true);
 export const DELETE = (_r, { params }) => toggle(params, false);

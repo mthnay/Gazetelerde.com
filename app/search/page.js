@@ -3,7 +3,7 @@ import NewsCard from '@/components/NewsCard';
 import { searchNews } from '@/lib/news';
 import { articleUrl } from '@/lib/format';
 
-export const metadata = { title: 'Arama | Gazetelerde' };
+export const metadata = { title: 'Arama | Gazetelerde', robots: { index: false, follow: true } };
 
 export default async function SearchPage({ searchParams }) {
     const { q = '' } = await searchParams;

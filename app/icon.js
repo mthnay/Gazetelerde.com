@@ -1,0 +1,16 @@
+import { ImageResponse } from 'next/og';
+
+// Tarayıcı sekmesi / ana ekran / yayıncı logosu (Google NewsArticle için)
+export const size = { width: 512, height: 512 };
+export const contentType = 'image/png';
+
+export default function Icon() {
+    return new ImageResponse(
+        (
+            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#fbbf24', color: '#000', fontSize: 340, fontWeight: 900, borderRadius: 96 }}>
+                G
+            </div>
+        ),
+        size,
+    );
+}

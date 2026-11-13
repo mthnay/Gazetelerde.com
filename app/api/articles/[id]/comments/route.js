@@ -2,6 +2,7 @@ import { prisma } from '@/lib/db';
 import { getCurrentUser } from '@/lib/auth';
 import { findPublishedArticle } from '@/lib/articleApi';
 import { containsProfanity } from '@/lib/profanity';
+import { revalidateCommentArticle } from '@/lib/revalidate';
 import { ok, fail, readJson, rateLimit } from '@/lib/api';
 
 const commentSelect = { id: true, text: true, createdAt: true, parentId: true, user: { select: { name: true } } };
@@ -47,5 +48,6 @@ export async function POST(request, { params }) {
         data: { text, articleId: article.id, userId: me.id, parentId },
         select: commentSelect,
     });
+    await revalidateCommentArticle(comment.id);
     return ok({ comment }, 201);
 }

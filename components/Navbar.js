@@ -4,9 +4,11 @@ import { Search, User, LogOut } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useState } from 'react';
 import NotificationBell from '@/components/NotificationBell';
+import { useSession } from '@/components/SessionProvider';
 
-export default function Navbar({ categories = [], user = null }) {
+export default function Navbar({ categories = [] }) {
   const pathname = usePathname();
+  const { user, loading, refresh } = useSession();
   const router = useRouter();
   const [query, setQuery] = useState('');
 
@@ -15,8 +17,8 @@ export default function Navbar({ categories = [], user = null }) {
 
   const handleLogout = async () => {
     try { await fetch('/api/auth/logout', { method: 'POST' }); } catch { /* yoksay */ }
+    await refresh();
     router.push('/');
-    router.refresh();
   };
 
   const handleSearch = (e) => {
@@ -59,6 +61,8 @@ export default function Navbar({ categories = [], user = null }) {
                   <LogOut size={18} />
                 </button>
               </>
+            ) : loading ? (
+              <span className="nav-placeholder" aria-hidden="true" />
             ) : (
               <Link href="/login" className="btn btn-primary" style={{ padding: '8px 20px', fontSize: '13px' }}>
                 Giriş Yap
@@ -114,6 +118,7 @@ export default function Navbar({ categories = [], user = null }) {
           padding: 4px 12px 4px 4px; border-radius: 99px; border: 1px solid var(--border); height: 40px;
         }
         .nav-actions :global(.user-pill svg) { background: var(--border); padding: 4px; width: 30px; height: 30px; border-radius: 50%; }
+        .nav-placeholder { width: 96px; height: 36px; }
         .user-name { font-size: 13px; font-weight: 600; max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .nav-actions :global(.mobile-only) { display: none; }
 

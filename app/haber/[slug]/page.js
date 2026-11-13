@@ -1,31 +1,45 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { after } from 'next/server';
 import NewsCard from '@/components/NewsCard';
 import NewsInteractions from '@/components/NewsInteractions';
 import MostRead from '@/components/MostRead';
+import SmartImage from '@/components/SmartImage';
 import { prisma } from '@/lib/db';
-import { getCurrentUser } from '@/lib/auth';
-import { getArticleBySlug, getRelatedNews, getMostRead, incrementViews } from '@/lib/news';
+import { getArticleBySlug, getRelatedNews, getMostRead } from '@/lib/news';
 import { formatDate, readingTime, paragraphs, articleUrl } from '@/lib/format';
+import { absoluteUrl, SITE_NAME } from '@/lib/site';
 
 // Yorumu istemciye gönderirken kullanıcı kimliği yerine sadece "benim mi" bilgisi gider
-const toClientComment = (c, user) => ({
-    id: c.id, text: c.text, user: c.user.name, time: c.createdAt.toISOString(), mine: c.userId === user?.id,
+const toClientComment = (c) => ({
+    id: c.id, text: c.text, user: c.user.name, time: c.createdAt.toISOString(),
 });
+
+// Sayfa önbellekten sunulur, 60 sn'de bir arka planda yenilenir.
+// Haber düzenlenince / yorum gelince revalidatePath ile anında tazelenir.
+export const revalidate = 60;
+
+// Boş liste: build sırasında hiçbir sayfa önceden üretilmez, ilk ziyarette üretilip önbelleğe alınır
+export function generateStaticParams() {
+    return [];
+}
 
 export async function generateMetadata({ params }) {
     const { slug } = await params;
     const item = await getArticleBySlug(slug);
     if (!item) return { title: 'Haber bulunamadı | Gazetelerde' };
+    const url = articleUrl(item);
+    const images = item.img ? [{ url: item.img, alt: item.title }] : undefined;
     return {
         title: `${item.title} | Gazetelerde`,
         description: item.summary,
-        alternates: { canonical: articleUrl(item) },
+        alternates: { canonical: url },
+        authors: [{ name: item.author }],
         openGraph: {
-            title: item.title, description: item.summary, type: 'article',
-            images: item.img ? [item.img] : [], publishedTime: item.publishedAt,
+            title: item.title, description: item.summary, type: 'article', url,
+            images, publishedTime: item.publishedAt, modifiedTime: item.updatedAt,
+            section: item.categoryLabel, authors: [item.author],
         },
+        twitter: { card: 'summary_large_image', title: item.title, description: item.summary, images: item.img ? [item.img] : undefined },
     };
 }
 
@@ -34,8 +48,7 @@ export default async function NewsDetail({ params }) {
     const item = await getArticleBySlug(slug);
     if (!item) notFound();
 
-    const user = await getCurrentUser();
-    const [related, mostRead, comments, liked, saved] = await Promise.all([
+    const [related, mostRead, comments] = await Promise.all([
         getRelatedNews(item),
         getMostRead(5),
         prisma.comment.findMany({
@@ -43,19 +56,14 @@ export default async function NewsDetail({ params }) {
             orderBy: { createdAt: 'desc' },
             take: 100,
             select: {
-                id: true, text: true, createdAt: true, userId: true, user: { select: { name: true } },
+                id: true, text: true, createdAt: true, user: { select: { name: true } },
                 replies: {
                     where: { status: 'VISIBLE' }, orderBy: { createdAt: 'asc' },
-                    select: { id: true, text: true, createdAt: true, userId: true, user: { select: { name: true } } },
+                    select: { id: true, text: true, createdAt: true, user: { select: { name: true } } },
                 },
             },
         }),
-        user ? prisma.like.findUnique({ where: { userId_articleId: { userId: user.id, articleId: item.id } } }) : null,
-        user ? prisma.bookmark.findUnique({ where: { userId_articleId: { userId: user.id, articleId: item.id } } }) : null,
     ]);
-
-    // Okunma sayısını yanıt gönderildikten sonra artır
-    after(() => incrementViews(item.id));
 
     const jsonLd = {
         '@context': 'https://schema.org',
@@ -64,13 +72,26 @@ export default async function NewsDetail({ params }) {
         description: item.summary,
         image: item.img ? [item.img] : undefined,
         datePublished: item.publishedAt,
+        dateModified: item.updatedAt,
+        mainEntityOfPage: absoluteUrl(articleUrl(item)),
+        articleSection: item.categoryLabel,
         author: [{ '@type': 'Person', name: item.author }],
-        publisher: { '@type': 'Organization', name: 'Gazetelerde' },
+        publisher: { '@type': 'Organization', name: SITE_NAME, logo: { '@type': 'ImageObject', url: absoluteUrl('/icon') } },
+    };
+
+    const breadcrumb = {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+            { '@type': 'ListItem', position: 1, name: 'Ana Sayfa', item: absoluteUrl('/') },
+            { '@type': 'ListItem', position: 2, name: item.categoryLabel, item: absoluteUrl(`/category/${item.category}`) },
+            { '@type': 'ListItem', position: 3, name: item.title },
+        ],
     };
 
     return (
         <div className="container" style={{ marginTop: '40px', maxWidth: '800px' }}>
-            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }} />
+            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify([jsonLd, breadcrumb]).replace(/</g, '\\u003c') }} />
             <div style={{ marginBottom: '24px' }}>
                 <Link href={`/category/${item.category}`} className="news-badge">{item.categoryLabel}</Link>
                 <h1 style={{ fontSize: 'clamp(1.75rem, 4vw, 2.5rem)', lineHeight: '1.2', marginTop: '16px', marginBottom: '16px' }}>
@@ -83,8 +104,8 @@ export default async function NewsDetail({ params }) {
             </div>
 
             {item.img && (
-                <div style={{ borderRadius: '12px', overflow: 'hidden', marginBottom: '32px' }}>
-                    <img src={item.img.replace('w=800', 'w=1600')} style={{ width: '100%', height: 'auto' }} alt={item.title} />
+                <div style={{ position: 'relative', aspectRatio: '16 / 9', borderRadius: '12px', overflow: 'hidden', marginBottom: '32px', background: 'var(--bg-hover)' }}>
+                    <SmartImage src={item.img} alt={item.title} sizes="(max-width: 840px) 100vw, 800px" priority />
                 </div>
             )}
 
@@ -98,13 +119,10 @@ export default async function NewsDetail({ params }) {
             <NewsInteractions
                 articleId={item.id}
                 title={item.title}
-                isLoggedIn={!!user}
-                initialLiked={!!liked}
-                initialSaved={!!saved}
                 initialLikeCount={item.likeCount}
                 initialComments={comments.map((c) => ({
-                    ...toClientComment(c, user),
-                    replies: c.replies.map((r) => toClientComment(r, user)),
+                    ...toClientComment(c),
+                    replies: c.replies.map(toClientComment),
                 }))}
             />
 

@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { formatDate, articleUrl } from '@/lib/format';
+import SmartImage from '@/components/SmartImage';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, Clock, Zap, Activity, Globe } from 'lucide-react';
 
@@ -118,7 +119,7 @@ export default function HomeView({ allNews = [], categories = [], breaking = nul
                   className={`news-card glass-panel ${item.featured && activeFilter === 'all' ? 'featured' : ''}`}
                 >
                   <div className="card-image">
-                    {item.img && <img src={item.img} alt={item.title} />}
+                    {item.img && <SmartImage src={item.img} alt={item.title} sizes={item.featured && activeFilter === 'all' ? '(max-width: 1024px) 100vw, 600px' : '(max-width: 1024px) 100vw, 380px'} priority={item.featured} className="card-img" />}
                     <div className="card-overlay"></div>
                     <span className="category-tag">{item.categoryLabel}</span>
                   </div>
@@ -286,13 +287,13 @@ export default function HomeView({ allNews = [], categories = [], breaking = nul
                 .news-card:hover { transform: translateY(-10px); border-color: var(--primary); box-shadow: 0 20px 40px rgba(0,0,0,0.25); }
 
                 .news-card.featured { grid-column: span 2; display: flex; align-items: stretch; }
-                .news-card.featured .card-image { width: 50%; height: auto; }
+                .news-card.featured .card-image { width: 50%; height: auto; min-height: 320px; }
                 .news-card.featured .card-content { width: 50%; display: flex; flex-direction: column; justify-content: center; padding: 40px; }
                 .news-card.featured h3 { font-size: 1.8rem; }
 
                 .card-image { width: 100%; height: 240px; position: relative; overflow: hidden; }
-                .card-image img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }
-                .news-card:hover .card-image img { transform: scale(1.05); }
+                .card-image .card-img { transition: transform 0.5s; }
+                .news-card:hover .card-image .card-img { transform: scale(1.05); }
                 .card-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.8), transparent); opacity: 0.6; }
                 .category-tag { position: absolute; top: 16px; left: 16px; background: var(--prim); color: black; padding: 4px 12px; border-radius: 8px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
 

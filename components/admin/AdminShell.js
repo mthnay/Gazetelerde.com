@@ -3,10 +3,12 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { LayoutDashboard, FileText, MessageSquare, Users, Rss, LogOut, ExternalLink } from 'lucide-react';
 import { canModerate, canManageUsers, ROLE_LABELS } from '@/lib/permissions';
+import { useSession } from '@/components/SessionProvider';
 
 export default function AdminShell({ user, children }) {
     const pathname = usePathname();
     const router = useRouter();
+    const { refresh } = useSession();
 
     const items = [
         { href: '/admin', icon: LayoutDashboard, label: 'Genel Bakış', exact: true },
@@ -18,8 +20,8 @@ export default function AdminShell({ user, children }) {
 
     const logout = async () => {
         try { await fetch('/api/auth/logout', { method: 'POST' }); } catch { /* yoksay */ }
+        await refresh();
         router.push('/login');
-        router.refresh();
     };
 
     return (
