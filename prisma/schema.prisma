@@ -46,6 +46,7 @@ model User {
   reports   CommentReport[]
   media     Media[]
   revisions ArticleRevision[]
+  templates ArticleTemplate[]
 }
 
 model Session {
@@ -98,6 +99,9 @@ model Article {
 
   // İçerik dışarıdan alındıysa (RSS / link) kaynağı
   sourceUrl String?
+
+  // Haber sayfasının düzeni: { hero, width, aside, dropcap } (bkz. lib/layout.js)
+  layout Json?
 
   @@index([status, publishedAt])
   @@index([categoryId, status, publishedAt])
@@ -257,4 +261,16 @@ model FeedItem {
 
   @@unique([sourceId, guid])
   @@index([status, createdAt])
+}
+
+// Editörde "Şablon olarak kaydet" ile oluşturulan, ekipçe kullanılabilen haber şablonları
+model ArticleTemplate {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String   @default("")
+  content     String
+  layout      Json?
+  createdAt   DateTime @default(now()) @db.Timestamptz(3)
+  createdById String?
+  createdBy   User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
 }

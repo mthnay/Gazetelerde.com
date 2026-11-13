@@ -29,3 +29,26 @@ test('eski düz metin paragraflara çevrilir ve kaçırılır', () => {
 test('HTML düz metne çevrilir', () => {
     assert.equal(plainText('<h2>A</h2><p>B &amp; C</p>'), 'A\nB & C');
 });
+
+test('stüdyo blokları korunur', () => {
+    const html = '<figure data-align="wide"><img src="/media/abc123" alt="x"><figcaption>Altyazı</figcaption></figure>'
+        + '<div class="cols cols-2"><div class="col"><p>A</p></div><div class="col"><p>B</p></div></div>'
+        + '<div class="gallery gallery-3"><figure class="gallery-item"><img src="/media/abc123" alt=""></figure></div>'
+        + '<aside class="callout" data-tone="highlight"><p>Not</p></aside>'
+        + '<div class="score" data-home="VakıfBank" data-away="Nilüfer" data-home-score="3" data-away-score="0" data-sets="25-18" data-meta="Sultanlar Ligi"><div class="score-meta">Sultanlar Ligi</div><div class="score-row"><span class="score-team">VakıfBank</span><span class="score-num">3 – 0</span><span class="score-team">Nilüfer</span></div><div class="score-sets">25-18</div></div>';
+    const out = sanitizeArticleHtml(html);
+    for (const part of ['data-align="wide"', '<figcaption>Altyazı</figcaption>', 'class="cols cols-2"', 'class="col"', 'class="gallery gallery-3"', 'class="gallery-item"', 'class="callout" data-tone="highlight"', 'data-home="VakıfBank"', 'class="score-num"']) {
+        assert.ok(out.includes(part), part);
+    }
+});
+
+test('izinsiz sınıf ve değerler atılır', () => {
+    const out = sanitizeArticleHtml('<figure data-align="evil" class="x"><img src="/media/abc123"></figure><div class="hack"><p>t</p></div><aside class="callout" data-tone="red" style="color:red"><p>n</p></aside><span class="kotu">s</span>');
+    assert.doesNotMatch(out, /data-align|class="x"|hack|data-tone|style=|kotu/);
+    assert.match(out, /<p>t<\/p>/);
+});
+
+test('geçersiz kutu içeriği korunarak açılır, komşu kutular bozulmaz', () => {
+    const out = sanitizeArticleHtml('<aside class="callout"><p>n</p></aside><aside class="kotu"><p>k</p></aside><div class="hack"><p>t</p></div>');
+    assert.equal(out, '<aside class="callout"><p>n</p></aside><p>k</p><p>t</p>');
+});

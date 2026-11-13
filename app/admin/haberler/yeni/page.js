@@ -1,7 +1,7 @@
 import { prisma } from '@/lib/db';
 import { requirePageUser } from '@/lib/adminPage';
 import { canPublish } from '@/lib/permissions';
-import ArticleForm from '@/components/admin/ArticleForm';
+import ArticleStudio from '@/components/admin/ArticleStudio';
 
 export const metadata = { title: 'Yeni Haber | Yönetim' };
 
@@ -24,8 +24,7 @@ export default async function NewArticlePage({ searchParams }) {
 
     return (
         <>
-            <header className="admin-header"><div><h1>Yeni Haber</h1></div></header>
-            <ArticleForm categories={categories} canPublish={canPublish(user)} initial={initial} />
+            <ArticleStudio categories={categories} canPublish={canPublish(user)} initial={initial} />
         </>
     );
 }

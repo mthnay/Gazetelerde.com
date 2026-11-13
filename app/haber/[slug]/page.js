@@ -11,6 +11,7 @@ import { prisma } from '@/lib/db';
 import { getArticleBySlug, getRelatedNews, getMostRead } from '@/lib/news';
 import { formatDate, readingTime, articleUrl } from '@/lib/format';
 import { toArticleHtml } from '@/lib/html';
+import { normalizeLayout } from '@/lib/layout';
 import { absoluteUrl, SITE_NAME } from '@/lib/site';
 
 // Yorumu istemciye gönderirken kullanıcı kimliği yerine sadece "benim mi" bilgisi gider
@@ -94,36 +95,58 @@ export default async function NewsDetail({ params }) {
     };
 
     const bodyHtml = toArticleHtml(item.content);
+    const layout = normalizeLayout(item.layout);
+    const articleClass = ['article', layout.width === 'wide' && 'article--wide', !layout.aside && 'article--no-aside', !layout.dropcap && 'article--no-dropcap'].filter(Boolean).join(' ');
+    const head = (align) => (
+        <header className="article-head" style={align === 'left' ? { textAlign: 'left', margin: 0, maxWidth: 820 } : undefined}>
+            <Link href={`/category/${item.category}`} className="kicker rise" style={{ justifyContent: align === 'left' ? 'flex-start' : 'center' }}>{item.categoryLabel}</Link>
+            <h1 className="article-title rise" style={{ '--i': 1 }}>{item.title}</h1>
+            <p className="article-standfirst rise" style={{ '--i': 2, ...(align === 'left' ? { margin: 0 } : {}) }}>{item.summary}</p>
+            <div className="article-byline rise" style={{ '--i': 3, ...(align === 'left' ? { justifyContent: 'flex-start' } : {}) }}>
+                <span className="avatar">{item.author.charAt(0).toLocaleUpperCase('tr')}</span>
+                <span style={{ textAlign: 'left' }}>
+                    <strong>{item.author}</strong>
+                    <span className="meta" style={{ marginTop: 2 }}>
+                        <time dateTime={item.publishedAt}>{formatDate(item.publishedAt)}</time>
+                        <span className="meta-sep" />
+                        <span>{readingTime(item)} dk okuma</span>
+                    </span>
+                </span>
+            </div>
+        </header>
+    );
 
     return (
         <>
             <ReadingProgress />
             <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify([jsonLd, breadcrumb]).replace(/</g, '\\u003c') }} />
 
-            <article className="article">
-                <header className="container article-head">
-                    <Link href={`/category/${item.category}`} className="kicker rise" style={{ justifyContent: 'center' }}>{item.categoryLabel}</Link>
-                    <h1 className="article-title rise" style={{ '--i': 1 }}>{item.title}</h1>
-                    <p className="article-standfirst rise" style={{ '--i': 2 }}>{item.summary}</p>
-                    <div className="article-byline rise" style={{ '--i': 3 }}>
-                        <span className="avatar">{item.author.charAt(0).toLocaleUpperCase('tr')}</span>
-                        <span style={{ textAlign: 'left' }}>
-                            <strong>{item.author}</strong>
-                            <span className="meta" style={{ marginTop: 2 }}>
-                                <time dateTime={item.publishedAt}>{formatDate(item.publishedAt)}</time>
-                                <span className="meta-sep" />
-                                <span>{readingTime(item)} dk okuma</span>
-                            </span>
-                        </span>
-                    </div>
-                </header>
-
-                {item.img && (
-                    <figure className="container article-figure">
+            <article className={articleClass}>
+                {layout.hero === 'immersive' && item.img ? (
+                    <section className="article-hero--immersive">
                         <div className="media">
-                            <SmartImage src={item.img} alt={item.title} sizes="(max-width: 1180px) 100vw, 1120px" priority />
+                            <SmartImage src={item.img} alt={item.title} sizes="100vw" priority />
                         </div>
-                    </figure>
+                        <div className="container" style={{ width: '100%' }}>{head('left')}</div>
+                    </section>
+                ) : layout.hero === 'split' && item.img ? (
+                    <section className="article-hero--split">
+                        {head('left')}
+                        <div className="media">
+                            <SmartImage src={item.img} alt={item.title} sizes="(max-width: 960px) 100vw, 640px" priority />
+                        </div>
+                    </section>
+                ) : (
+                    <>
+                        <div className="container">{head('center')}</div>
+                        {layout.hero !== 'minimal' && item.img && (
+                            <figure className="container article-figure">
+                                <div className="media">
+                                    <SmartImage src={item.img} alt={item.title} sizes="(max-width: 1180px) 100vw, 1120px" priority />
+                                </div>
+                            </figure>
+                        )}
+                    </>
                 )}
 
                 <div className="container article-layout">
@@ -144,9 +167,9 @@ export default async function NewsDetail({ params }) {
                             }))}
                         />
                     </div>
-                    <aside className="article-aside" aria-label="Çok okunanlar">
+                    {layout.aside && <aside className="article-aside" aria-label="Çok okunanlar">
                         <MostRead items={mostRead.filter((n) => n.id !== item.id).slice(0, 5)} />
-                    </aside>
+                    </aside>}
                 </div>
             </article>
 
