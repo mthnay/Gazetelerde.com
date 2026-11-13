@@ -9,8 +9,18 @@ export default async function NewArticlePage({ searchParams }) {
     const user = await requirePageUser();
     const sp = await searchParams;
     const categories = await prisma.category.findMany({ orderBy: { sortOrder: 'asc' }, select: { slug: true, label: true } });
-    // İçerik Çek sayfasından gelindiyse kaynak link ve başlık önceden doldurulur
-    const initial = { sourceUrl: typeof sp.kaynak === 'string' ? sp.kaynak : '', title: typeof sp.baslik === 'string' ? sp.baslik : '' };
+    // İçerik Çek / gelen kutusundan gelindiyse alanlar önceden doldurulur
+    const str = (v, n) => (typeof v === 'string' ? v.slice(0, n) : '');
+    const feedItemId = Number(sp.oge) || undefined;
+    const item = feedItemId ? await prisma.feedItem.findFirst({ where: { id: feedItemId, articleId: null }, select: { id: true } }) : null;
+    const initial = {
+        sourceUrl: /^https?:\/\//.test(str(sp.kaynak, 1000)) ? str(sp.kaynak, 1000) : '',
+        title: str(sp.baslik, 200),
+        summary: str(sp.ozet, 500),
+        image: /^https:\/\//.test(str(sp.gorsel, 1000)) ? str(sp.gorsel, 1000) : '',
+        category: categories.some((c) => c.slug === sp.kategori) ? sp.kategori : undefined,
+        feedItemId: item?.id,
+    };
 
     return (
         <>

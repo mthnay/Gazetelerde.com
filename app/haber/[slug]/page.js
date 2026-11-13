@@ -9,7 +9,8 @@ import MostRead from '@/components/MostRead';
 import SmartImage from '@/components/SmartImage';
 import { prisma } from '@/lib/db';
 import { getArticleBySlug, getRelatedNews, getMostRead } from '@/lib/news';
-import { formatDate, readingTime, paragraphs, articleUrl } from '@/lib/format';
+import { formatDate, readingTime, articleUrl } from '@/lib/format';
+import { toArticleHtml } from '@/lib/html';
 import { absoluteUrl, SITE_NAME } from '@/lib/site';
 
 // Yorumu istemciye gönderirken kullanıcı kimliği yerine sadece "benim mi" bilgisi gider
@@ -92,7 +93,7 @@ export default async function NewsDetail({ params }) {
         ],
     };
 
-    const paras = paragraphs(item.content);
+    const bodyHtml = toArticleHtml(item.content);
 
     return (
         <>
@@ -128,9 +129,11 @@ export default async function NewsDetail({ params }) {
                 <div className="container article-layout">
                     <aside className="article-rail" aria-label="Paylaş"><ShareRail title={item.title} /></aside>
                     <div>
-                        <div id="haber-metni" className="article-body">
-                            {paras.map((p, i) => <p key={i}>{p}</p>)}
-                        </div>
+                        {/* İçerik kaydedilirken sunucuda temizlendi (lib/html.js); burada tekrar temizlenir */}
+                        <div id="haber-metni" className="article-body" dangerouslySetInnerHTML={{ __html: bodyHtml }} />
+                        {item.sourceUrl && (
+                            <p className="article-source">Kaynak: <a href={item.sourceUrl} target="_blank" rel="noopener noreferrer nofollow">{new URL(item.sourceUrl).hostname.replace(/^www\./, '')}</a></p>
+                        )}
                         <NewsInteractions
                             articleId={item.id}
                             title={item.title}

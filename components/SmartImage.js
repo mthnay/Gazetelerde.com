@@ -3,6 +3,7 @@ import Image from 'next/image';
 const HOSTS = (process.env.NEXT_PUBLIC_IMAGE_HOSTS || 'images.unsplash.com').split(',').map((h) => h.trim());
 
 function isOptimizable(src) {
+    if (/^\/media\/[a-z0-9]+$/.test(src)) return true; // kendi yüklediğimiz görseller
     try {
         const u = new URL(src);
         return u.protocol === 'https:' && HOSTS.includes(u.hostname);

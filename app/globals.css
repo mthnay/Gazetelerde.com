@@ -743,3 +743,21 @@ a:hover .media img, .media:hover img { transform: scale(1.06); }
 .auth-roll-track { display: flex; flex-direction: column; gap: 10px; animation: roll 16s linear infinite; }
 @keyframes roll { to { transform: translateY(-50%); } }
 @media (max-width: 900px) { .auth-roll { display: none; } }
+
+/* Zengin haber metni */
+.article-body h2 { font-size: 1.45em; font-weight: 700; line-height: 1.2; letter-spacing: -0.02em; margin: 1.6em 0 0.6em; font-variation-settings: 'opsz' 72; }
+.article-body h3 { font-size: 1.2em; font-weight: 700; line-height: 1.25; margin: 1.4em 0 0.5em; }
+.article-body a { text-decoration: underline; text-decoration-color: var(--brand); text-decoration-thickness: 2px; text-underline-offset: 3px; }
+.article-body a:hover { color: var(--brand-deep); }
+.article-body ul, .article-body ol { margin: 0 0 1.25em 1.3em; }
+.article-body ul { list-style: disc; } .article-body ol { list-style: decimal; }
+.article-body li { margin-bottom: 0.4em; }
+.article-body blockquote { margin: 1.6em 0; padding: 0.2em 0 0.2em 1.1em; border-left: 3px solid var(--brand); font-style: italic; font-size: 1.15em; color: var(--ink-2); }
+.article-body hr { border: none; height: 1px; background: var(--line-strong); margin: 2em 0; }
+.article-body img { width: 100%; height: auto; border-radius: var(--radius); margin: 1.6em 0 0.6em; }
+.article-body figcaption { font-family: var(--font-sans); font-size: 13px; color: var(--muted); }
+.article-body div[data-youtube-video] { position: relative; aspect-ratio: 16 / 9; margin: 1.6em 0; border-radius: var(--radius); overflow: hidden; background: var(--surface-2); }
+.article-body iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.article-body > :first-child:not(p)::first-letter { all: unset; }
+.article-source { margin: -4px 0 8px; font-size: 14px; color: var(--muted); }
+.article-source a { color: var(--ink); font-weight: 600; text-decoration: underline; text-decoration-color: var(--brand); text-underline-offset: 3px; }

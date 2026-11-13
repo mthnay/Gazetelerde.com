@@ -12,6 +12,7 @@ const nextConfig = {
   images: {
     formats: ['image/avif', 'image/webp'],
     remotePatterns: imageHosts.map((hostname) => ({ protocol: 'https', hostname })),
+    localPatterns: [{ pathname: '/media/**' }],
     minimumCacheTTL: 60 * 60 * 24 * 7,
   },
   async headers() {

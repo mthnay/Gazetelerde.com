@@ -17,12 +17,21 @@
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",
+    "@tiptap/extension-image": "^3.34.0",
+    "@tiptap/extension-link": "^3.34.0",
+    "@tiptap/extension-placeholder": "^3.34.0",
+    "@tiptap/extension-youtube": "^3.34.0",
+    "@tiptap/pm": "^3.34.0",
+    "@tiptap/react": "^3.34.0",
+    "@tiptap/starter-kit": "^3.34.0",
     "cheerio": "^1.1.2",
     "lucide-react": "^0.562.0",
     "next": "^16.4.6",
     "react": "19.2.3",
     "react-dom": "19.2.3",
-    "server-only": "^0.0.1"
+    "sanitize-html": "^2.18.2",
+    "server-only": "^0.0.1",
+    "sharp": "^0.35.5"
   },
   "devDependencies": {
     "dotenv-cli": "^11.1.0",

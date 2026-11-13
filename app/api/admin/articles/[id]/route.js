@@ -32,6 +32,9 @@ export async function PATCH(request, { params }) {
         data: { ...parsed.data, slug },
         select: { id: true, slug: true, status: true },
     });
+    await prisma.articleRevision.create({
+        data: { kind: 'SAVE', articleId: article.id, userId: user.id, title: parsed.data.title, summary: parsed.data.summary, content: parsed.data.content, image: parsed.data.image },
+    });
     // Eski kategori sayfası da tazelensin
     const oldCat = await prisma.category.findUnique({ where: { id: existing.categoryId }, select: { slug: true } });
     if (oldCat) revalidatePath(`/category/${oldCat.slug}`);

@@ -44,6 +44,8 @@ model User {
   bookmarks Bookmark[]
   follows   CategoryFollow[]
   reports   CommentReport[]
+  media     Media[]
+  revisions ArticleRevision[]
 }
 
 model Session {
@@ -64,6 +66,7 @@ model Category {
   sortOrder   Int       @default(0)
   articles    Article[]
   followers   CategoryFollow[]
+  feeds       FeedSource[]
 }
 
 model Article {
@@ -90,6 +93,11 @@ model Article {
   comments  Comment[]
   likes     Like[]
   bookmarks Bookmark[]
+  revisions ArticleRevision[]
+  feedItem  FeedItem?
+
+  // İçerik dışarıdan alındıysa (RSS / link) kaynağı
+  sourceUrl String?
 
   @@index([status, publishedAt])
   @@index([categoryId, status, publishedAt])
@@ -168,4 +176,85 @@ model Bookmark {
 
   @@id([userId, articleId])
   @@index([articleId])
+}
+
+// Yüklenen görseller veritabanında tutulur (yedeklemeyle birlikte gelir, ek depolama gerektirmez).
+// Yüklemede WebP'ye çevrilip en fazla 2000 px'e küçültülür.
+model Media {
+  id         String   @id @default(cuid())
+  mime       String
+  width      Int
+  height     Int
+  bytes      Bytes
+  size       Int
+  alt        String   @default("")
+  createdAt  DateTime @default(now()) @db.Timestamptz(3)
+  uploadedById String?
+  uploadedBy User?    @relation(fields: [uploadedById], references: [id], onDelete: SetNull)
+
+  @@index([createdAt])
+}
+
+enum RevisionKind {
+  SAVE      // editör "Kaydet"e bastı
+  AUTOSAVE  // otomatik kayıt (yayındaki haberi değiştirmez)
+  RESTORE   // eski sürüm geri yüklendi
+}
+
+model ArticleRevision {
+  id        Int          @id @default(autoincrement())
+  kind      RevisionKind
+  title     String
+  summary   String
+  content   String
+  image     String?
+  createdAt DateTime     @default(now()) @db.Timestamptz(3)
+
+  articleId Int
+  article   Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  userId    String?
+  user      User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([articleId, createdAt])
+}
+
+model FeedSource {
+  id            Int       @id @default(autoincrement())
+  name          String
+  url           String    @unique
+  active        Boolean   @default(true)
+  lastFetchedAt DateTime? @db.Timestamptz(3)
+  lastError     String?
+  createdAt     DateTime  @default(now()) @db.Timestamptz(3)
+
+  // Bu kaynaktan gelen taslaklar varsayılan olarak bu kategoriye düşer
+  categoryId Int?
+  category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  items      FeedItem[]
+}
+
+enum FeedItemStatus {
+  NEW
+  DRAFTED
+  IGNORED
+}
+
+model FeedItem {
+  id          Int            @id @default(autoincrement())
+  guid        String
+  title       String
+  link        String
+  summary     String         @default("")
+  image       String?
+  publishedAt DateTime?      @db.Timestamptz(3)
+  status      FeedItemStatus @default(NEW)
+  createdAt   DateTime       @default(now()) @db.Timestamptz(3)
+
+  sourceId  Int
+  source    FeedSource @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+  articleId Int?       @unique
+  article   Article?   @relation(fields: [articleId], references: [id], onDelete: SetNull)
+
+  @@unique([sourceId, guid])
+  @@index([status, createdAt])
 }

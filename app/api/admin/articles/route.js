@@ -16,6 +16,13 @@ export async function POST(request) {
         data: { ...parsed.data, slug: await uniqueSlug(parsed.data.title), authorId: user.id },
         select: { id: true, slug: true, status: true },
     });
+    await prisma.articleRevision.create({
+        data: { kind: 'SAVE', articleId: article.id, userId: user.id, title: parsed.data.title, summary: parsed.data.summary, content: parsed.data.content, image: parsed.data.image },
+    });
+    // RSS gelen kutusundan oluşturulduysa öğeyi bu habere bağla
+    if (Number.isInteger(body?.feedItemId)) {
+        await prisma.feedItem.updateMany({ where: { id: body.feedItemId, articleId: null }, data: { articleId: article.id, status: 'DRAFTED' } });
+    }
     if (article.status === 'PUBLISHED') await revalidateArticle(article.id);
     return ok({ article }, 201);
 }

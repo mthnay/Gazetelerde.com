@@ -125,3 +125,45 @@
   .admin-main { padding: 20px 16px 60px; }
   .admin-form { grid-template-columns: 1fr; }
 }
+
+/* ---------- Zengin metin editörü ---------- */
+.re { border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); overflow: hidden; }
+.re-toolbar { position: sticky; top: 0; z-index: 2; display: flex; flex-wrap: wrap; align-items: center; gap: 2px; padding: 6px; border-bottom: 1px solid var(--border); background: color-mix(in srgb, var(--surface) 92%, transparent); backdrop-filter: blur(8px); }
+.re-btn { width: 34px; height: 34px; display: inline-grid; place-items: center; border: none; border-radius: 8px; background: transparent; color: var(--ink-2); transition: background 0.15s, color 0.15s; }
+.re-btn:hover { background: var(--surface-2); color: var(--ink); }
+.re-btn.is-active { background: var(--ink); color: var(--paper); }
+.re-btn:disabled { opacity: 0.35; pointer-events: none; }
+.re-sep { width: 1px; height: 22px; background: var(--border); margin: 0 4px; }
+.re-count { margin-left: auto; padding: 0 8px; font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+.re-content { min-height: 420px; padding: 22px 26px; outline: none; font-size: 18px; }
+.re-content > * + * { margin-top: 0; }
+.re-content p.is-editor-empty:first-child::before { content: attr(data-placeholder); float: left; height: 0; color: var(--muted); pointer-events: none; font-style: italic; }
+.re-content p:first-child::first-letter { all: unset; }
+.re-content img.ProseMirror-selectednode { outline: 3px solid var(--brand); }
+.re-content div[data-youtube-video] iframe { pointer-events: none; }
+.re-content .ProseMirror-selectednode[data-youtube-video] { outline: 3px solid var(--brand); }
+
+/* ---------- Kapak / kırpma / kitaplık ---------- */
+.cover-preview { position: relative; }
+.cover-preview .admin-icon-btn { position: absolute; top: 8px; right: 8px; background: var(--surface); }
+.cropper-frame { position: relative; overflow: hidden; border-radius: 10px; background: #111; cursor: grab; touch-action: none; user-select: none; }
+.cropper-frame:active { cursor: grabbing; }
+.cropper-frame img { position: absolute; top: 0; left: 0; max-width: none; transform-origin: 0 0; }
+.cropper-grid { position: absolute; inset: 0; pointer-events: none; background-image: linear-gradient(rgba(255,255,255,.25) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.25) 1px, transparent 1px); background-size: 33.333% 33.333%; border: 2px solid var(--brand); border-radius: 10px; }
+.media-lib { border: 1px solid var(--border); border-radius: 10px; padding: 12px; margin-bottom: 8px; background: var(--surface-2); }
+.media-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; max-height: 260px; overflow-y: auto; }
+.media-grid button { border: 2px solid transparent; border-radius: 8px; padding: 0; overflow: hidden; background: none; aspect-ratio: 16/10; }
+.media-grid button:hover { border-color: var(--brand); }
+.media-grid img { width: 100%; height: 100%; object-fit: cover; }
+
+/* ---------- Kayıt durumu / sürümler ---------- */
+.save-state { font-family: var(--font-mono); font-size: 11px; color: var(--muted); display: inline-flex; align-items: center; gap: 6px; }
+.save-state::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--a-ok); }
+.save-state.dirty::before { background: var(--a-warn); }
+.rev-list { display: flex; flex-direction: column; max-height: 320px; overflow-y: auto; }
+.rev-item { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+.rev-item:last-child { border-bottom: none; }
+.rev-kind { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.restore-banner { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; justify-content: space-between; }
+.spin { animation: spin 0.8s linear infinite; }
+@media (max-width: 900px) { form.admin-panel[style*="grid-template-columns"] { grid-template-columns: 1fr !important; } }
