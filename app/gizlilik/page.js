@@ -7,7 +7,7 @@ export const metadata = { title: 'Gizlilik ve KVKK Aydınlatma Metni | Gazeteler
 // Yayına almadan önce bir hukukçuya kontrol ettirin.
 export default function Gizlilik() {
     return (
-        <LegalPage title="Gizlilik Politikası ve KVKK Aydınlatma Metni">
+        <LegalPage title="Gizlilik ve KVKK" kicker="Aydınlatma metni">
             <h2>1. Veri sorumlusu</h2>
             <p>
                 6698 sayılı Kişisel Verilerin Korunması Kanunu (&quot;KVKK&quot;) uyarınca veri sorumlusu {company.title} ({company.address})&apos;dir.

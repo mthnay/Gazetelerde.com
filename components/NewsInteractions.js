@@ -127,57 +127,58 @@ export default function NewsInteractions({ articleId, title, initialLikeCount = 
 
     return (
         <>
-            <div className="interaction-bar glass-panel">
-                <div style={{ display: 'flex', gap: '24px' }}>
-                    <button onClick={() => toggle('like', liked, setLiked)} className={`action-btn ${liked ? 'liked' : ''}`} aria-pressed={liked} aria-label="Beğen">
-                        <Heart size={20} fill={liked ? '#ef4444' : 'none'} />
+            <div className="action-bar">
+                <div className="action-group">
+                    <button onClick={() => toggle('like', liked, setLiked)} className={`action-btn ${liked ? 'liked' : ''}`} aria-pressed={liked} aria-label={`Beğen (${likeCount})`}>
+                        <Heart size={18} fill={liked ? 'currentColor' : 'none'} key={liked ? 'on' : 'off'} />
                         <span>{likeCount}</span>
                     </button>
-                    <a href="#yorumlar" className="action-btn">
-                        <MessageCircle size={20} />
+                    <a href="#yorumlar" className="action-btn" aria-label={`Yorumlar (${totalComments})`}>
+                        <MessageCircle size={18} />
                         <span>{totalComments}</span>
                     </a>
                 </div>
-                <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-                    {msg && <span role="status" style={{ fontSize: '13px', color: 'var(--text-muted)' }}>{msg}</span>}
+                <div className="action-group">
+                    {msg && <span role="status" className="action-msg">{msg}</span>}
                     <button onClick={() => toggle('bookmark', saved, setSaved)} className={`action-btn ${saved ? 'saved' : ''}`} aria-pressed={saved} aria-label="Kaydet">
-                        <Bookmark size={20} fill={saved ? 'currentColor' : 'none'} />
+                        <Bookmark size={18} fill={saved ? 'currentColor' : 'none'} />
+                        <span className="hide-mobile">{saved ? 'Kaydedildi' : 'Kaydet'}</span>
                     </button>
                     <button onClick={handleShare} className="action-btn" aria-label="Paylaş">
-                        <Share2 size={20} />
+                        <Share2 size={18} />
                     </button>
                 </div>
             </div>
 
-            <div id="yorumlar" style={{ marginTop: '40px', marginBottom: '60px' }}>
-                <h3 style={{ marginBottom: '24px' }}>Yorumlar ({totalComments})</h3>
+            <section id="yorumlar" className="comments" aria-labelledby="yorum-baslik">
+                <h2 id="yorum-baslik" className="comments-title">Yorumlar <span style={{ color: 'var(--muted)', fontWeight: 400 }}>({totalComments})</span></h2>
 
                 {isLoggedIn ? (
-                    <form onSubmit={handleComment} style={{ marginBottom: '32px', display: 'flex', gap: '12px' }}>
+                    <form onSubmit={handleComment} className="comment-form">
                         <input
                             type="text"
-                            className="comment-input"
-                            placeholder="Düşüncelerini paylaş..."
+                            className="input input-pill"
+                            placeholder="Düşüncelerinizi paylaşın…"
                             aria-label="Yorum"
                             maxLength={1000}
                             value={newComment}
                             onChange={(e) => setNewComment(e.target.value)}
                         />
-                        <button type="submit" disabled={sending} className="btn btn-primary" style={{ padding: '0 24px', borderRadius: '99px' }} aria-label="Gönder">
-                            <Send size={18} />
+                        <button type="submit" disabled={sending} className="btn btn-primary" style={{ height: 50 }} aria-label="Gönder">
+                            {sending ? <span className="spinner" /> : <><Send size={16} /> Gönder</>}
                         </button>
                     </form>
                 ) : (
                     <p className="login-hint">
-                        Yorum yapmak için <Link href={loginHref}>giriş yapın</Link> ya da <Link href="/register">üye olun</Link>.
+                        Tartışmaya katılmak için <Link href={loginHref}>giriş yapın</Link> ya da <Link href="/register">ücretsiz üye olun</Link>.
                     </p>
                 )}
 
                 {comments.length === 0 && (
-                    <p style={{ color: 'var(--text-muted)' }}>Henüz yorum yok. İlk yorumu sen yap!</p>
+                    <p style={{ color: 'var(--muted)' }}>Henüz yorum yok. İlk yorumu siz yapın.</p>
                 )}
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                <div className="comment-list">
                     {comments.map((c) => (
                         <CommentItem key={c.id} c={withMine(c)} isLoggedIn={isLoggedIn} onReply={handleReply} onReport={handleReport}>
                             {c.replies?.length > 0 && (
@@ -190,21 +191,7 @@ export default function NewsInteractions({ articleId, title, initialLikeCount = 
                         </CommentItem>
                     ))}
                 </div>
-            </div>
-
-            <style jsx>{`
-                .interaction-bar { display: flex; justify-content: space-between; padding: 16px 24px; border-radius: 12px; margin-bottom: 40px; }
-                .action-btn { background: none; border: none; color: var(--text-muted); display: flex; align-items: center; gap: 8px; font-size: 15px; cursor: pointer; transition: all 0.2s; }
-                .action-btn:hover { color: var(--text-main); }
-                .action-btn.liked { color: #ef4444; }
-                .action-btn.saved { color: var(--primary); }
-                .comment-input { flex: 1; padding: 14px 20px; background: var(--bg-hover); border: 1px solid var(--border); border-radius: 99px; color: var(--text-main); outline: none; }
-                .comment-input:focus { border-color: var(--primary); }
-                .comment-avatar { width: 40px; height: 40px; flex-shrink: 0; background: var(--bg-hover); border: 1px solid var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
-                .replies { margin-top: 16px; padding-left: 20px; border-left: 2px solid var(--border); display: flex; flex-direction: column; gap: 16px; }
-                .login-hint { margin-bottom: 32px; padding: 16px 20px; border: 1px dashed var(--border); border-radius: 12px; color: var(--text-muted); }
-                .login-hint :global(a) { color: var(--primary); font-weight: 600; }
-            `}</style>
+            </section>
         </>
     );
 }
@@ -224,44 +211,37 @@ function CommentItem({ c, isLoggedIn, onReply, onReport, isReply = false, childr
     };
 
     return (
-        <div style={{ display: 'flex', gap: '14px' }}>
-            <div className="c-avatar" style={isReply ? { width: 32, height: 32, fontSize: 13 } : undefined}>{c.user.charAt(0).toLocaleUpperCase('tr')}</div>
+        <div className="comment">
+            <span className="avatar" style={isReply ? { width: 28, height: 28, fontSize: 12 } : undefined}>{c.user.charAt(0).toLocaleUpperCase('tr')}</span>
             <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px', flexWrap: 'wrap' }}>
-                    <span style={{ fontWeight: 600 }}>{c.user}</span>
-                    <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>• {formatShortDate(c.time)}</span>
+                <div className="meta">
+                    <strong style={{ color: 'var(--ink)', fontSize: 14 }}>{c.user}</strong>
+                    <span className="meta-sep" />
+                    <span>{formatShortDate(c.time)}</span>
                 </div>
-                <p style={{ color: 'var(--text-secondary)', lineHeight: '1.5', overflowWrap: 'anywhere' }}>{c.text}</p>
+                <p className="comment-text">{c.text}</p>
                 {isLoggedIn && (
-                    <div className="c-actions">
+                    <div className="comment-actions">
                         {!isReply && (
-                            <button type="button" onClick={() => setReplying(!replying)}><CornerDownRight size={14} /> Cevapla</button>
+                            <button type="button" onClick={() => setReplying(!replying)} aria-expanded={replying}><CornerDownRight size={13} /> Cevapla</button>
                         )}
                         {!c.mine && (
-                            <button type="button" onClick={() => onReport(c)} aria-label="Yorumu şikayet et"><Flag size={13} /> Şikayet et</button>
+                            <button type="button" onClick={() => onReport(c)} aria-label="Yorumu şikayet et"><Flag size={12} /> Şikayet et</button>
                         )}
                     </div>
                 )}
                 {replying && (
-                    <form onSubmit={submit} className="c-reply-form">
+                    <form onSubmit={submit} className="comment-form" style={{ marginTop: 12, marginBottom: 0 }}>
                         <input
                             autoFocus value={text} maxLength={1000} onChange={(e) => setText(e.target.value)}
-                            placeholder={`${c.user} kullanıcısına cevap yaz...`} aria-label="Cevap"
+                            className="input input-pill" style={{ height: 42 }}
+                            placeholder={`${c.user} kullanıcısına cevap yazın…`} aria-label="Cevap"
                         />
-                        <button type="submit" disabled={busy} className="btn btn-primary" style={{ padding: '8px 16px' }}>Gönder</button>
+                        <button type="submit" disabled={busy} className="btn btn-primary btn-sm" style={{ height: 42 }}>Gönder</button>
                     </form>
                 )}
                 {children}
             </div>
-            <style jsx>{`
-                .c-avatar { width: 40px; height: 40px; flex-shrink: 0; background: var(--bg-hover); border: 1px solid var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
-                .c-actions { display: flex; gap: 16px; margin-top: 6px; }
-                .c-actions button { background: none; border: none; color: var(--text-muted); font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; cursor: pointer; padding: 0; }
-                .c-actions button:hover { color: var(--primary); }
-                .c-reply-form { display: flex; gap: 8px; margin-top: 10px; }
-                .c-reply-form input { flex: 1; min-width: 0; padding: 10px 16px; background: var(--bg-hover); border: 1px solid var(--border); border-radius: 99px; color: var(--text-main); outline: none; }
-                .c-reply-form input:focus { border-color: var(--primary); }
-            `}</style>
         </div>
     );
 }

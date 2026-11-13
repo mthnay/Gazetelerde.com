@@ -1,19 +1,19 @@
 import Link from 'next/link';
-import { TrendingUp } from 'lucide-react';
 import { articleUrl } from '@/lib/format';
 
-export default function MostRead({ items, title = 'En Çok Okunanlar' }) {
+export default function MostRead({ items, title = 'Çok Okunanlar' }) {
     if (!items?.length) return null;
     return (
-        <section className="most-read glass-panel" aria-labelledby="most-read-title">
-            <h2 id="most-read-title" className="most-read-title"><TrendingUp size={18} /> {title}</h2>
+        <section className="most-read" aria-labelledby="most-read-title" data-reveal>
+            <span className="kicker">Son 30 gün</span>
+            <h2 id="most-read-title" className="most-read-title">{title}</h2>
             <ol>
                 {items.map((n, i) => (
                     <li key={n.id}>
-                        <span className="most-read-rank">{i + 1}</span>
+                        <span className="most-read-rank" aria-hidden="true">{i + 1}</span>
                         <Link href={articleUrl(n)}>
                             <span className="most-read-cat">{n.categoryLabel}</span>
-                            <span className="most-read-headline">{n.title}</span>
+                            <span className="most-read-headline"><span className="ink-link">{n.title}</span></span>
                         </Link>
                     </li>
                 ))}

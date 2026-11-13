@@ -6,10 +6,10 @@ export default function BreakingTicker({ items, flagged }) {
     if (!items?.length) return null;
     const loop = [...items, ...items]; // kesintisiz kayma için iki kez
     return (
-        <div className="ticker" role="region" aria-label={flagged ? 'Son dakika' : 'Son haberler'}>
-            <span className="ticker-label">{flagged ? 'SON DAKİKA' : 'SON HABERLER'}</span>
+        <div className={`ticker ${flagged ? '' : 'ticker--calm'}`} role="region" aria-label={flagged ? 'Son dakika' : 'Son haberler'}>
+            <span className="ticker-label">{flagged ? 'SON DAKİKA' : 'AKIŞ'}</span>
             <div className="ticker-viewport">
-                <ul className="ticker-track" style={{ animationDuration: `${items.length * 8}s` }}>
+                <ul className="ticker-track" style={{ animationDuration: `${items.length * 9}s` }}>
                     {loop.map((n, i) => (
                         <li key={`${n.id}-${i}`} aria-hidden={i >= items.length ? 'true' : undefined}>
                             <Link href={articleUrl(n)} tabIndex={i >= items.length ? -1 : undefined}>

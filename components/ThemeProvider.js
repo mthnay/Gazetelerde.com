@@ -14,13 +14,12 @@ export function ThemeProvider({ children }) {
         if (current === 'light' || current === 'dark') setTheme(current);
     }, []);
 
+    // Tema DOM'a eşzamanlı yazılır (View Transition anlık görüntüsü doğru alınsın diye)
     const toggleTheme = () => {
-        setTheme((prev) => {
-            const next = prev === 'dark' ? 'light' : 'dark';
-            document.documentElement.setAttribute('data-theme', next);
-            try { localStorage.setItem('theme', next); } catch { /* yoksay */ }
-            return next;
-        });
+        const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', next);
+        try { localStorage.setItem('theme', next); } catch { /* yoksay */ }
+        setTheme(next);
     };
 
     return (

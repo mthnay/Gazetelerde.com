@@ -2,41 +2,47 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { User, Mail, Lock, AlertCircle } from 'lucide-react';
+import { ArrowRight, Eye, EyeOff } from 'lucide-react';
+import AuthShell from '@/components/AuthShell';
 import Modal from '@/components/Modal';
+import { useSession } from '@/components/SessionProvider';
+
+// Basit şifre gücü: uzunluk + çeşitlilik (0-4)
+function strength(pw) {
+    let s = 0;
+    if (pw.length >= 8) s++;
+    if (pw.length >= 12) s++;
+    if (/[A-ZÇĞİÖŞÜ]/.test(pw) && /[a-zçğıöşü]/.test(pw)) s++;
+    if (/\d/.test(pw) && /[^A-Za-z0-9ÇĞİÖŞÜçğıöşü]/.test(pw)) s++;
+    return Math.min(4, s);
+}
+const LEVELS = ['', 'Zayıf', 'Orta', 'İyi', 'Güçlü'];
+const COLORS = ['var(--line)', 'var(--live)', 'var(--brand-deep)', '#65a30d', '#15803d'];
 
 export default function RegisterPage() {
-    const [formData, setFormData] = useState({ name: '', email: '', password: '' });
+    const router = useRouter();
+    const { refresh } = useSession();
+    const [form, setForm] = useState({ name: '', email: '', password: '' });
     const [agreed, setAgreed] = useState(false);
+    const [showPw, setShowPw] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [modal, setModal] = useState(null); // 'kvkk' | 'riza' | null
 
-    // Modal States
-    const [showKVKK, setShowKVKK] = useState(false);
-    const [showRiza, setShowRiza] = useState(false);
-
-    const router = useRouter();
+    const set = (k) => (e) => { setForm({ ...form, [k]: e.target.value }); setError(''); };
+    const level = strength(form.password);
 
     const handleRegister = async (e) => {
         e.preventDefault();
         setError('');
-
-        if (!agreed) {
-            setError('Lütfen KVKK ve Açık Rıza metinlerini onaylayın.');
-            return;
-        }
-
-        if (formData.password.length < 8) {
-            setError('Şifre en az 8 karakter olmalı.');
-            return;
-        }
-
+        if (form.password.length < 8) return setError('Şifre en az 8 karakter olmalı.');
+        if (!agreed) return setError('Devam etmek için KVKK ve Açık Rıza metinlerini onaylayın.');
         setLoading(true);
         try {
             const res = await fetch('/api/auth/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ ...formData, consent: agreed }),
+                body: JSON.stringify({ ...form, consent: agreed }),
             });
             const data = await res.json();
             if (!data.success) {
@@ -44,181 +50,72 @@ export default function RegisterPage() {
                 setLoading(false);
                 return;
             }
+            await refresh();
             router.push(data.redirectUrl || '/');
             router.refresh();
         } catch {
-            setError('Bir bağlantı hatası oluştu.');
+            setError('Bağlantı hatası. Lütfen tekrar deneyin.');
             setLoading(false);
         }
     };
 
     return (
-        <div style={{
-            minHeight: 'calc(100vh - var(--header-height))',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '24px'
-        }}>
-            <div className="auth-card">
-                <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-                    <h1 style={{ fontSize: '2rem', marginBottom: '8px' }}>Aramıza Katılın</h1>
-                    <p style={{ color: 'var(--text-muted)' }}>Gazetelerde.com ayrıcalıklarından yararlanmak için hesap oluşturun.</p>
+        <AuthShell quote={<>Haberi okuyun, <em>tartışın</em>, takip edin.</>}>
+            <form className="auth-form" onSubmit={handleRegister}>
+                <div className="rise">
+                    <span className="kicker">Ücretsiz üyelik</span>
+                    <h1 style={{ marginTop: 10 }}>Aramıza katılın</h1>
                 </div>
+                <p className="lede rise" style={{ '--i': 1 }}>Kategorileri takip edin, haberleri kaydedin, yorumlara katılın.</p>
 
-                <form onSubmit={handleRegister} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                    <div className="input-group">
-                        <User size={20} className="input-icon" />
-                        <input
-                            type="text"
-                            placeholder="Adınız Soyadınız"
-                            value={formData.name}
-                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                            required
-                        />
-                    </div>
+                <label className="field rise" style={{ '--i': 2 }}>
+                    <span className="field-label">Ad soyad</span>
+                    <input className="input" autoComplete="name" required minLength={2} maxLength={60} value={form.name} onChange={set('name')} />
+                </label>
+                <label className="field rise" style={{ '--i': 3 }}>
+                    <span className="field-label">E-posta</span>
+                    <input className="input" type="email" autoComplete="email" required value={form.email} onChange={set('email')} placeholder="ornek@eposta.com" />
+                </label>
+                <label className="field rise" style={{ '--i': 4 }}>
+                    <span className="field-label">Şifre</span>
+                    <span className="pw-wrap">
+                        <input className="input" type={showPw ? 'text' : 'password'} autoComplete="new-password" required minLength={8} value={form.password} onChange={set('password')} aria-describedby="pw-help" />
+                        <button type="button" className="pw-toggle" onClick={() => setShowPw(!showPw)} aria-label={showPw ? 'Şifreyi gizle' : 'Şifreyi göster'}>
+                            {showPw ? <EyeOff size={17} /> : <Eye size={17} />}
+                        </button>
+                    </span>
+                    <span className="pw-meter" aria-hidden="true">
+                        {[1, 2, 3, 4].map((i) => <span key={i} style={{ background: i <= level ? COLORS[level] : undefined }} />)}
+                    </span>
+                    <span id="pw-help" className="field-hint">En az 8 karakter{form.password && ` · ${LEVELS[level] || 'Çok kısa'}`}</span>
+                </label>
 
-                    <div className="input-group">
-                        <Mail size={20} className="input-icon" />
-                        <input
-                            type="email"
-                            placeholder="E-posta Adresi"
-                            value={formData.email}
-                            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                            required
-                        />
-                    </div>
+                <label className="check rise" style={{ '--i': 5 }}>
+                    <input type="checkbox" checked={agreed} onChange={(e) => { setAgreed(e.target.checked); setError(''); }} />
+                    <span>
+                        <button type="button" onClick={() => setModal('kvkk')}>KVKK Aydınlatma Metni</button>&apos;ni okudum,{' '}
+                        <button type="button" onClick={() => setModal('riza')}>Açık Rıza Beyanı</button>&apos;nı onaylıyorum.
+                    </span>
+                </label>
 
-                    <div className="input-group">
-                        <Lock size={20} className="input-icon" />
-                        <input
-                            type="password"
-                            placeholder="Şifre (en az 8 karakter)"
-                            value={formData.password}
-                            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                            required
-                        />
-                    </div>
+                {error && <div className="alert alert-error" role="alert">{error}</div>}
 
-                    {/* Checkbox Section */}
-                    <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
-                        <input
-                            type="checkbox"
-                            style={{ width: '20px', marginTop: '4px', cursor: 'pointer' }}
-                            checked={agreed}
-                            onChange={(e) => {
-                                setAgreed(e.target.checked);
-                                if (error) setError('');
-                            }}
-                        />
-                        <span style={{ fontSize: '13px', color: 'var(--text-muted)', lineHeight: '1.5' }}>
-                            <span
-                                onClick={() => setShowKVKK(true)}
-                                style={{ color: 'white', textDecoration: 'underline', cursor: 'pointer' }}
-                            >
-                                KVKK Aydınlatma Metni
-                            </span>&apos;ni ve <span
-                                onClick={() => setShowRiza(true)}
-                                style={{ color: 'white', textDecoration: 'underline', cursor: 'pointer' }}
-                            >
-                                Açık Rıza Metni
-                            </span>&apos;ni okudum, onaylıyorum.
-                        </span>
-                    </div>
+                <button type="submit" className="btn btn-primary btn-lg btn-block" disabled={loading}>
+                    {loading ? <span className="spinner" /> : <>Hesabımı oluştur <ArrowRight size={17} /></>}
+                </button>
 
-                    {error && (
-                        <div style={{
-                            padding: '12px',
-                            background: 'rgba(239, 68, 68, 0.1)',
-                            border: '1px solid rgba(239, 68, 68, 0.2)',
-                            borderRadius: '8px',
-                            color: '#fca5a5',
-                            fontSize: '13px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px'
-                        }}>
-                            <AlertCircle size={16} />
-                            {error}
-                        </div>
-                    )}
+                <p className="auth-switch">Zaten üye misiniz? <Link href="/login">Giriş yapın</Link></p>
+            </form>
 
-                    <button type="submit" className="btn btn-primary" style={{ width: '100%', justifyContent: 'center', marginTop: '8px' }} disabled={loading}>
-                        {loading ? 'Hesap Oluşturuluyor...' : 'Kayıt Ol'}
-                    </button>
-                </form>
-
-                <div style={{ marginTop: '32px', textAlign: 'center', fontSize: '14px', color: 'var(--text-muted)' }}>
-                    Zaten hesabınız var mı? <Link href="/login" style={{ color: 'var(--primary)', fontWeight: '600' }}>Giriş Yap</Link>
-                </div>
-            </div>
-
-            {/* KVKK MODAL */}
-            <Modal isOpen={showKVKK} onClose={() => setShowKVKK(false)} title="KVKK Aydınlatma Metni">
-                <h4 style={{ color: 'var(--text-main)', marginBottom: '10px' }}>Veri Sorumlusu</h4>
-                <p style={{ marginBottom: '16px' }}>6698 sayılı Kişisel Verilerin Korunması Kanunu (&quot;KVKK&quot;) uyarınca, Gazetelerde.com olarak, veri sorumlusu sıfatıyla, kişisel verilerinizi aşağıda açıklanan amaçlar kapsamında işlemekteyiz.</p>
-
-                <h4 style={{ color: 'var(--text-main)', marginBottom: '10px' }}>İşlenen Kişisel Verileriniz</h4>
-                <p style={{ marginBottom: '16px' }}>Adınız, soyadınız, e-posta adresiniz, IP adresiniz ve site içi hareketleriniz gibi veriler tarafımızca işlenmektedir.</p>
-
-                <h4 style={{ color: 'var(--text-main)', marginBottom: '10px' }}>İşleme Amaçları</h4>
-                <ul style={{ paddingLeft: '20px', marginBottom: '16px' }}>
-                    <li>Üyelik işlemlerinin gerçekleştirilmesi</li>
-                    <li>Hizmet kalitesinin artırılması</li>
-                    <li>Yasal yükümlülüklerin yerine getirilmesi</li>
-                </ul>
+            <Modal isOpen={modal === 'kvkk'} onClose={() => setModal(null)} title="KVKK Aydınlatma Metni">
+                <p>Üyeliğiniz için ad soyad, e-posta adresiniz ve şifrenizin geri döndürülemez şekilde şifrelenmiş hali; site içi etkileşimleriniz (yorum, beğeni, kayıt, takip) ve güvenlik amacıyla IP adresiniz işlenir.</p>
+                <p style={{ marginTop: 12 }}>Verileriniz satılmaz, reklam amacıyla paylaşılmaz. Hesabınızı dilediğiniz an profil sayfanızdan silebilirsiniz.</p>
+                <p style={{ marginTop: 12 }}>Tam metin için <Link href="/gizlilik" target="_blank" style={{ textDecoration: 'underline' }}>Gizlilik ve KVKK</Link> sayfasına bakabilirsiniz.</p>
             </Modal>
-
-            {/* AÇIK RIZA MODAL */}
-            <Modal isOpen={showRiza} onClose={() => setShowRiza(false)} title="Açık Rıza Beyanı">
-                <p style={{ marginBottom: '16px' }}>
-                    Gazetelerde.com tarafından sunulan hizmetlerden faydalanmak amacıyla paylaştığım kişisel verilerimin, KVKK Aydınlatma Metni&apos;nde belirtilen amaçlarla sınırlı olmak üzere işlenmesine, saklanmasına ve gerektiğinde yetkili kamu kurum ve kuruluşları ile paylaşılmasına <strong>açık rıza gösteriyorum.</strong>
-                </p>
-                <p>
-                    Bu onayı dilediğim zaman geri alma hakkına sahip olduğumu biliyorum.
-                </p>
+            <Modal isOpen={modal === 'riza'} onClose={() => setModal(null)} title="Açık Rıza Beyanı">
+                <p>Gazetelerde.com hizmetlerinden yararlanmak amacıyla paylaştığım kişisel verilerimin, KVKK Aydınlatma Metni&apos;nde belirtilen amaçlarla sınırlı olarak işlenmesine ve saklanmasına <strong>açık rıza gösteriyorum.</strong></p>
+                <p style={{ marginTop: 12 }}>Bu onayı dilediğim zaman geri alabileceğimi biliyorum.</p>
             </Modal>
-
-            <style jsx>{`
-        .auth-card {
-            width: 100%;
-            max-width: 440px;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 24px;
-            padding: 40px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-        }
-        
-        .input-group {
-            position: relative;
-        }
-        
-        .input-icon {
-            position: absolute;
-            left: 16px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-muted);
-        }
-        
-        input[type="text"], input[type="email"], input[type="password"] {
-            width: 100%;
-            padding: 14px 16px 14px 48px;
-            background: rgba(255,255,255,0.03);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            color: white;
-            font-size: 15px;
-            outline: none;
-            transition: all 0.2s;
-        }
-        
-        input:focus {
-            border-color: var(--primary);
-            background: rgba(255,255,255,0.05);
-        }
-      `}</style>
-        </div>
+        </AuthShell>
     );
 }

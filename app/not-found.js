@@ -1,12 +1,18 @@
 import Link from 'next/link';
+import { ArrowLeft, Search } from 'lucide-react';
 
 export default function NotFound() {
     return (
-        <div className="container" style={{ textAlign: 'center', padding: '120px 24px' }}>
-            <p style={{ color: 'var(--primary)', fontWeight: 800, letterSpacing: '2px' }}>404</p>
-            <h1 style={{ fontSize: '2.5rem', margin: '12px 0' }}>Aradığınız sayfa bulunamadı</h1>
-            <p style={{ color: 'var(--text-muted)', marginBottom: '32px' }}>Haber kaldırılmış ya da adres yanlış olabilir.</p>
-            <Link href="/" className="btn btn-primary">Ana sayfaya dön</Link>
+        <div className="status-page">
+            <div>
+                <div className="status-code" aria-hidden="true">404</div>
+                <h1>Bu sayfa baskıdan kalkmış</h1>
+                <p>Aradığınız haber kaldırılmış, taşınmış ya da adres yanlış yazılmış olabilir.</p>
+                <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
+                    <Link href="/" className="btn btn-primary"><ArrowLeft size={16} /> Ana sayfa</Link>
+                    <Link href="/search" className="btn"><Search size={16} /> Haber ara</Link>
+                </div>
+            </div>
         </div>
     );
 }

@@ -1,35 +1,47 @@
 "use client";
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Rss } from 'lucide-react';
+import { Rss, ArrowUp } from 'lucide-react';
+
+const titleCase = (s) => s.charAt(0) + s.slice(1).toLocaleLowerCase('tr');
 
 export default function Footer({ categories = [] }) {
     const pathname = usePathname();
     if (pathname?.startsWith('/admin')) return null;
-    const year = new Date().getFullYear();
 
     return (
         <footer className="site-footer">
+            <div className="container">
+                <div className="footer-big" aria-hidden="true">Gazetelerde.</div>
+            </div>
             <div className="container footer-grid">
                 <div>
-                    <Link href="/" className="footer-logo">GAZETELERDE</Link>
-                    <p className="footer-tag">Doğru, tarafsız ve anlık haber akışı.</p>
-                    <a href="/rss.xml" className="footer-rss"><Rss size={14} /> RSS akışı</a>
+                    <span className="wordmark" style={{ fontSize: 28 }}>Gazetelerde<span className="wordmark-dot" /></span>
+                    <p className="footer-tag">Doğru, tarafsız ve anlık. Günün haberleri, sakin bir okuma deneyimiyle.</p>
+                    <a href="/rss.xml" className="footer-rss"><Rss size={14} /> RSS ile takip et</a>
                 </div>
                 <nav aria-label="Kategoriler">
                     <h3>Kategoriler</h3>
-                    <ul>{categories.map((c) => <li key={c.slug}><Link href={`/category/${c.slug}`}>{c.label}</Link></li>)}</ul>
+                    <ul>{categories.map((c) => <li key={c.slug}><Link href={`/category/${c.slug}`}>{titleCase(c.label)}</Link></li>)}</ul>
                 </nav>
                 <nav aria-label="Kurumsal">
                     <h3>Kurumsal</h3>
-                    <ul>
+                    <ul style={{ gridTemplateColumns: '1fr' }}>
                         <li><Link href="/kunye">Künye</Link></li>
                         <li><Link href="/iletisim">İletişim</Link></li>
                         <li><Link href="/gizlilik">Gizlilik ve KVKK</Link></li>
                     </ul>
                 </nav>
             </div>
-            <div className="container footer-bottom">© {year} Gazetelerde.com · Tüm hakları saklıdır.</div>
+            <div className="container footer-bottom">
+                <span>© {new Date().getFullYear()} Gazetelerde.com · Tüm hakları saklıdır.</span>
+                <button
+                    onClick={() => window.scrollTo({ top: 0, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' })}
+                    style={{ background: 'none', border: 'none', display: 'inline-flex', alignItems: 'center', gap: 6, fontWeight: 600, color: 'inherit' }}
+                >
+                    Başa dön <ArrowUp size={14} />
+                </button>
+            </div>
         </footer>
     );
 }

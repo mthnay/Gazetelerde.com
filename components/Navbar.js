@@ -1,144 +1,233 @@
 "use client";
 import Link from 'next/link';
-import { Search, User, LogOut } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { Search, LogOut, Menu, X, ArrowRight, LayoutDashboard } from 'lucide-react';
 import NotificationBell from '@/components/NotificationBell';
 import { useSession } from '@/components/SessionProvider';
 
+const STAFF = ['ADMIN', 'EDITOR', 'AUTHOR'];
+const titleCase = (s) => s.charAt(0) + s.slice(1).toLocaleLowerCase('tr');
+
+export function Wordmark({ className = '' }) {
+    return (
+        <Link href="/" className={`wordmark ${className}`} aria-label="Gazetelerde ana sayfa">
+            Gazetelerde<span className="wordmark-dot" aria-hidden="true" />
+        </Link>
+    );
+}
+
+// Tarih yalnızca tarayıcıda yazılır: önbellekteki sayfada eski tarih kalmasın
+function TodayLabel() {
+    const [label, setLabel] = useState('');
+    useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setLabel(new Intl.DateTimeFormat('tr-TR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).format(new Date()));
+    }, []);
+    return <span className="masthead-date">{label || ' '}</span>;
+}
+
+function SearchOverlay({ onClose, categories }) {
+    const router = useRouter();
+    const [q, setQ] = useState('');
+    const inputRef = useRef(null);
+
+    useEffect(() => {
+        const t = setTimeout(() => inputRef.current?.focus(), 30);
+        const onKey = (e) => { if (e.key === 'Escape') onClose(); };
+        document.addEventListener('keydown', onKey);
+        document.body.style.overflow = 'hidden';
+        return () => { clearTimeout(t); document.removeEventListener('keydown', onKey); document.body.style.overflow = ''; };
+    }, [onClose]);
+
+    const submit = (e) => {
+        e.preventDefault();
+        const v = q.trim();
+        if (!v) return;
+        onClose();
+        router.push(`/search?q=${encodeURIComponent(v)}`);
+    };
+
+    return (
+        <div className="overlay" role="dialog" aria-modal="true" aria-label="Haber ara" onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+            <div className="search-dialog">
+                <form className="search-box" onSubmit={submit} role="search">
+                    <Search size={22} />
+                    <input ref={inputRef} value={q} onChange={(e) => setQ(e.target.value)} placeholder="Ne okumak istersiniz?" aria-label="Arama" type="search" />
+                    <button type="button" className="icon-btn" onClick={onClose} aria-label="Kapat"><X size={18} /></button>
+                </form>
+                <div style={{ marginTop: 26 }}>
+                    <span className="kicker">Kategorilere göz atın</span>
+                    <div className="search-hints">
+                        {categories.map((c) => (
+                            <Link key={c.slug} href={`/category/${c.slug}`} onClick={onClose}>{titleCase(c.label)}</Link>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+function Drawer({ onClose, categories, user, onLogout }) {
+    useEffect(() => {
+        const onKey = (e) => { if (e.key === 'Escape') onClose(); };
+        document.addEventListener('keydown', onKey);
+        document.body.style.overflow = 'hidden';
+        return () => { document.removeEventListener('keydown', onKey); document.body.style.overflow = ''; };
+    }, [onClose]);
+
+    const isStaff = user && STAFF.includes(user.role);
+    return (
+        <div className="drawer" role="dialog" aria-modal="true" aria-label="Menü">
+            <div className="drawer-backdrop" onClick={onClose} />
+            <nav className="drawer-panel">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Wordmark />
+                    <button className="icon-btn" onClick={onClose} aria-label="Menüyü kapat"><X size={18} /></button>
+                </div>
+                <div className="drawer-links" onClick={onClose}>
+                    <Link href="/">Ana Sayfa <ArrowRight size={18} /></Link>
+                    {categories.map((c) => (
+                        <Link key={c.slug} href={`/category/${c.slug}`}>{titleCase(c.label)} <ArrowRight size={18} /></Link>
+                    ))}
+                </div>
+                <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: 10 }} onClick={onClose}>
+                    {user ? (
+                        <>
+                            <Link href={isStaff ? '/admin' : '/profile'} className="btn btn-block">{isStaff ? 'Yönetim paneli' : 'Profilim'}</Link>
+                            <button onClick={onLogout} className="btn btn-ghost btn-block"><LogOut size={16} /> Çıkış yap</button>
+                        </>
+                    ) : (
+                        <>
+                            <Link href="/login" className="btn btn-primary btn-block">Giriş yap</Link>
+                            <Link href="/register" className="btn btn-block">Ücretsiz üye ol</Link>
+                        </>
+                    )}
+                </div>
+            </nav>
+        </div>
+    );
+}
+
 export default function Navbar({ categories = [] }) {
-  const pathname = usePathname();
-  const { user, loading, refresh } = useSession();
-  const router = useRouter();
-  const [query, setQuery] = useState('');
+    const pathname = usePathname();
+    const router = useRouter();
+    const { user, loading, refresh } = useSession();
+    const [stuck, setStuck] = useState(false);
+    const [searchOpen, setSearchOpen] = useState(false);
+    const [drawerOpen, setDrawerOpen] = useState(false);
+    const closeSearch = useCallback(() => setSearchOpen(false), []);
+    const closeDrawer = useCallback(() => setDrawerOpen(false), []);
 
-  // Admin paneli kendi yerleşimini kullanır
-  if (pathname?.startsWith('/admin')) return null;
+    // Manşet şeridi kaybolunca küçük logo ve arama kategori çubuğuna kayarak gelir
+    useEffect(() => {
+        let raf = 0;
+        const onScroll = () => {
+            cancelAnimationFrame(raf);
+            raf = requestAnimationFrame(() => setStuck(window.scrollY > (window.innerWidth <= 900 ? 60 : 72)));
+        };
+        onScroll();
+        window.addEventListener('scroll', onScroll, { passive: true });
+        return () => { window.removeEventListener('scroll', onScroll); cancelAnimationFrame(raf); };
+    }, []);
 
-  const handleLogout = async () => {
-    try { await fetch('/api/auth/logout', { method: 'POST' }); } catch { /* yoksay */ }
-    await refresh();
-    router.push('/');
-  };
+    // Mobilde aktif kategori ekran dışında kalmasın
+    useEffect(() => {
+        const el = document.querySelector('.cat-nav .is-active');
+        const nav = el?.parentElement;
+        if (!el || !nav) return;
+        const left = el.offsetLeft - nav.clientWidth / 2 + el.clientWidth / 2;
+        nav.scrollLeft = Math.max(0, left);
+    }, [pathname]);
 
-  const handleSearch = (e) => {
-    e.preventDefault();
-    const q = query.trim();
-    if (q) router.push(`/search?q=${encodeURIComponent(q)}`);
-  };
+    // Ctrl/⌘ + K veya "/" ile arama
+    useEffect(() => {
+        const onKey = (e) => {
+            const el = document.activeElement;
+            const typing = /input|textarea|select/i.test(el?.tagName || '') || el?.isContentEditable;
+            if ((e.key.toLowerCase() === 'k' && (e.metaKey || e.ctrlKey)) || (e.key === '/' && !typing)) {
+                e.preventDefault();
+                setSearchOpen(true);
+            }
+        };
+        document.addEventListener('keydown', onKey);
+        return () => document.removeEventListener('keydown', onKey);
+    }, []);
 
-  return (
-    <>
-      <nav className="site-nav">
-        <div className="container nav-top">
-          <form className="search-bar" onSubmit={handleSearch} role="search">
-            <Search size={16} color="var(--text-muted)" />
-            <input
-              type="search"
-              placeholder="Haber ara..."
-              aria-label="Haber ara"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-            />
-          </form>
+    if (pathname?.startsWith('/admin')) return null;
 
-          <div className="logo-wrap">
-            <Link href="/" className="logo" aria-label="Gazetelerde ana sayfa">GAZETELERDE</Link>
-          </div>
+    const handleLogout = async () => {
+        try { await fetch('/api/auth/logout', { method: 'POST' }); } catch { /* yoksay */ }
+        await refresh();
+        router.push('/');
+    };
 
-          <div className="nav-actions">
-            <Link href="/search" className="icon-btn mobile-only" aria-label="Ara">
-              <Search size={18} />
-            </Link>
-            {user ? (
-              <>
-                <NotificationBell />
-                <Link href={['ADMIN', 'EDITOR', 'AUTHOR'].includes(user.role) ? '/admin' : '/profile'} className="user-pill">
-                  <User size={16} />
-                  <span className="user-name">{user.name}</span>
-                </Link>
-                <button onClick={handleLogout} className="icon-btn" title="Çıkış Yap" aria-label="Çıkış Yap">
-                  <LogOut size={18} />
-                </button>
-              </>
-            ) : loading ? (
-              <span className="nav-placeholder" aria-hidden="true" />
-            ) : (
-              <Link href="/login" className="btn btn-primary" style={{ padding: '8px 20px', fontSize: '13px' }}>
-                Giriş Yap
-              </Link>
-            )}
-          </div>
-        </div>
+    const isStaff = user && STAFF.includes(user.role);
 
-        <div className="nav-cats">
-          <div className="container cats-scroll">
-            {categories.map((c) => {
-              const href = `/category/${c.slug}`;
-              return (
-                <Link key={c.slug} href={href} className={`cat-link ${pathname === href ? 'active' : ''}`}>
-                  {c.label}
-                </Link>
-              );
-            })}
-          </div>
-        </div>
-      </nav>
+    return (
+        <>
+            <header className={`site-header ${stuck ? 'is-stuck' : ''}`}>
+                <div className="masthead">
+                    <div className="container masthead-inner">
+                        <div className="masthead-left">
+                            <button className="icon-btn hamburger" onClick={() => setDrawerOpen(true)} aria-label="Menüyü aç"><Menu size={18} /></button>
+                            <TodayLabel />
+                            <button className="search-trigger hide-mobile" onClick={() => setSearchOpen(true)} aria-label="Haber ara (Ctrl+K)">
+                                <Search size={15} /> <span className="search-trigger-label">Ara</span> <span className="kbd">⌘K</span>
+                            </button>
+                        </div>
+                        <Wordmark />
+                        <div className="masthead-right">
+                            <button className="icon-btn show-mobile" onClick={() => setSearchOpen(true)} aria-label="Haber ara"><Search size={17} /></button>
+                            {loading ? (
+                                <span style={{ width: 110, height: 40 }} aria-hidden="true" />
+                            ) : user ? (
+                                <>
+                                    <NotificationBell />
+                                    <Link href={isStaff ? '/admin' : '/profile'} className="user-chip" title={isStaff ? 'Yönetim paneli' : 'Profilim'}>
+                                        <span className="avatar">{user.name.charAt(0).toLocaleUpperCase('tr')}</span>
+                                        <span className="user-chip-name">{user.name}</span>
+                                        {isStaff && <LayoutDashboard size={14} className="hide-mobile" style={{ opacity: 0.55 }} />}
+                                    </Link>
+                                    <button onClick={handleLogout} className="icon-btn hide-mobile" title="Çıkış yap" aria-label="Çıkış yap"><LogOut size={16} /></button>
+                                </>
+                            ) : (
+                                <>
+                                    <Link href="/register" className="btn btn-ghost btn-sm hide-mobile">Üye ol</Link>
+                                    <Link href="/login" className="btn btn-primary btn-sm">Giriş yap</Link>
+                                </>
+                            )}
+                        </div>
+                    </div>
+                </div>
+                <div className="navbar">
+                    <div className="container navbar-inner">
+                        <div className="navbar-mini" aria-hidden={!stuck}>
+                            <Link href="/" className="wordmark" tabIndex={stuck ? 0 : -1} aria-label="Ana sayfa">
+                                Gazetelerde<span className="wordmark-dot" aria-hidden="true" />
+                            </Link>
+                        </div>
+                        <nav className="cat-nav" aria-label="Kategoriler">
+                            <Link href="/" className={`cat-link cat-link--home ${pathname === '/' ? 'is-active' : ''}`}>Ana Sayfa</Link>
+                            {categories.map((c) => {
+                                const href = `/category/${c.slug}`;
+                                return (
+                                    <Link key={c.slug} href={href} className={`cat-link ${pathname === href ? 'is-active' : ''}`}>
+                                        {titleCase(c.label)}
+                                    </Link>
+                                );
+                            })}
+                        </nav>
+                        <div className="navbar-actions">
+                            <button className="icon-btn" onClick={() => setSearchOpen(true)} aria-label="Haber ara" tabIndex={stuck ? 0 : -1}><Search size={17} /></button>
+                        </div>
+                    </div>
+                </div>
+            </header>
 
-      <style jsx>{`
-        .site-nav {
-          position: fixed; top: 0; left: 0; width: 100%; z-index: 1000;
-          background: var(--bg-secondary);
-          backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-          border-bottom: 1px solid var(--border);
-          height: var(--header-height);
-          display: flex; flex-direction: column;
-        }
-        :global([data-theme='dark']) .site-nav { background: rgba(9, 9, 11, 0.92); }
-        :global([data-theme='light']) .site-nav { background: rgba(255, 255, 255, 0.9); }
-        .nav-top { flex: 1; display: flex; align-items: center; justify-content: space-between; position: relative; gap: 12px; }
-        .logo-wrap { position: absolute; left: 50%; transform: translateX(-50%); }
-        .logo-wrap :global(.logo) {
-          background: var(--primary); color: black; font-weight: 900; font-size: 20px;
-          padding: 0 12px; border-radius: 4px; height: 40px; display: flex; align-items: center;
-        }
-        .nav-actions { display: flex; align-items: center; gap: 12px; }
-        .search-bar {
-          background: var(--bg-hover); border: 1px solid var(--border); border-radius: 99px;
-          padding: 8px 16px; display: flex; align-items: center; gap: 8px; width: 240px; height: 40px;
-        }
-        .search-bar input { background: transparent; border: none; outline: none; color: var(--text-main); font-size: 13px; width: 100%; }
-        .nav-actions :global(.icon-btn) {
-          background: var(--bg-hover); border: 1px solid var(--border); width: 40px; height: 40px; border-radius: 50%;
-          display: flex; align-items: center; justify-content: center; color: var(--text-main); cursor: pointer; transition: all 0.2s;
-        }
-        .nav-actions :global(.icon-btn:hover) { border-color: var(--primary); color: var(--primary); }
-        .nav-actions :global(.user-pill) {
-          display: flex; align-items: center; gap: 8px; background: var(--bg-hover);
-          padding: 4px 12px 4px 4px; border-radius: 99px; border: 1px solid var(--border); height: 40px;
-        }
-        .nav-actions :global(.user-pill svg) { background: var(--border); padding: 4px; width: 30px; height: 30px; border-radius: 50%; }
-        .nav-placeholder { width: 96px; height: 36px; }
-        .user-name { font-size: 13px; font-weight: 600; max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .nav-actions :global(.mobile-only) { display: none; }
-
-        .nav-cats { height: 40px; border-top: 1px solid var(--border); }
-        .cats-scroll { height: 100%; display: flex; align-items: center; justify-content: center; gap: 24px; overflow-x: auto; scrollbar-width: none; }
-        .cats-scroll :global(.cat-link) { font-size: 12px; font-weight: 700; letter-spacing: 1px; color: var(--text-muted); white-space: nowrap; padding: 4px 0; border-bottom: 2px solid transparent; }
-        .cats-scroll :global(.cat-link:hover), .cats-scroll :global(.cat-link.active) { color: var(--text-main); border-bottom-color: var(--primary); }
-
-        @media (max-width: 1024px) {
-          .search-bar { display: none; }
-          .nav-actions :global(.mobile-only) { display: flex; }
-          .logo-wrap { position: static; transform: none; }
-        }
-        @media (max-width: 768px) {
-          .cats-scroll { justify-content: flex-start; gap: 18px; }
-          .logo-wrap :global(.logo) { font-size: 16px; height: 34px; }
-          .user-name { display: none; }
-          .nav-actions :global(.user-pill) { padding: 4px; }
-        }
-      `}</style>
-    </>
-  );
+            {searchOpen && <SearchOverlay onClose={closeSearch} categories={categories} />}
+            {drawerOpen && <Drawer onClose={closeDrawer} categories={categories} user={user} onLogout={handleLogout} />}
+        </>
+    );
 }

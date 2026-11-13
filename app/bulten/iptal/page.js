@@ -13,16 +13,17 @@ export default async function Unsubscribe({ searchParams }) {
     const already = token && !res.count && (await prisma.subscriber.findUnique({ where: { token }, select: { id: true } }));
 
     return (
-        <div className="container" style={{ textAlign: 'center', padding: '120px 24px', maxWidth: 640 }}>
-            <h1 style={{ fontSize: '2rem', marginBottom: 12 }}>
+        <div className="status-page"><div>
+            <span className="kicker">Bülten</span>
+            <h1>
                 {res.count ? 'Abonelikten çıktınız' : already ? 'Zaten abone değilsiniz' : 'Geçersiz bağlantı'}
             </h1>
-            <p style={{ color: 'var(--text-muted)', marginBottom: 32 }}>
+            <p>
                 {res.count || already
                     ? 'Artık bülten e-postası almayacaksınız. Fikrinizi değiştirirseniz ana sayfadan tekrar abone olabilirsiniz.'
                     : 'Bu bağlantı geçersiz ya da süresi dolmuş olabilir.'}
             </p>
             <Link href="/" className="btn btn-primary">Ana sayfaya dön</Link>
-        </div>
+        </div></div>
     );
 }

@@ -28,8 +28,8 @@ export default function AdminShell({ user, children }) {
         <div className="admin">
             <aside className="admin-sidebar">
                 <Link href="/admin" className="admin-logo">
-                    <span className="admin-logo-icon">G</span>
-                    <span>Yönetim</span>
+                    <span className="wordmark" style={{ fontSize: 24 }}>Gazetelerde<span className="wordmark-dot" /></span>
+                    <span className="kicker kicker--plain">Yönetim</span>
                 </Link>
                 <nav className="admin-nav">
                     {items.map(({ href, icon: Icon, label, exact }) => {
@@ -45,7 +45,7 @@ export default function AdminShell({ user, children }) {
                     </Link>
                 </nav>
                 <div className="admin-user">
-                    <div className="admin-avatar">{user.name.charAt(0).toLocaleUpperCase('tr')}</div>
+                    <div className="avatar">{user.name.charAt(0).toLocaleUpperCase('tr')}</div>
                     <div className="admin-user-info">
                         <strong>{user.name}</strong>
                         <span>{ROLE_LABELS[user.role]}</span>

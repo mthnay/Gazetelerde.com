@@ -58,7 +58,7 @@ export default function NotificationBell() {
 
             {open && (
                 <div className="notif-panel" role="dialog" aria-label="Bildirimler">
-                    <div className="notif-head">Takip ettiğin kategoriler</div>
+                    <div className="notif-head"><span className="kicker">Takip ettiğin kategoriler</span></div>
                     {!data || data.following === 0 ? (
                         <p className="notif-empty">
                             Henüz bir kategori takip etmiyorsun. Kategori sayfalarındaki <strong>Takip et</strong> butonuyla yeni haberlerden haberdar ol.

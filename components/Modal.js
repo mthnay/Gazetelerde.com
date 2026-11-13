@@ -1,74 +1,27 @@
 "use client";
+import { useEffect } from 'react';
 import { X } from 'lucide-react';
 
-export default function Modal({ isOpen, onClose, title, children }) {
+export default function Modal({ isOpen, onClose, title, children, footer }) {
+    useEffect(() => {
+        if (!isOpen) return;
+        const onKey = (e) => { if (e.key === 'Escape') onClose(); };
+        document.addEventListener('keydown', onKey);
+        document.body.style.overflow = 'hidden';
+        return () => { document.removeEventListener('keydown', onKey); document.body.style.overflow = ''; };
+    }, [isOpen, onClose]);
+
     if (!isOpen) return null;
-
     return (
-        <div role="dialog" aria-modal="true" aria-label={title} onClick={(e) => { if (e.target === e.currentTarget) onClose(); }} style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            zIndex: 2000,
-            background: 'rgba(0,0,0,0.8)',
-            backdropFilter: 'blur(4px)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '20px'
-        }}>
-            <div className="modal-content" style={{
-                background: 'var(--bg-main)',
-                border: '1px solid var(--border)',
-                borderRadius: '16px',
-                width: '100%',
-                maxWidth: '600px',
-                maxHeight: '80vh',
-                display: 'flex',
-                flexDirection: 'column',
-                position: 'relative',
-                animation: 'fadeIn 0.2s ease-out'
-            }}>
-                {/* Header */}
-                <div style={{
-                    padding: '20px',
-                    borderBottom: '1px solid var(--border)',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center'
-                }}>
-                    <h3 style={{ fontSize: '1.2rem', fontWeight: '700', color: 'var(--text-main)' }}>{title}</h3>
-                    <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#a1a1aa', cursor: 'pointer' }}>
-                        <X size={24} />
-                    </button>
+        <div className="modal-backdrop" onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+            <div className="modal" role="dialog" aria-modal="true" aria-label={title}>
+                <div className="modal-head">
+                    <h3>{title}</h3>
+                    <button type="button" onClick={onClose} className="icon-btn" aria-label="Kapat"><X size={18} /></button>
                 </div>
-
-                {/* Body */}
-                <div style={{
-                    padding: '24px',
-                    overflowY: 'auto',
-                    lineHeight: '1.6',
-                    color: 'var(--text-secondary)',
-                    fontSize: '0.95rem'
-                }}>
-                    {children}
-                </div>
-
-                {/* Footer */}
-                <div style={{
-                    padding: '20px',
-                    borderTop: '1px solid var(--border)',
-                    textAlign: 'right'
-                }}>
-                    <button
-                        onClick={onClose}
-                        className="btn btn-primary"
-                        style={{ padding: '8px 24px', fontSize: '14px' }}
-                    >
-                        Okudum, Anladım
-                    </button>
+                <div className="modal-body">{children}</div>
+                <div className="modal-foot">
+                    {footer ?? <button type="button" onClick={onClose} className="btn btn-primary btn-sm">Okudum, anladım</button>}
                 </div>
             </div>
         </div>

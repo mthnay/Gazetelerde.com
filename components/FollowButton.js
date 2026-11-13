@@ -30,7 +30,7 @@ export default function FollowButton({ slug, label }) {
 
     return (
         <button onClick={toggle} disabled={busy} className={`btn ${following ? 'btn-following' : 'btn-primary'}`} aria-pressed={following}>
-            {following ? <><Check size={16} /> Takip ediliyor</> : <><Plus size={16} /> {label} kategorisini takip et</>}
+            {following ? <><Check size={16} /> Takip ediliyor</> : <><Plus size={16} /> {label} takip et</>}
         </button>
     );
 }
