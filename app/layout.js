@@ -2,6 +2,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import ThemeToggle from "@/components/ThemeToggle";
 import Navbar from "@/components/Navbar";
+import { getCategories } from "@/lib/news";
+import { getCurrentUser } from "@/lib/auth";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -23,7 +25,8 @@ export const metadata = {
   description: "En güncel ve doğru haberler, modern arayüz ile karşınızda.",
 };
 
-export default function RootLayout({ children }) {
+export default async function RootLayout({ children }) {
+  const [categories, user] = await Promise.all([getCategories(), getCurrentUser()]);
   return (
     <html lang="tr" data-theme="dark" suppressHydrationWarning>
       <head>
@@ -31,7 +34,7 @@ export default function RootLayout({ children }) {
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <ThemeProvider>
-          <Navbar />
+          <Navbar categories={categories} user={user} />
           <main style={{ paddingTop: 'var(--header-height)', minHeight: '100vh' }}>
             {children}
           </main>

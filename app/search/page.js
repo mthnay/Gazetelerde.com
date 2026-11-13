@@ -1,13 +1,14 @@
 import Link from 'next/link';
 import NewsCard from '@/components/NewsCard';
 import { searchNews } from '@/lib/news';
+import { articleUrl } from '@/lib/format';
 
 export const metadata = { title: 'Arama | Gazetelerde' };
 
 export default async function SearchPage({ searchParams }) {
     const { q = '' } = await searchParams;
     const query = String(q).slice(0, 100);
-    const results = searchNews(query);
+    const results = await searchNews(query);
 
     return (
         <div className="container" style={{ paddingTop: '40px', paddingBottom: '80px' }}>
@@ -35,7 +36,7 @@ export default async function SearchPage({ searchParams }) {
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '24px' }}>
                 {results.map((n) => (
-                    <Link key={n.id} href={`/news/${n.id}`}>
+                    <Link key={n.id} href={articleUrl(n)}>
                         <NewsCard news={n} />
                     </Link>
                 ))}

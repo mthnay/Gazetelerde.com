@@ -2,39 +2,18 @@
 import Link from 'next/link';
 import { Search, User, LogOut } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
-import { categories } from '@/lib/news';
+import { useState } from 'react';
 
-export default function Navbar() {
+export default function Navbar({ categories = [], user = null }) {
   const pathname = usePathname();
   const router = useRouter();
-  const [user, setUser] = useState(null);
   const [query, setQuery] = useState('');
-
-  useEffect(() => {
-    // Mock Auth: kullanıcı bilgisi localStorage'da, oturum çerezi sunucuda
-    try {
-      const storedUser = localStorage.getItem('user');
-      const hasSession = document.cookie.split('; ').some((c) => c.startsWith('user_token='));
-      if (storedUser && hasSession) {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        setUser(JSON.parse(storedUser));
-      } else {
-        localStorage.removeItem('user');
-        setUser(null);
-      }
-    } catch {
-      setUser(null);
-    }
-  }, [pathname]);
 
   // Admin paneli kendi yerleşimini kullanır
   if (pathname?.startsWith('/admin')) return null;
 
   const handleLogout = async () => {
     try { await fetch('/api/auth/logout', { method: 'POST' }); } catch { /* yoksay */ }
-    localStorage.removeItem('user');
-    setUser(null);
     router.push('/');
     router.refresh();
   };
@@ -70,7 +49,7 @@ export default function Navbar() {
             </Link>
             {user ? (
               <>
-                <Link href={user.role === 'admin' ? '/admin' : '/profile'} className="user-pill">
+                <Link href={['ADMIN', 'EDITOR', 'AUTHOR'].includes(user.role) ? '/admin' : '/profile'} className="user-pill">
                   <User size={16} />
                   <span className="user-name">{user.name}</span>
                 </Link>

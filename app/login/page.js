@@ -32,12 +32,9 @@ export default function LoginPage() {
             const data = await res.json();
 
             if (data.success) {
-                if (data.user) {
-                    localStorage.setItem('user', JSON.stringify(data.user));
-                }
                 const next = new URLSearchParams(window.location.search).get('next');
                 const safeNext = next && next.startsWith('/') && !next.startsWith('//') ? next : null;
-                router.push(data.role === 'admin' && safeNext ? safeNext : (data.redirectUrl || '/'));
+                router.push(safeNext || data.redirectUrl || '/');
                 router.refresh();
             } else {
                 setError(data.message || 'Giriş yapılamadı.');
@@ -87,10 +84,11 @@ export default function LoginPage() {
                         <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
 
                             <div className="input-group">
-                                <label className={email ? 'filled' : ''}>E-posta veya Kullanıcı Adı</label>
+                                <label className={email ? 'filled' : ''}>E-posta</label>
                                 <User size={18} className="input-icon" />
                                 <input
-                                    type="text"
+                                    type="email"
+                                    autoComplete="email"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     required
@@ -102,6 +100,7 @@ export default function LoginPage() {
                                 <Lock size={18} className="input-icon" />
                                 <input
                                     type="password"
+                                    autoComplete="current-password"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     required

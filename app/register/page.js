@@ -26,16 +26,30 @@ export default function RegisterPage() {
             return;
         }
 
+        if (formData.password.length < 8) {
+            setError('Şifre en az 8 karakter olmalı.');
+            return;
+        }
+
         setLoading(true);
-
-        await new Promise(r => setTimeout(r, 1000));
-
-        // Mock Register Logic
-        document.cookie = `user_token=demo-user-token; path=/; max-age=86400`;
-        localStorage.setItem('user', JSON.stringify({ email: formData.email, name: formData.name }));
-
-        router.push('/');
-        router.refresh();
+        try {
+            const res = await fetch('/api/auth/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ...formData, consent: agreed }),
+            });
+            const data = await res.json();
+            if (!data.success) {
+                setError(data.message || 'Kayıt başarısız.');
+                setLoading(false);
+                return;
+            }
+            router.push(data.redirectUrl || '/');
+            router.refresh();
+        } catch {
+            setError('Bir bağlantı hatası oluştu.');
+            setLoading(false);
+        }
     };
 
     return (
@@ -79,7 +93,7 @@ export default function RegisterPage() {
                         <Lock size={20} className="input-icon" />
                         <input
                             type="password"
-                            placeholder="Şifre"
+                            placeholder="Şifre (en az 8 karakter)"
                             value={formData.password}
                             onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                             required

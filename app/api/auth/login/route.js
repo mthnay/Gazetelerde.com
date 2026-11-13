@@ -1,48 +1,25 @@
-import { NextResponse } from 'next/server';
-import { ADMIN_COOKIE, SESSION_MAX_AGE, createAdminToken, getAdminCredentials } from '@/lib/auth';
+import { prisma } from '@/lib/db';
+import { verifyPassword } from '@/lib/password';
+import { createSession, isStaff } from '@/lib/auth';
+import { ok, fail, readJson, rateLimit, clientIp } from '@/lib/api';
 
 export async function POST(request) {
-    let body;
-    try {
-        body = await request.json();
-    } catch {
-        return NextResponse.json({ success: false, message: 'Geçersiz istek.' }, { status: 400 });
-    }
-
+    const body = await readJson(request);
     const email = String(body?.email || '').trim().toLowerCase();
     const password = String(body?.password || '');
+    if (!email || !password) return fail('E-posta ve şifre gerekli.');
 
-    if (!email || !password) {
-        return NextResponse.json({ success: false, message: 'E-posta ve şifre gerekli.' }, { status: 400 });
+    if (!rateLimit(`login:${clientIp(request)}:${email}`, 10)) {
+        return fail('Çok fazla hatalı deneme. 15 dakika sonra tekrar deneyin.', 429);
     }
 
-    const secure = process.env.NODE_ENV === 'production';
-    const admin = getAdminCredentials();
-
-    // 1. Admin girişi (bilgiler .env.local dosyasından okunur)
-    if (admin && (email === 'admin' || email === admin.email.toLowerCase()) && password === admin.password) {
-        const res = NextResponse.json({
-            success: true,
-            role: 'admin',
-            redirectUrl: '/admin',
-            user: { name: 'Yönetici', email: admin.email, role: 'admin' },
-        });
-        res.cookies.set(ADMIN_COOKIE, await createAdminToken(), {
-            httpOnly: true, secure, sameSite: 'lax', path: '/', maxAge: SESSION_MAX_AGE,
-        });
-        res.cookies.set('user_token', 'admin', { secure, sameSite: 'lax', path: '/', maxAge: SESSION_MAX_AGE });
-        return res;
+    const user = await prisma.user.findUnique({ where: { email } });
+    // Kullanıcı yoksa da aynı mesaj: hangi e-postaların kayıtlı olduğu sızmasın
+    if (!user || !(await verifyPassword(password, user.passwordHash))) {
+        return fail('E-posta veya şifre hatalı.', 401);
     }
 
-    // 2. Standart kullanıcı girişi (MOCK – veritabanı bağlanana kadar her e-posta/şifre kabul edilir)
-    const res = NextResponse.json({
-        success: true,
-        role: 'user',
-        redirectUrl: '/',
-        user: { name: email.split('@')[0], email, role: 'user' },
-    });
-    // Normal kullanıcı girişinde eski bir admin oturumu kalmasın
-    res.cookies.delete(ADMIN_COOKIE);
-    res.cookies.set('user_token', 'user', { secure, sameSite: 'lax', path: '/', maxAge: SESSION_MAX_AGE });
-    return res;
+    await createSession(user.id);
+    const publicUser = { id: user.id, name: user.name, email: user.email, role: user.role };
+    return ok({ user: publicUser, role: user.role, redirectUrl: isStaff(publicUser) ? '/admin' : '/' });
 }

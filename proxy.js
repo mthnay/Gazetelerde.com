@@ -1,25 +1,14 @@
 import { NextResponse } from 'next/server';
-import { ADMIN_COOKIE, verifyAdminToken } from '@/lib/auth';
 
-export async function proxy(request) {
-    const { pathname } = request.nextUrl;
-    const isAdmin = await verifyAdminToken(request.cookies.get(ADMIN_COOKIE)?.value);
-
-    if (isAdmin) return NextResponse.next();
-
-    // Yönetim API'leri: yetkisiz isteklere 401
-    if (pathname.startsWith('/api/scrape') || pathname.startsWith('/api/automation')) {
-        return NextResponse.json({ success: false, error: 'Yetkisiz' }, { status: 401 });
-    }
-
-    // Admin sayfaları: giriş sayfasına yönlendir
+// Hızlı ön kontrol: oturum çerezi yoksa admin sayfalarına hiç girmeden giriş sayfasına yönlendir.
+// Asıl yetki kontrolü (rol, oturum geçerliliği) app/admin/layout.js ve API route'larında yapılır.
+export function proxy(request) {
+    if (request.cookies.get('session')?.value) return NextResponse.next();
     const url = new URL('/login', request.url);
-    url.searchParams.set('next', pathname);
-    const res = NextResponse.redirect(url);
-    res.cookies.delete(ADMIN_COOKIE); // süresi geçmiş / sahte token'ı temizle
-    return res;
+    url.searchParams.set('next', request.nextUrl.pathname);
+    return NextResponse.redirect(url);
 }
 
 export const config = {
-    matcher: ['/admin/:path*', '/api/scrape/:path*', '/api/automation/:path*'],
+    matcher: ['/admin/:path*'],
 };

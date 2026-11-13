@@ -1,12 +1,12 @@
 "use client";
 import { Clock, ArrowRight } from 'lucide-react';
-import { formatDate } from '@/lib/news';
+import { formatDate } from '@/lib/format';
 
 export default function NewsCard({ news }) {
     return (
         <div className="news-card">
             <div className="img-container">
-                <img src={news.img} alt={news.title} />
+                {news.img ? <img src={news.img} alt={news.title} /> : <div className="img-fallback" />}
                 <div className="category-tag">{news.categoryLabel || news.category}</div>
             </div>
 
@@ -55,6 +55,7 @@ export default function NewsCard({ news }) {
            transform: scale(1.08); /* Subtle zoom */
         }
         
+        .img-fallback { width: 100%; height: 100%; background: linear-gradient(135deg, var(--bg-hover), var(--border)); }
         .category-tag {
            position: absolute;
            top: 12px;

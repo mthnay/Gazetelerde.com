@@ -1,8 +1,12 @@
 import { NextResponse } from 'next/server';
 import * as cheerio from 'cheerio';
 import { fetchPublic } from '@/lib/safeFetch';
+import { getCurrentUser, isStaff } from '@/lib/auth';
 
 export async function POST(request) {
+    if (!isStaff(await getCurrentUser())) {
+        return NextResponse.json({ success: false, error: 'Yetkisiz' }, { status: 401 });
+    }
     try {
         const { url } = await request.json().catch(() => ({}));
         if (!url) return NextResponse.json({ error: 'URL gerekli' }, { status: 400 });
@@ -36,6 +40,6 @@ export async function POST(request) {
         return NextResponse.json({ success: true, items });
 
     } catch (error) {
-        return NextResponse.json({ error: 'Akış okunamadı: ' + error.message, success: false }, { status: 500 });
+        return NextResponse.json({ error: 'Akış okunamadı: ' + error.message, success: false }, { status: /izin verilmiyor|Geçersiz URL|Yalnızca http/.test(error.message) ? 400 : 500 });
     }
 }

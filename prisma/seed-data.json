@@ -1,0 +1,241 @@
+{
+  "categories": [
+    {
+      "slug": "gundem",
+      "label": "GÜNDEM",
+      "description": "Türkiye ve dünyadan sıcak gelişmeler.",
+      "sortOrder": 0
+    },
+    {
+      "slug": "dunya",
+      "label": "DÜNYA",
+      "description": "Sınırsız habercilik, küresel bakış.",
+      "sortOrder": 1
+    },
+    {
+      "slug": "ekonomi",
+      "label": "EKONOMİ",
+      "description": "Piyasalar, analizler ve finans dünyası.",
+      "sortOrder": 2
+    },
+    {
+      "slug": "spor",
+      "label": "SPOR",
+      "description": "Sahalardan en son skorlar ve transfer haberleri.",
+      "sortOrder": 3
+    },
+    {
+      "slug": "teknoloji",
+      "label": "TEKNOLOJİ",
+      "description": "Geleceği şekillendiren inovasyonlar.",
+      "sortOrder": 4
+    },
+    {
+      "slug": "bilim",
+      "label": "BİLİM",
+      "description": "Keşifler, araştırmalar ve uzay.",
+      "sortOrder": 5
+    },
+    {
+      "slug": "kultur",
+      "label": "KÜLTÜR",
+      "description": "Sanat, sinema, edebiyat ve festivaller.",
+      "sortOrder": 6
+    },
+    {
+      "slug": "yasam",
+      "label": "YAŞAM",
+      "description": "Sağlık, seyahat ve şehir hayatı.",
+      "sortOrder": 7
+    }
+  ],
+  "articles": [
+    {
+      "slug": "yapay-zeka-devrimi-insanlik-icin-yeni-bir-cag-mi",
+      "title": "Yapay Zeka Devrimi: İnsanlık İçin Yeni Bir Çağ mı?",
+      "summary": "Büyük dil modelleri iş hayatından eğitime kadar her alanı dönüştürüyor. Uzmanlar fırsatları ve riskleri değerlendirdi.",
+      "content": "Yapay zeka modellerinin yetenekleri son iki yılda beklenenden hızlı gelişti. Şirketler müşteri hizmetlerinden yazılım geliştirmeye kadar pek çok süreci bu araçlarla yeniden tasarlıyor.\n\nUzmanlar, verimlilik artışının yanında veri gizliliği, telif hakları ve istihdam üzerindeki etkilerin de dikkatle izlenmesi gerektiğini vurguluyor.",
+      "image": "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?q=80&w=800&auto=format&fit=crop",
+      "featured": true,
+      "publishedAt": "2026-11-14T09:10:00+03:00",
+      "category": "teknoloji",
+      "authorName": "Mert H."
+    },
+    {
+      "slug": "global-piyasalarda-ruzgar-tersine-dondu",
+      "title": "Global Piyasalarda Rüzgar Tersine Döndü",
+      "summary": "Merkez bankalarının faiz sinyalleri sonrası hisse senetlerinde satış baskısı arttı.",
+      "content": "Haftaya yükselişle başlayan küresel borsalar, merkez bankalarından gelen açıklamaların ardından yön değiştirdi.\n\nAnalistler, önümüzdeki günlerde açıklanacak enflasyon verilerinin piyasaların yönünü belirleyeceğini belirtiyor.",
+      "image": "https://images.unsplash.com/photo-1621416894569-0f39ed31d247?q=80&w=800&auto=format&fit=crop",
+      "featured": false,
+      "publishedAt": "2026-11-14T08:20:00+03:00",
+      "category": "ekonomi",
+      "authorName": "Selin Y."
+    },
+    {
+      "slug": "istanbul-maratonu-nda-rekor-katilim",
+      "title": "İstanbul Maratonu'nda Rekor Katılım",
+      "summary": "Kıtalararası koşuya bu yıl 50 binden fazla sporcu katıldı.",
+      "content": "Köprüden başlayan ve iki kıtayı birleştiren parkurda bu yıl katılım rekoru kırıldı.\n\nOrganizasyon komitesi, gelecek yıl için kontenjanın artırılmasını değerlendirdiklerini açıkladı.",
+      "image": "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?q=80&w=800&auto=format&fit=crop",
+      "featured": false,
+      "publishedAt": "2026-11-13T18:45:00+03:00",
+      "category": "spor",
+      "authorName": "Can A."
+    },
+    {
+      "slug": "mars-kolonisi-icin-ilk-adimlar-atiliyor",
+      "title": "Mars Kolonisi İçin İlk Adımlar Atılıyor",
+      "summary": "Uzay ajansları kızıl gezegende kalıcı üs kurulmasına yönelik yol haritasını paylaştı.",
+      "content": "Yeni yol haritasında ilk aşamada insansız kargo görevleriyle yaşam modüllerinin taşınması planlanıyor.\n\nBilim insanları, su buzunun bulunduğu bölgelerin üs için en uygun konumlar olduğunu belirtiyor.",
+      "image": "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=800&auto=format&fit=crop",
+      "featured": false,
+      "publishedAt": "2026-11-13T15:00:00+03:00",
+      "category": "bilim",
+      "authorName": "Elif K."
+    },
+    {
+      "slug": "elektrikli-araclar-icin-yeni-batarya-teknolojisi",
+      "title": "Elektrikli Araçlar İçin Yeni Batarya Teknolojisi",
+      "summary": "Katı hal bataryalar şarj süresini dakikalar seviyesine indirmeyi vaat ediyor.",
+      "content": "Yeni nesil katı hal bataryalar, mevcut lityum-iyon hücrelere göre daha yüksek enerji yoğunluğu sunuyor.\n\nÜreticiler ilk seri üretim modellerinin önümüzdeki iki yıl içinde yollara çıkmasını hedefliyor.",
+      "image": "https://images.unsplash.com/photo-1617788138017-80ad40651399?q=80&w=800&auto=format&fit=crop",
+      "featured": false,
+      "publishedAt": "2026-11-13T11:30:00+03:00",
+      "category": "teknoloji",
+      "authorName": "Teknoloji Ed."
+    },
+    {
+      "slug": "odullu-filmler-festivali-basliyor",
+      "title": "Ödüllü Filmler Festivali Başlıyor",
+      "summary": "Festival boyunca 40 ülkeden 120 film izleyiciyle buluşacak.",
+      "content": "Bu yıl festivalin açılış filmi, uluslararası arenada çok sayıda ödül alan bir yerli yapım oldu.\n\nGösterimlerin yanı sıra yönetmenlerle söyleşiler ve atölyeler de programda yer alıyor.",
+      "image": "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=800&auto=format&fit=crop",
+      "featured": false,
+      "publishedAt": "2026-11-12T20:00:00+03:00",
+      "category": "kultur",
+      "authorName": "Sanat E."
+    },
+    {
+      "slug": "ankara-da-kritik-zirve-yeni-kararlar-aciklandi",
+      "title": "Ankara'da Kritik Zirve: Yeni Kararlar Açıklandı",
+      "summary": "Zirvenin ardından yapılan açıklamada ekonomi ve eğitim alanında yeni adımlar duyuruldu.",
+      "content": "Uzun süren toplantının ardından yapılan açıklamada alınan kararların önümüzdeki ay yürürlüğe gireceği bildirildi.",
+      "image": "https://images.unsplash.com/photo-1555848962-6e79363ec58f?q=80&w=800&auto=format&fit=crop",
+      "featured": false,
+      "publishedAt": "2026-11-14T07:30:00+03:00",
+      "category": "gundem",
+      "authorName": "Haber Merkezi"
+    },
+    {
+      "slug": "egitim-sisteminde-koklu-degisiklik-hazirligi",
+      "title": "Eğitim Sisteminde Köklü Değişiklik Hazırlığı",
+      "summary": "Müfredat ve sınav sisteminde yapılacak değişiklikler kamuoyuyla paylaşıldı.",
+      "content": "Taslak çalışmaya göre yeni müfredat kademeli olarak uygulamaya alınacak.",
+      "image": "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=800&auto=format&fit=crop",
+      "featured": false,
+      "publishedAt": "2026-11-12T10:00:00+03:00",
+      "category": "gundem",
+      "authorName": "Haber Merkezi"
+    },
+    {
+      "slug": "avrupa-da-enerji-krizi-yeni-onlemler-masada",
+      "title": "Avrupa'da Enerji Krizi: Yeni Önlemler Masada",
+      "summary": "Kış öncesi enerji arzını güvenceye almak için yeni paket tartışılıyor.",
+      "content": "Avrupa ülkeleri ortak alım mekanizması ve tasarruf hedefleri üzerinde uzlaşmaya çalışıyor.",
+      "image": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=800&auto=format&fit=crop",
+      "featured": false,
+      "publishedAt": "2026-11-13T09:00:00+03:00",
+      "category": "dunya",
+      "authorName": "Dış Haberler"
+    },
+    {
+      "slug": "asya-piyasalarinda-sert-ruzgarlar",
+      "title": "Asya Piyasalarında Sert Rüzgarlar",
+      "summary": "Bölge borsalarında dalgalanma sürüyor.",
+      "content": "Yatırımcılar ihracat verilerindeki zayıflamanın etkilerini değerlendiriyor.",
+      "image": "https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=800&auto=format&fit=crop",
+      "featured": false,
+      "publishedAt": "2026-11-11T13:00:00+03:00",
+      "category": "dunya",
+      "authorName": "Dış Haberler"
+    },
+    {
+      "slug": "merkez-bankasi-faiz-kararini-acikladi",
+      "title": "Merkez Bankası Faiz Kararını Açıkladı",
+      "summary": "Politika faizi piyasa beklentilerine paralel belirlendi.",
+      "content": "Karar metninde enflasyondaki ana eğilimin yakından izleneceği vurgulandı.",
+      "image": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=800&auto=format&fit=crop",
+      "featured": false,
+      "publishedAt": "2026-11-13T14:00:00+03:00",
+      "category": "ekonomi",
+      "authorName": "Ekonomi Servisi"
+    },
+    {
+      "slug": "borsa-istanbul-da-rekor-kapanis",
+      "title": "Borsa İstanbul'da Rekor Kapanış",
+      "summary": "Endeks günü tüm zamanların en yüksek seviyesinden tamamladı.",
+      "content": "Bankacılık ve sanayi hisselerindeki yükseliş endeksi yukarı taşıdı.",
+      "image": "https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?q=80&w=800&auto=format&fit=crop",
+      "featured": false,
+      "publishedAt": "2026-11-12T18:10:00+03:00",
+      "category": "ekonomi",
+      "authorName": "Ekonomi Servisi"
+    },
+    {
+      "slug": "dev-derbi-oncesi-nefesler-tutuldu",
+      "title": "Dev Derbi Öncesi Nefesler Tutuldu",
+      "summary": "Hafta sonu oynanacak derbi için biletler tükendi.",
+      "content": "İki takım da eksik oyuncularının son durumunu maç gününe kadar takip edecek.",
+      "image": "https://images.unsplash.com/photo-1574629810360-7efbbe195018?q=80&w=800&auto=format&fit=crop",
+      "featured": false,
+      "publishedAt": "2026-11-12T22:00:00+03:00",
+      "category": "spor",
+      "authorName": "Spor Servisi"
+    },
+    {
+      "slug": "milli-takim-kamp-kadrosu-belli-oldu",
+      "title": "Milli Takım Kamp Kadrosu Belli Oldu",
+      "summary": "Teknik direktör eleme maçları için 26 kişilik kadroyu açıkladı.",
+      "content": "Kadroda üç yeni isim ilk kez milli formayla tanışacak.",
+      "image": "https://images.unsplash.com/photo-1518609878373-06d740f60d8b?q=80&w=800&auto=format&fit=crop",
+      "featured": false,
+      "publishedAt": "2026-11-11T16:00:00+03:00",
+      "category": "spor",
+      "authorName": "Spor Servisi"
+    },
+    {
+      "slug": "karma-gerceklik-gozlukleri-yayginlasiyor",
+      "title": "Karma Gerçeklik Gözlükleri Yaygınlaşıyor",
+      "summary": "Yeni nesil cihazlar daha hafif ve daha uygun fiyatlı.",
+      "content": "Üreticiler iş dünyası ve eğitim uygulamalarına odaklanıyor.",
+      "image": "https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=800&auto=format&fit=crop",
+      "featured": false,
+      "publishedAt": "2026-11-10T12:00:00+03:00",
+      "category": "teknoloji",
+      "authorName": "Teknoloji Ed."
+    },
+    {
+      "slug": "saglikli-yasam-gune-zinde-baslamanin-5-yolu",
+      "title": "Sağlıklı Yaşam: Güne Zinde Başlamanın 5 Yolu",
+      "summary": "Uzmanlar sabah rutinine eklenebilecek basit alışkanlıkları sıraladı.",
+      "content": "Düzenli uyku, su tüketimi ve kısa bir yürüyüş güne enerjik başlamanın anahtarları arasında.",
+      "image": "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?q=80&w=800&auto=format&fit=crop",
+      "featured": false,
+      "publishedAt": "2026-11-12T08:00:00+03:00",
+      "category": "yasam",
+      "authorName": "Yaşam Servisi"
+    },
+    {
+      "slug": "istanbul-un-en-iyi-10-kahve-mekani",
+      "title": "İstanbul'un En İyi 10 Kahve Mekanı",
+      "summary": "Kahve tutkunları için şehrin dört bir yanından seçkiler.",
+      "content": "Listede hem köklü mekanlar hem de yeni açılan üçüncü dalga kahveciler yer alıyor.",
+      "image": "https://images.unsplash.com/photo-1497935586351-b67a49e012bf?q=80&w=800&auto=format&fit=crop",
+      "featured": false,
+      "publishedAt": "2026-11-09T11:00:00+03:00",
+      "category": "yasam",
+      "authorName": "Yaşam Servisi"
+    }
+  ]
+}

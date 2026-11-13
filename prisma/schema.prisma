@@ -1,0 +1,125 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  READER
+  AUTHOR
+  EDITOR
+  ADMIN
+}
+
+enum ArticleStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum CommentStatus {
+  VISIBLE
+  HIDDEN
+}
+
+model User {
+  id           String    @id @default(cuid())
+  name         String
+  email        String    @unique
+  passwordHash String
+  role         Role      @default(READER)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  sessions  Session[]
+  articles  Article[]
+  comments  Comment[]
+  likes     Like[]
+  bookmarks Bookmark[]
+}
+
+model Session {
+  id        String   @id // rastgele token'ın SHA-256 özeti
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model Category {
+  id          Int       @id @default(autoincrement())
+  slug        String    @unique
+  label       String
+  description String    @default("")
+  sortOrder   Int       @default(0)
+  articles    Article[]
+}
+
+model Article {
+  id          Int           @id @default(autoincrement())
+  slug        String        @unique
+  title       String
+  summary     String
+  content     String        // paragraflar boş satırla ayrılır
+  image       String?
+  status      ArticleStatus @default(DRAFT)
+  featured    Boolean       @default(false)
+  viewCount   Int           @default(0)
+  publishedAt DateTime?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  categoryId Int
+  category   Category @relation(fields: [categoryId], references: [id])
+  authorId   String?
+  author     User?    @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  authorName String?  // kullanıcı hesabı olmayan yazarlar / ajanslar için
+
+  comments  Comment[]
+  likes     Like[]
+  bookmarks Bookmark[]
+
+  @@index([status, publishedAt])
+  @@index([categoryId, status, publishedAt])
+}
+
+model Comment {
+  id        Int           @id @default(autoincrement())
+  text      String
+  status    CommentStatus @default(VISIBLE)
+  createdAt DateTime      @default(now())
+
+  articleId Int
+  article   Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([articleId, createdAt])
+}
+
+model Like {
+  userId    String
+  articleId Int
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  article   Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+
+  @@id([userId, articleId])
+  @@index([articleId])
+}
+
+model Bookmark {
+  userId    String
+  articleId Int
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  article   Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+
+  @@id([userId, articleId])
+  @@index([articleId])
+}
