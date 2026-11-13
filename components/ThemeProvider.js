@@ -1,38 +1,27 @@
 "use client";
 import { createContext, useContext, useEffect, useState } from 'react';
 
-const ThemeContext = createContext();
+const ThemeContext = createContext({ theme: 'dark', toggleTheme: () => { } });
 
 export function ThemeProvider({ children }) {
-    const [theme, setTheme] = useState('dark'); // Default to dark for this GZT vibe
-    const [mounted, setMounted] = useState(false);
+    const [theme, setTheme] = useState('dark');
 
+    // İlk tema layout'taki inline script ile <html data-theme> üzerine yazılır;
+    // burada sadece o değeri state'e alıyoruz.
     useEffect(() => {
-        // Check local storage or system preference
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme) {
-            // eslint-disable-next-line react-hooks/set-state-in-effect
-            setTheme(savedTheme);
-        } else if (window.matchMedia('(prefers-color-scheme: light)').matches) {
-            // Optional: Default to light if system is light, but we prefer dark initial for this brand
-            setTheme('light');
-        }
-        setMounted(true);
+        const current = document.documentElement.getAttribute('data-theme');
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        if (current === 'light' || current === 'dark') setTheme(current);
     }, []);
 
-    useEffect(() => {
-        if (!mounted) return;
-
-        // Apply to HTML tag
-        document.documentElement.setAttribute('data-theme', theme);
-        localStorage.setItem('theme', theme);
-    }, [theme, mounted]);
-
     const toggleTheme = () => {
-        setTheme(prev => prev === 'dark' ? 'light' : 'dark');
+        setTheme((prev) => {
+            const next = prev === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            try { localStorage.setItem('theme', next); } catch { /* yoksay */ }
+            return next;
+        });
     };
-
-    if (!mounted) return <div style={{ visibility: 'hidden' }}>{children}</div>;
 
     return (
         <ThemeContext.Provider value={{ theme, toggleTheme }}>

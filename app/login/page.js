@@ -35,7 +35,9 @@ export default function LoginPage() {
                 if (data.user) {
                     localStorage.setItem('user', JSON.stringify(data.user));
                 }
-                router.push(data.redirectUrl || '/');
+                const next = new URLSearchParams(window.location.search).get('next');
+                const safeNext = next && next.startsWith('/') && !next.startsWith('//') ? next : null;
+                router.push(data.role === 'admin' && safeNext ? safeNext : (data.redirectUrl || '/'));
                 router.refresh();
             } else {
                 setError(data.message || 'Giriş yapılamadı.');
@@ -150,7 +152,7 @@ export default function LoginPage() {
 
             <style jsx>{`
         .login-container {
-            min-height: calc(100vh - 80px);
+            min-height: calc(100vh - var(--header-height));
             display: flex;
             align-items: center;
             justify-content: center;

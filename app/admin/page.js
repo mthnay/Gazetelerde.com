@@ -1,10 +1,9 @@
 "use client";
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import {
     LayoutDashboard, FileText, PlusCircle, Users, Settings, LogOut,
-    Search, Bell, MoreVertical, Shield, Globe, Lock, Edit3, Trash2,
-    CheckCircle, AlertCircle, BarChart3, Fingerprint, TrendingUp,
-    MessageSquare, Activity, Calendar, Smartphone, Monitor, Save, PieChart
+    Search, Bell, MoreVertical, Lock, Edit3, Trash2, BarChart3, TrendingUp,
+    MessageSquare, Activity, Calendar, Smartphone, Monitor, Save
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -29,8 +28,10 @@ export default function AdminPage() {
     ]);
 
     const handleLogout = async () => {
-        await fetch('/api/auth/logout', { method: 'POST' });
+        try { await fetch('/api/auth/logout', { method: 'POST' }); } catch { /* yoksay */ }
+        localStorage.removeItem('user');
         router.push('/login');
+        router.refresh();
     };
 
     const handleDeleteUser = (id) => {
@@ -345,15 +346,15 @@ export default function AdminPage() {
                                 <motion.div variants={itemVariants} className="analytics-view">
                                     <div className="stats-grid">
                                         {[
-                                            { label: 'Hemen Çıkma Oranı', val: '%42', change: '-2%', icon: <Activity className="w-6 h-6" />, color: '#f472b6' },
-                                            { label: 'Oturum Süresi', val: '4dk 12sn', change: '+12s', icon: <Calendar className="w-6 h-6" />, color: '#60a5fa' },
-                                            { label: 'Mobil Trafik', val: '%78', change: '+5%', icon: <Smartphone className="w-6 h-6" />, color: '#a78bfa' },
-                                            { label: 'Masaüstü', val: '%22', change: '-5%', icon: <Monitor className="w-6 h-6" />, color: '#34d399' },
+                                            { label: 'Hemen Çıkma Oranı', val: '%42', change: '-2%', good: true, icon: <Activity size={24} />, color: '#f472b6' },
+                                            { label: 'Oturum Süresi', val: '4dk 12sn', change: '+12s', good: true, icon: <Calendar size={24} />, color: '#60a5fa' },
+                                            { label: 'Mobil Trafik', val: '%78', change: '+5%', good: true, icon: <Smartphone size={24} />, color: '#a78bfa' },
+                                            { label: 'Masaüstü', val: '%22', change: '-5%', good: false, icon: <Monitor size={24} />, color: '#34d399' },
                                         ].map((s, i) => (
                                             <motion.div key={i} variants={itemVariants} className="stat-card glass-panel">
                                                 <div className="stat-header">
                                                     <div className="icon-box" style={{ background: `${s.color}20`, color: s.color }}>{s.icon}</div>
-                                                    <span className="stat-change" style={{ color: s.change.includes('+') || s.change.includes('-2') ? '#4ade80' : '#ef4444' }}>{s.change}</span>
+                                                    <span className="stat-change" style={{ color: s.good ? '#4ade80' : '#ef4444', background: s.good ? undefined : 'rgba(239, 68, 68, 0.1)' }}>{s.change}</span>
                                                 </div>
                                                 <div className="stat-body">
                                                     <h3>{s.val}</h3>
@@ -470,6 +471,7 @@ export default function AdminPage() {
                 }
 
                 .admin-container {
+                    margin-top: calc(-1 * var(--header-height));
                     min-height: 100vh;
                     background: #050505;
                     color: #fff;
@@ -578,7 +580,7 @@ export default function AdminPage() {
                 .bar:hover { opacity: 1; filter: drop-shadow(0 0 10px var(--prim)); transform: scaleY(1.05); transform-origin: bottom; }
 
                 /* USER LIST */
-                .user-list { display: flex; flexDirection: column; gap: 16px; overflow-y: auto; max-height: 250px; padding-right: 8px; }
+                .user-list { display: flex; flex-direction: column; gap: 16px; overflow-y: auto; max-height: 250px; padding-right: 8px; }
                 .user-row { display: flex; align-items: center; justify-content: space-between; padding: 12px; border-radius: 16px; transition: 0.2s; }
                 .user-row:hover { background: rgba(255,255,255,0.03); }
                 .user-info { display: flex; align-items: center; gap: 16px; }

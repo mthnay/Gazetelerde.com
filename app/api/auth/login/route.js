@@ -1,51 +1,48 @@
 import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
+import { ADMIN_COOKIE, SESSION_MAX_AGE, createAdminToken, getAdminCredentials } from '@/lib/auth';
 
 export async function POST(request) {
-    const body = await request.json();
-    const { email, password } = body;
+    let body;
+    try {
+        body = await request.json();
+    } catch {
+        return NextResponse.json({ success: false, message: 'Geçersiz istek.' }, { status: 400 });
+    }
 
-    // Unified Auth Logic
-    const cookieStore = await cookies();
+    const email = String(body?.email || '').trim().toLowerCase();
+    const password = String(body?.password || '');
 
-    // 1. Check for Admin Login
-    // Admin can login with "admin" username or specific email
-    if ((email === 'admin' || email === 'admin@gazetelerde.com') && password === '12345') {
-        cookieStore.set('admin_token', 'secret-admin-token-123', {
-            httpOnly: true,
-            maxAge: 60 * 60 * 24, // 1 day
-            path: '/',
-        });
-        
-        // Also set user token for general site access
-        cookieStore.set('user_token', 'admin-user-token', {
-            path: '/',
-            maxAge: 60 * 60 * 24
-        });
+    if (!email || !password) {
+        return NextResponse.json({ success: false, message: 'E-posta ve şifre gerekli.' }, { status: 400 });
+    }
 
-        return NextResponse.json({ 
-            success: true, 
+    const secure = process.env.NODE_ENV === 'production';
+    const admin = getAdminCredentials();
+
+    // 1. Admin girişi (bilgiler .env.local dosyasından okunur)
+    if (admin && (email === 'admin' || email === admin.email.toLowerCase()) && password === admin.password) {
+        const res = NextResponse.json({
+            success: true,
             role: 'admin',
             redirectUrl: '/admin',
-            user: { name: 'Administrator', email: 'admin@gazetelerde.com' }
+            user: { name: 'Yönetici', email: admin.email, role: 'admin' },
         });
+        res.cookies.set(ADMIN_COOKIE, await createAdminToken(), {
+            httpOnly: true, secure, sameSite: 'lax', path: '/', maxAge: SESSION_MAX_AGE,
+        });
+        res.cookies.set('user_token', 'admin', { secure, sameSite: 'lax', path: '/', maxAge: SESSION_MAX_AGE });
+        return res;
     }
 
-    // 2. Check for Standard User Login (Mock)
-    // For now, accepting any non-empty inputs as valid user
-    if (email && password) {
-        cookieStore.set('user_token', 'demo-user-token', {
-            path: '/',
-            maxAge: 60 * 60 * 24
-        });
-
-        return NextResponse.json({ 
-            success: true, 
-            role: 'user', 
-            redirectUrl: '/',
-            user: { name: email.split('@')[0], email }
-        });
-    }
-
-    return NextResponse.json({ success: false, message: 'Hatalı e-posta veya şifre!' }, { status: 401 });
+    // 2. Standart kullanıcı girişi (MOCK – veritabanı bağlanana kadar her e-posta/şifre kabul edilir)
+    const res = NextResponse.json({
+        success: true,
+        role: 'user',
+        redirectUrl: '/',
+        user: { name: email.split('@')[0], email, role: 'user' },
+    });
+    // Normal kullanıcı girişinde eski bir admin oturumu kalmasın
+    res.cookies.delete(ADMIN_COOKIE);
+    res.cookies.set('user_token', 'user', { secure, sameSite: 'lax', path: '/', maxAge: SESSION_MAX_AGE });
+    return res;
 }

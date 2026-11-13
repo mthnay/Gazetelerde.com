@@ -36,16 +36,16 @@ export default function ProfilePage() {
     };
 
     const handleDeleteAccount = async () => {
-        if (deletePassword !== '123456') { // Mock password check
-            setDeleteError('Şifre hatalı!');
+        // TODO: backend gelince şifre sunucuda doğrulanacak ve hesap silinecek
+        if (!deletePassword.trim()) {
+            setDeleteError('Lütfen şifrenizi girin.');
             return;
         }
 
-        // Perform delete
+        try { await fetch('/api/auth/logout', { method: 'POST' }); } catch { /* yoksay */ }
         localStorage.removeItem('user');
-        document.cookie = "user_token=; path=/; max-age=0";
         router.push('/');
-        setTimeout(() => window.location.reload(), 100);
+        router.refresh();
     };
 
     if (!user.email) return null;

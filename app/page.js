@@ -1,28 +1,30 @@
 "use client";
 import { useState } from 'react';
 import Link from 'next/link';
+import { getAllNews, categories, formatDate } from '@/lib/news';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-  TrendingUp, ArrowRight, Clock, Star, Zap, ChevronRight,
-  Play, Activity, Globe, Shield
-} from 'lucide-react';
+import { ArrowRight, Clock, Zap, Activity, Globe } from 'lucide-react';
 
 export default function Home() {
-  const [activeFilter, setActiveFilter] = useState('HEPSİ');
+  const [activeFilter, setActiveFilter] = useState('all');
+  const [nlStatus, setNlStatus] = useState('');
   const [email, setEmail] = useState('');
 
-  const categories = ['HEPSİ', 'TEKNOLOJİ', 'EKONOMİ', 'SPOR', 'KÜLTÜR', 'SEYAHAT', 'BİLİM'];
+  const news = getAllNews().slice(0, 9);
+  const filters = [{ slug: 'all', label: 'HEPSİ' }, ...categories];
+  const filteredNews = activeFilter === 'all' ? news : getAllNews().filter(n => n.category === activeFilter);
+  const breaking = news[0];
 
-  const news = [
-    { id: 1, title: "Yapay Zeka Devrimi: İnsanlık İçin Yeni Bir Çağ mı?", category: "TEKNOLOJİ", author: "Mert H.", time: "10 dk önce", img: "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?q=80&w=800", featured: true },
-    { id: 2, title: "Global Piyasalarda Rüzgar Tersine Döndü", category: "EKONOMİ", author: "Selin Y.", time: "1 saat önce", img: "https://images.unsplash.com/photo-1611974765270-ca1258634369?q=80&w=800" },
-    { id: 3, title: "İstanbul Maratonu'nda Rekor Katılım", category: "SPOR", author: "Can A.", time: "2 saat önce", img: "https://images.unsplash.com/photo-1552674605-5d28c4e1902c?q=80&w=800" },
-    { id: 4, title: "Mars Kolonisi İçin İlk Adımlar Atılıyor", category: "BİLİM", author: "Elif K.", time: "3 saat önce", img: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=800" },
-    { id: 5, title: "Elektrikli Araçlar İçin Yeni Batarya Teknolojisi", category: "OTOMOBİL", author: "Teknoloji Ed.", time: "4 saat önce", img: "https://images.unsplash.com/photo-1617788138017-80ad40651399?q=80&w=800" },
-    { id: 6, title: "Ödüllü Filmler Festivali Başlıyor", category: "KÜLTÜR", author: "Sanat E.", time: "5 saat önce", img: "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=800" },
-  ];
-
-  const filteredNews = activeFilter === 'HEPSİ' ? news : news.filter(n => n.category === activeFilter);
+  const handleSubscribe = (e) => {
+    e.preventDefault();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setNlStatus('Lütfen geçerli bir e-posta adresi girin.');
+      return;
+    }
+    // TODO: bülten servisine (ör. API route) bağlanacak
+    setNlStatus('Teşekkürler! Bültene abone oldunuz.');
+    setEmail('');
+  };
 
   // Varians
   const containerVariants = {
@@ -46,8 +48,7 @@ export default function Home() {
 
       <div className="glass-overlay"></div>
 
-      {/* Navbar Placeholder (Assuming Layout handles it, but creating a spacer or transparent header effect) */}
-      <div className="content-wrapper">
+            <div className="content-wrapper">
 
         {/* HERO SECTION */}
         <section className="hero-section">
@@ -57,9 +58,11 @@ export default function Home() {
             transition={{ duration: 0.8 }}
             className="hero-content"
           >
-            <div className="badge-glow">
-              <Zap size={16} fill="currentColor" /> SON DAKİKA: Teknoloji Zirvesi Başladı
-            </div>
+            {breaking && (
+              <Link href={`/news/${breaking.id}`} className="badge-glow">
+                <Zap size={16} fill="currentColor" /> SON DAKİKA: {breaking.title}
+              </Link>
+            )}
             <h1 className="hero-title">
               Geleceğin <span className="text-gradient">Haberciliği</span> <br />
               Burada Başlıyor.
@@ -68,26 +71,24 @@ export default function Home() {
               Doğru, tarafsız ve anlık haber akışı. Modern arayüz ile haber okuma deneyiminizi yeniden tanımlıyoruz.
             </p>
             <div className="hero-actions">
-              <button className="btn-primary-glow">Keşfetmeye Başla</button>
-              <button className="btn-outline">
-                <Play size={16} fill="currentColor" /> Tanıtımı İzle
-              </button>
+              <a href="#akis" className="btn-primary-glow">Keşfetmeye Başla</a>
+              <Link href="/register" className="btn-outline">Ücretsiz Üye Ol</Link>
             </div>
           </motion.div>
         </section>
 
         {/* FILTERS & CONTENT */}
-        <section className="feed-section">
+        <section className="feed-section" id="akis">
           <div className="feed-header">
             <div className="filters-scroll">
-              {categories.map((cat) => (
+              {filters.map((cat) => (
                 <button
-                  key={cat}
-                  onClick={() => setActiveFilter(cat)}
-                  className={`filter-pill ${activeFilter === cat ? 'active' : ''}`}
+                  key={cat.slug}
+                  onClick={() => setActiveFilter(cat.slug)}
+                  className={`filter-pill ${activeFilter === cat.slug ? 'active' : ''}`}
                 >
-                  {cat}
-                  {activeFilter === cat && (
+                  {cat.label}
+                  {activeFilter === cat.slug && (
                     <motion.div layoutId="activeFilter" className="active-bg" />
                   )}
                 </button>
@@ -111,30 +112,33 @@ export default function Home() {
                   key={item.id}
                   layout
                   variants={itemVariants}
-                  className={`news-card glass-panel ${item.featured ? 'featured' : ''}`}
+                  className={`news-card glass-panel ${item.featured && activeFilter === 'all' ? 'featured' : ''}`}
                 >
                   <div className="card-image">
                     <img src={item.img} alt={item.title} />
                     <div className="card-overlay"></div>
-                    <span className="category-tag">{item.category}</span>
+                    <span className="category-tag">{item.categoryLabel}</span>
                   </div>
                   <div className="card-content">
                     <div className="meta-row">
                       <span className="author">
                         <div className="avatar-xs">{item.author[0]}</div> {item.author}
                       </span>
-                      <span className="time"><Clock size={12} /> {item.time}</span>
+                      <span className="time"><Clock size={12} /> {formatDate(item.publishedAt)}</span>
                     </div>
                     <Link href={`/news/${item.id}`}>
                       <h3>{item.title}</h3>
                     </Link>
                     <div className="card-footer">
-                      <button className="read-more">Devamını Oku <ArrowRight size={14} /></button>
+                      <Link href={`/news/${item.id}`} className="read-more">Devamını Oku <ArrowRight size={14} /></Link>
                     </div>
                   </div>
                 </motion.div>
               ))}
             </AnimatePresence>
+            {filteredNews.length === 0 && (
+              <div className="empty-feed">Bu kategoride henüz haber bulunmuyor.</div>
+            )}
           </motion.div>
         </section>
 
@@ -144,15 +148,18 @@ export default function Home() {
             <div className="nl-content">
               <h2>Gündemi Kaçırma!</h2>
               <p>En önemli gelişmeler, her sabah 08:00&apos;de e-posta kutunda.</p>
-              <div className="input-group">
+              <form className="input-group" onSubmit={handleSubscribe}>
                 <input
                   type="email"
                   placeholder="E-posta adresin..."
+                  aria-label="E-posta adresi"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => { setEmail(e.target.value); setNlStatus(''); }}
+                  required
                 />
-                <button>Abone Ol</button>
-              </div>
+                <button type="submit">Abone Ol</button>
+              </form>
+              {nlStatus && <p className="nl-status" role="status">{nlStatus}</p>}
             </div>
             <div className="nl-decoration">
               <Globe size={180} strokeWidth={0.5} />
@@ -173,24 +180,13 @@ export default function Home() {
       </div>
 
       <style jsx global>{`
-                :root {
-                    --prim: #fbbf24;
-                    --bg-dark: #050505;
-                    --glass-border: rgba(255, 255, 255, 0.08);
-                    --glass-bg: rgba(20, 20, 23, 0.6);
-                    --glass-hover: rgba(255, 255, 255, 0.08);
-                }
-
-                body {
-                    background: var(--bg-dark);
-                    color: white;
-                    font-family: 'Inter', sans-serif;
-                    overflow-x: hidden;
-                }
-
                 .main-container {
+                    --prim: var(--primary);
+                    --glass-border: var(--border);
+                    --glass-bg: var(--bg-card);
                     position: relative;
                     min-height: 100vh;
+                    color: var(--text-main);
                 }
 
                 /* ANIMATED BLOBS */
@@ -244,33 +240,33 @@ export default function Home() {
                     letter-spacing: -0.02em;
                 }
                 .text-gradient {
-                    background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
+                    background: linear-gradient(135deg, var(--primary) 0%, #f97316 100%);
                     -webkit-background-clip: text;
                     -webkit-text-fill-color: transparent;
                     position: relative;
                 }
-                .hero-subtitle { font-size: 1.25rem; color: #a1a1aa; max-width: 600px; line-height: 1.6; }
+                .hero-subtitle { font-size: 1.25rem; color: var(--text-muted); max-width: 600px; line-height: 1.6; }
 
                 .hero-actions { display: flex; gap: 16px; margin-top: 16px; }
                 .btn-primary-glow {
-                    background: var(--prim); color: black; border: none; padding: 16px 32px; border-radius: 16px; font-weight: 700; font-size: 1rem; cursor: pointer; transition: 0.3s;
+                    background: var(--prim); color: black; border: none; padding: 16px 32px; border-radius: 16px; font-weight: 700; font-size: 1rem; cursor: pointer; transition: 0.3s; text-decoration: none;
                     box-shadow: 0 0 20px rgba(251, 191, 36, 0.4);
                 }
                 .btn-primary-glow:hover { transform: translateY(-3px); box-shadow: 0 0 40px rgba(251, 191, 36, 0.6); }
                 .btn-outline {
-                    background: transparent; color: white; border: 1px solid rgba(255,255,255,0.2); padding: 16px 32px; border-radius: 16px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: 0.3s;
+                    background: transparent; color: var(--text-main); border: 1px solid var(--border); padding: 16px 32px; text-decoration: none; border-radius: 16px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: 0.3s;
                     display: flex; align-items: center; gap: 8px;
                 }
-                .btn-outline:hover { background: rgba(255,255,255,0.1); border-color: white; }
+                .btn-outline:hover { background: var(--bg-hover); border-color: var(--text-main); }
 
                 /* FEED SECTION */
                 .feed-section { padding: 80px 0; }
                 .feed-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; border-bottom: 1px solid var(--glass-border); padding-bottom: 24px; }
                 .filters-scroll { display: flex; gap: 8px; overflow-x: auto; padding: 4px; }
                 .filter-pill {
-                    background: transparent; border: none; color: #a1a1aa; padding: 10px 20px; border-radius: 20px; font-weight: 600; font-size: 0.9rem; position: relative; cursor: pointer; transition: 0.3s;
+                    background: transparent; border: none; color: var(--text-muted); padding: 10px 20px; border-radius: 20px; font-weight: 600; font-size: 0.9rem; position: relative; cursor: pointer; transition: 0.3s;
                 }
-                .filter-pill:hover { color: white; }
+                .filter-pill:hover { color: var(--text-main); }
                 .filter-pill.active { color: black; }
                 .active-bg { position: absolute; inset: 0; background: var(--prim); border-radius: 20px; z-index: -1; }
 
@@ -282,7 +278,7 @@ export default function Home() {
                 .glass-panel {
                     background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 24px; overflow: hidden; backdrop-filter: blur(10px); transition: 0.4s;
                 }
-                .news-card:hover { transform: translateY(-10px); border-color: rgba(255,255,255,0.2); box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
+                .news-card:hover { transform: translateY(-10px); border-color: var(--primary); box-shadow: 0 20px 40px rgba(0,0,0,0.25); }
 
                 .news-card.featured { grid-column: span 2; display: flex; align-items: stretch; }
                 .news-card.featured .card-image { width: 50%; height: auto; }
@@ -296,15 +292,15 @@ export default function Home() {
                 .category-tag { position: absolute; top: 16px; left: 16px; background: var(--prim); color: black; padding: 4px 12px; border-radius: 8px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
 
                 .card-content { padding: 24px; }
-                .meta-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 0.8rem; color: #a1a1aa; }
+                .meta-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 0.8rem; color: var(--text-muted); }
                 .author { display: flex; align-items: center; gap: 8px; }
-                .avatar-xs { width: 24px; height: 24px; background: #3f3f46; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; color: white; font-size: 10px; }
+                .avatar-xs { width: 24px; height: 24px; background: var(--bg-hover); border: 1px solid var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; color: var(--text-main); font-size: 10px; }
                 
-                h3 { font-size: 1.25rem; font-weight: 700; margin-bottom: 16px; line-height: 1.4; transition: 0.2s; }
+                .news-card h3 { font-size: 1.25rem; font-weight: 700; margin-bottom: 16px; line-height: 1.4; transition: 0.2s; }
                 .news-card:hover h3 { color: var(--prim); }
 
-                .card-footer { border-top: 1px solid rgba(255,255,255,0.1); padding-top: 16px; margin-top: 16px; display: flex; justify-content: flex-end; }
-                .read-more { background: none; border: none; color: white; font-size: 0.9rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: 0.2s; }
+                .card-footer { border-top: 1px solid var(--border); padding-top: 16px; margin-top: 16px; display: flex; justify-content: flex-end; }
+                .read-more { background: none; border: none; color: var(--text-main); font-size: 0.9rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: 0.2s; }
                 .read-more:hover { color: var(--prim); gap: 10px; }
 
                 /* NEWSLETTER */
@@ -312,22 +308,27 @@ export default function Home() {
                 .newsletter-box { padding: 60px; display: flex; align-items: center; justify-content: space-between; position: relative; overflow: hidden; }
                 .nl-content { position: relative; z-index: 2; max-width: 500px; }
                 .nl-content h2 { font-size: 2.5rem; font-weight: 800; margin-bottom: 16px; }
-                .nl-content p { color: #a1a1aa; margin-bottom: 32px; font-size: 1.1rem; }
+                .nl-content p { color: var(--text-muted); margin-bottom: 32px; font-size: 1.1rem; }
                 
                 .input-group { display: flex; gap: 12px; }
-                .input-group input { flex: 1; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 16px 24px; border-radius: 12px; color: white; font-size: 1rem; outline: none; transition: 0.3s; }
+                .input-group input { flex: 1; background: var(--bg-hover); border: 1px solid var(--border); padding: 16px 24px; border-radius: 12px; color: var(--text-main); font-size: 1rem; outline: none; transition: 0.3s; }
                 .input-group input:focus { border-color: var(--prim); box-shadow: 0 0 0 4px rgba(251, 191, 36, 0.1); }
-                .input-group button { background: white; color: black; border: none; padding: 16px 32px; border-radius: 12px; font-weight: 700; cursor: pointer; transition: 0.3s; }
-                .input-group button:hover { background: var(--prim); transform: translateY(-2px); }
+                .input-group button { background: var(--text-main); color: var(--bg-main); border: none; padding: 16px 32px; border-radius: 12px; font-weight: 700; cursor: pointer; transition: 0.3s; }
+                .input-group button:hover { background: var(--prim); color: black; transform: translateY(-2px); }
 
                 .nl-decoration { position: absolute; right: -50px; bottom: -50px; opacity: 0.1; transform: rotate(-15deg); }
 
                 /* FOOTER */
-                .footer { border-top: 1px solid var(--glass-border); padding: 60px 0; margin-top: 60px; text-align: center; color: #52525b; }
+                .footer { border-top: 1px solid var(--glass-border); padding: 60px 0; margin-top: 60px; text-align: center; color: var(--text-muted); }
                 .footer-content { display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; padding: 0 24px; }
                 .footer-links { display: flex; gap: 24px; }
-                .footer-links a { color: #52525b; text-decoration: none; transition: 0.2s; }
+                .footer-links a { color: var(--text-muted); text-decoration: none; transition: 0.2s; }
                 .footer-links a:hover { color: var(--prim); }
+
+                .badge-glow { text-decoration: none; max-width: 100%; }
+                .empty-feed { grid-column: 1 / -1; padding: 60px; text-align: center; color: var(--text-muted); border: 1px dashed var(--border); border-radius: 24px; }
+                .nl-status { margin-top: 12px !important; margin-bottom: 0 !important; font-size: 0.95rem !important; color: var(--primary) !important; }
+                .news-card h3 a, .news-card > a { color: inherit; }
 
                 @media (max-width: 1024px) {
                     .hero-title { font-size: 3rem; }
@@ -337,6 +338,14 @@ export default function Home() {
                     .newsletter-box { flex-direction: column; text-align: center; gap: 40px; }
                     .input-group { flex-direction: column; width: 100%; }
                     .footer-content { flex-direction: column; gap: 24px; }
+                }
+                @media (max-width: 600px) {
+                    .hero-title { font-size: 2.25rem; }
+                    .hero-actions { flex-direction: column; width: 100%; }
+                    .newsletter-box { padding: 32px 20px; }
+                    .nl-content h2 { font-size: 1.8rem; }
+                    .feed-header { flex-direction: column; align-items: flex-start; gap: 16px; }
+                    .filters-scroll { max-width: 100%; }
                 }
             `}</style>
     </div>

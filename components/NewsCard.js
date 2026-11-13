@@ -1,18 +1,19 @@
 "use client";
 import { Clock, ArrowRight } from 'lucide-react';
+import { formatDate } from '@/lib/news';
 
 export default function NewsCard({ news }) {
     return (
         <div className="news-card">
             <div className="img-container">
                 <img src={news.img} alt={news.title} />
-                <div className="category-tag">{news.category}</div>
+                <div className="category-tag">{news.categoryLabel || news.category}</div>
             </div>
 
             <div className="content">
                 <h3>{news.title}</h3>
                 <div className="meta">
-                    <span className="time"><Clock size={14} /> 2s önce</span>
+                    <span className="time"><Clock size={14} /> {news.publishedAt ? formatDate(news.publishedAt) : ''}</span>
                     <span className="read-more">Oku <ArrowRight size={14} /></span>
                 </div>
             </div>
@@ -81,7 +82,7 @@ export default function NewsCard({ news }) {
            font-size: 1.1rem;
            font-weight: 700;
            line-height: 1.4;
-           color: #ececec;
+           color: var(--text-main);
            margin-bottom: 16px;
            display: -webkit-box;
            -webkit-line-clamp: 2;

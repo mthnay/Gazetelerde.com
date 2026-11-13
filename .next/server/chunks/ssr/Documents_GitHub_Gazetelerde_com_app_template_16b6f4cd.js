@@ -1,3 +1,0 @@
-module.exports=[97674,a=>{"use strict";var b=a.i(79244),c=a.i(5716);function d({children:a}){return(0,b.jsxs)("div",{className:"jsx-608192798026bcc8 page-wrapper",children:[a,(0,b.jsx)(c.default,{id:"608192798026bcc8",children:".page-wrapper.jsx-608192798026bcc8{min-height:100%;animation:.6s cubic-bezier(.2,.8,.2,1) forwards slideUp}@keyframes slideUp{0%{opacity:0;transform:translateY(30px)scale(.98)}to{opacity:1;transform:translateY(0)scale(1)}}"})]})}a.s(["default",()=>d])}];
-
-//# sourceMappingURL=Documents_GitHub_Gazetelerde_com_app_template_16b6f4cd.js.map

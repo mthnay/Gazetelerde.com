@@ -40,7 +40,7 @@ export default function RegisterPage() {
 
     return (
         <div style={{
-            minHeight: 'calc(100vh - 80px)',
+            minHeight: 'calc(100vh - var(--header-height))',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -135,7 +135,7 @@ export default function RegisterPage() {
                 </form>
 
                 <div style={{ marginTop: '32px', textAlign: 'center', fontSize: '14px', color: 'var(--text-muted)' }}>
-                    Zaten hesabınız var mı? <Link href="/login" style={{ color: 'white', fontWeight: '600' }}>Giriş Yap</Link>
+                    Zaten hesabınız var mı? <Link href="/login" style={{ color: 'var(--primary)', fontWeight: '600' }}>Giriş Yap</Link>
                 </div>
             </div>
 

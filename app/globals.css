@@ -16,7 +16,7 @@
   --primary: #fbbf24;
   --primary-fg: #000000;
 
-  --header-height: 80px;
+  --header-height: 120px;
   --max-width: 1200px;
   --radius: 16px;
 
@@ -222,4 +222,15 @@ a {
   .cta-buttons {
     flex-direction: column;
   }
+}
+
+.news-badge {
+  display: inline-block;
+  background: var(--primary);
+  color: var(--primary-fg);
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
 }
