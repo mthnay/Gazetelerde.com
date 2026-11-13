@@ -47,6 +47,7 @@ model User {
   media     Media[]
   revisions ArticleRevision[]
   templates ArticleTemplate[]
+  newsletters NewsletterIssue[]
 }
 
 model Session {
@@ -153,11 +154,72 @@ model CategoryFollow {
 }
 
 model Subscriber {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  token     String   @unique // abonelikten çıkma linki için
-  active    Boolean  @default(true)
-  createdAt DateTime @db.Timestamptz(3) @default(now())
+  id             Int       @id @default(autoincrement())
+  email          String    @unique
+  token          String    @unique // onay ve abonelikten çıkma linkleri için
+  active         Boolean   @default(true)
+  // Çift onay: e-postadaki bağlantıya tıklanana kadar bülten gönderilmez
+  confirmedAt    DateTime? @db.Timestamptz(3)
+  unsubscribedAt DateTime? @db.Timestamptz(3)
+  confirmSentAt  DateTime? @db.Timestamptz(3)
+  createdAt      DateTime  @default(now()) @db.Timestamptz(3)
+
+  deliveries NewsletterDelivery[]
+
+  @@index([active, confirmedAt])
+}
+
+enum NewsletterStatus {
+  DRAFT
+  SCHEDULED
+  SENDING
+  SENT
+  CANCELLED
+}
+
+model NewsletterIssue {
+  id          Int              @id @default(autoincrement())
+  subject     String
+  preheader   String           @default("") // e-posta listesinde konunun yanında görünen kısa metin
+  intro       String           @default("")
+  articleIds  Int[]            // sıralı haber listesi
+  status      NewsletterStatus @default(DRAFT)
+  auto        Boolean          @default(false) // sabah bülteni otomatik oluşturduysa
+  scheduledAt DateTime?        @db.Timestamptz(3)
+  startedAt   DateTime?        @db.Timestamptz(3)
+  sentAt      DateTime?        @db.Timestamptz(3)
+  recipients  Int              @default(0)
+  sentCount   Int              @default(0)
+  failedCount Int              @default(0)
+  createdAt   DateTime         @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime         @updatedAt @db.Timestamptz(3)
+  createdById String?
+  createdBy   User?            @relation(fields: [createdById], references: [id], onDelete: SetNull)
+
+  deliveries NewsletterDelivery[]
+
+  @@index([status, scheduledAt])
+}
+
+enum DeliveryStatus {
+  PENDING
+  SENT
+  FAILED
+}
+
+// Her abone için tek kayıt: gönderim yarıda kesilirse kaldığı yerden devam eder, kimseye iki kez gitmez
+model NewsletterDelivery {
+  issueId      Int
+  subscriberId Int
+  status       DeliveryStatus  @default(PENDING)
+  attempts     Int             @default(0)
+  error        String?
+  sentAt       DateTime?       @db.Timestamptz(3)
+  issue        NewsletterIssue @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  subscriber   Subscriber      @relation(fields: [subscriberId], references: [id], onDelete: Cascade)
+
+  @@id([issueId, subscriberId])
+  @@index([issueId, status])
 }
 
 model Like {

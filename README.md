@@ -90,6 +90,11 @@ npm ci && npm run db:deploy && npm run build && npm start
 - **Yetkiler:** `lib/permissions.js` — Yazar (kendi taslakları), Editör (yayın + yorum moderasyonu),
   Yönetici (+ kullanıcı/rol yönetimi). Kontroller API'de yapılır; arayüz sadece gizler.
 - **Dış istekler:** Scrape/RSS sadece personele açıktır ve iç ağ adresleri engellenir (`lib/safeFetch.js`).
+- **Bülten (e-posta):** Abonelik çift onaylıdır (`/bulten/onay`); onaylamayan adrese bülten gitmez. Sayılar
+  `/admin/bulten`'de hazırlanır, gönderim kuyruğu `instrumentation.js` içinden dakikada bir çalışır
+  (`lib/newsletter/service.js`, `MAIL_RATE_PER_MINUTE` kadar e-posta/dk, hata alanlar 3 kez denenir). Her e-postada
+  tek tıkla çıkış başlıkları (`List-Unsubscribe`) vardır. SMTP: `SMTP_URL` + `MAIL_FROM`; geliştirmede
+  e-postalar `.mail-outbox/` klasörüne yazılır. `NEWSLETTER_AUTO=draft|send` her sabah gündemden otomatik sayı hazırlar.
 - **Deneme sınırları** (`lib/api.js`) bellekte tutulur: tek sunucu için yeterli; birden fazla sunucuda Redis gibi
   ortak bir depoya taşınmalıdır.
 

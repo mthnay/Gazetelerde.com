@@ -1,8 +1,8 @@
 "use client";
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { LayoutDashboard, FileText, MessageSquare, Users, Rss, LogOut, ExternalLink } from 'lucide-react';
-import { canModerate, canManageUsers, ROLE_LABELS } from '@/lib/permissions';
+import { LayoutDashboard, FileText, MessageSquare, Users, Rss, Mail, LogOut, ExternalLink } from 'lucide-react';
+import { canModerate, canManageUsers, canPublish, ROLE_LABELS } from '@/lib/permissions';
 import { useSession } from '@/components/SessionProvider';
 
 export default function AdminShell({ user, children }) {
@@ -14,6 +14,7 @@ export default function AdminShell({ user, children }) {
         { href: '/admin', icon: LayoutDashboard, label: 'Genel Bakış', exact: true },
         { href: '/admin/haberler', icon: FileText, label: 'Haberler' },
         { href: '/admin/icerik-cek', icon: Rss, label: 'İçerik Çek' },
+        canPublish(user) && { href: '/admin/bulten', icon: Mail, label: 'Bülten' },
         canModerate(user) && { href: '/admin/yorumlar', icon: MessageSquare, label: 'Yorumlar' },
         canManageUsers(user) && { href: '/admin/kullanicilar', icon: Users, label: 'Kullanıcılar' },
     ].filter(Boolean);

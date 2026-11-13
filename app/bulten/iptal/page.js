@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { prisma } from '@/lib/db';
 
+export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Bülten aboneliği | Gazetelerde', robots: { index: false } };
 
 // Bülten e-postalarındaki "abonelikten çık" linki buraya gelir: /bulten/iptal?t=<token>
@@ -8,7 +9,7 @@ export default async function Unsubscribe({ searchParams }) {
     const { t } = await searchParams;
     const token = typeof t === 'string' ? t : '';
     const res = token
-        ? await prisma.subscriber.updateMany({ where: { token, active: true }, data: { active: false } })
+        ? await prisma.subscriber.updateMany({ where: { token, active: true }, data: { active: false, unsubscribedAt: new Date() } })
         : { count: 0 };
     const already = token && !res.count && (await prisma.subscriber.findUnique({ where: { token }, select: { id: true } }));
 
