@@ -16,7 +16,7 @@ export async function POST(request) {
         const $ = cheerio.load(text, { xmlMode: true });
 
         const items = [];
-        $('item, entry').slice(0, 10).each((i, el) => {
+        $('item, entry').slice(0, 25).each((i, el) => {
             const title = $(el).find('title').first().text().replace('<![CDATA[', '').replace(']]>', '').trim();
             const link = ($(el).find('link').first().text() || $(el).find('link').attr('href') || '').trim();
             const pubDate = $(el).find('pubDate, published, updated').first().text();
