@@ -14,8 +14,12 @@ async function main() {
     }
     const cats = Object.fromEntries((await prisma.category.findMany()).map((c) => [c.slug, c.id]));
 
+    // Gerçek sitede örnek (uydurma) haberler yüklenmesin: SEED_DEMO_ARTICLES=0
+    const demo = process.env.SEED_DEMO_ARTICLES !== '0';
+    if (!demo) data.articles = [];
+
     // Örnek tarihleri, en yeni haber 10 dk önce yayınlanmış olacak şekilde bugüne kaydır
-    const newest = Math.max(...data.articles.map((x) => new Date(x.publishedAt).getTime()));
+    const newest = data.articles.length ? Math.max(...data.articles.map((x) => new Date(x.publishedAt).getTime())) : Date.now();
     const shift = Date.now() - 10 * 60 * 1000 - newest;
 
     for (const a of data.articles) {
