@@ -34,16 +34,21 @@ export default function CommentModeration({ initial }) {
             <div className="admin-panel" style={{ padding: 0 }}>
                 <div className="admin-table-wrap">
                     <table className="admin-table">
-                        <thead><tr><th>Yorum</th><th>Kullanıcı</th><th>Haber</th><th>Durum</th><th>Tarih</th><th></th></tr></thead>
+                        <thead><tr><th>Yorum</th><th>Kullanıcı</th><th>Haber</th><th>Durum</th><th>Şikayet</th><th>Tarih</th><th></th></tr></thead>
                         <tbody>
                             {initial.map((c) => (
                                 <tr key={c.id} style={{ opacity: c.status === 'HIDDEN' ? 0.6 : 1 }}>
-                                    <td style={{ maxWidth: 360, overflowWrap: 'anywhere' }}>{c.text}</td>
+                                    <td style={{ maxWidth: 360, overflowWrap: 'anywhere' }}>
+                                        {c.isReply && <span className="badge" style={{ marginRight: 6 }}>Cevap</span>}
+                                        {c.text}
+                                        {c.reasons?.length > 0 && <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: 4 }}>Gerekçe: {c.reasons.join(' · ')}</div>}
+                                    </td>
                                     <td className="muted" title={c.email}>{c.user}</td>
                                     <td className="muted" style={{ maxWidth: 220, whiteSpace: 'normal' }}>
                                         <Link href={`/haber/${c.articleSlug}#yorumlar`} target="_blank">{c.articleTitle}</Link>
                                     </td>
                                     <td><span className={`badge ${c.status}`}>{c.status === 'HIDDEN' ? 'Gizli' : 'Yayında'}</span></td>
+                                    <td>{c.reportCount > 0 ? <span className="badge DRAFT">{c.reportCount}</span> : <span className="muted">—</span>}</td>
                                     <td className="muted">{formatShortDate(c.createdAt)}</td>
                                     <td>
                                         <div className="admin-actions">

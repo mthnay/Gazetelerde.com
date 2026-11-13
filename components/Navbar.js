@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { Search, User, LogOut } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useState } from 'react';
+import NotificationBell from '@/components/NotificationBell';
 
 export default function Navbar({ categories = [], user = null }) {
   const pathname = usePathname();
@@ -49,6 +50,7 @@ export default function Navbar({ categories = [], user = null }) {
             </Link>
             {user ? (
               <>
+                <NotificationBell />
                 <Link href={['ADMIN', 'EDITOR', 'AUTHOR'].includes(user.role) ? '/admin' : '/profile'} className="user-pill">
                   <User size={16} />
                   <span className="user-name">{user.name}</span>

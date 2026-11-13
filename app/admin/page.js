@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { FileText, Eye, MessageSquare, Users, PlusCircle } from 'lucide-react';
+import { FileText, Eye, MessageSquare, Users, PlusCircle, Mail } from 'lucide-react';
 import { prisma } from '@/lib/db';
 import { requirePageUser } from '@/lib/adminPage';
 import { canPublish } from '@/lib/permissions';
@@ -37,6 +37,7 @@ export default async function AdminDashboard() {
         prisma.article.groupBy({ by: ['categoryId'], where: { ...mine, status: 'PUBLISHED' }, _sum: { viewCount: true }, _count: true }),
     ]);
 
+    const subscribers = await prisma.subscriber.count({ where: { active: true } });
     const count = (s) => statusCounts.find((x) => x.status === s)?._count ?? 0;
     const categories = await prisma.category.findMany({ select: { id: true, label: true } });
     const catRows = byCategory
@@ -49,6 +50,7 @@ export default async function AdminDashboard() {
         { icon: Eye, label: 'Toplam okunma', value: views._sum.viewCount ?? 0, sub: canPublish(user) ? 'tüm haberler' : 'sizin haberleriniz' },
         { icon: MessageSquare, label: 'Yorum', value: comments, sub: `son 7 günde ${newComments}` },
         { icon: Users, label: 'Üye', value: users, sub: `son 7 günde ${newUsers}` },
+        { icon: Mail, label: 'Bülten abonesi', value: subscribers, sub: 'aktif abonelik' },
     ];
 
     return (

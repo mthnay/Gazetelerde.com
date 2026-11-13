@@ -21,7 +21,7 @@ export default async function EditArticlePage({ params }) {
 
     const article = {
         id: a.id, slug: a.slug, title: a.title, summary: a.summary, content: a.content, image: a.image,
-        status: a.status, featured: a.featured, authorName: a.authorName, category: a.category.slug,
+        status: a.status, featured: a.featured, breaking: a.breaking, authorName: a.authorName, category: a.category.slug,
         publishedAt: a.publishedAt?.toISOString() ?? null,
     };
 

@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Heart, MessageCircle, Share2, Send, Bookmark } from 'lucide-react';
+import { Heart, MessageCircle, Share2, Send, Bookmark, CornerDownRight, Flag } from 'lucide-react';
 import { formatShortDate } from '@/lib/format';
 
 export default function NewsInteractions({
@@ -50,23 +50,51 @@ export default function NewsInteractions({
         } catch { /* kullanıcı iptal etti */ }
     };
 
+    const postComment = async (text, parentId = null) => {
+        const res = await fetch(`/api/articles/${articleId}/comments`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text, parentId }),
+        }).catch(() => null);
+        const data = await res?.json().catch(() => null);
+        if (!data?.success) {
+            flash(data?.message || 'Yorum gönderilemedi.');
+            return null;
+        }
+        const c = data.comment;
+        return { id: c.id, text: c.text, user: c.user.name, time: c.createdAt, mine: true, replies: [] };
+    };
+
     const handleComment = async (e) => {
         e.preventDefault();
         const text = newComment.trim();
         if (!text || sending) return;
         setSending(true);
-        const res = await fetch(`/api/articles/${articleId}/comments`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ text }),
-        }).catch(() => null);
-        const data = await res?.json().catch(() => null);
+        const c = await postComment(text);
         setSending(false);
-        if (!data?.success) return flash(data?.message || 'Yorum gönderilemedi.');
-        const c = data.comment;
-        setComments([{ id: c.id, text: c.text, user: c.user.name, time: c.createdAt }, ...comments]);
+        if (!c) return;
+        setComments([c, ...comments]);
         setNewComment('');
     };
+
+    const handleReply = async (parent, text) => {
+        const c = await postComment(text, parent.id);
+        if (!c) return false;
+        setComments(comments.map((x) => (x.id === parent.id ? { ...x, replies: [...(x.replies || []), c] } : x)));
+        return true;
+    };
+
+    const handleReport = async (c) => {
+        const reason = prompt('Bu yorumu neden şikayet ediyorsunuz? (isteğe bağlı)');
+        if (reason === null) return; // iptal
+        const res = await fetch(`/api/comments/${c.id}/report`, {
+            method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ reason }),
+        }).catch(() => null);
+        const data = await res?.json().catch(() => null);
+        flash(data?.success ? 'Şikayetiniz alındı, teşekkürler.' : (data?.message || 'Şikayet gönderilemedi.'));
+    };
+
+    const totalComments = comments.reduce((n, c) => n + 1 + (c.replies?.length || 0), 0);
 
     return (
         <>
@@ -78,7 +106,7 @@ export default function NewsInteractions({
                     </button>
                     <a href="#yorumlar" className="action-btn">
                         <MessageCircle size={20} />
-                        <span>{comments.length}</span>
+                        <span>{totalComments}</span>
                     </a>
                 </div>
                 <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
@@ -93,7 +121,7 @@ export default function NewsInteractions({
             </div>
 
             <div id="yorumlar" style={{ marginTop: '40px', marginBottom: '60px' }}>
-                <h3 style={{ marginBottom: '24px' }}>Yorumlar ({comments.length})</h3>
+                <h3 style={{ marginBottom: '24px' }}>Yorumlar ({totalComments})</h3>
 
                 {isLoggedIn ? (
                     <form onSubmit={handleComment} style={{ marginBottom: '32px', display: 'flex', gap: '12px' }}>
@@ -120,18 +148,17 @@ export default function NewsInteractions({
                     <p style={{ color: 'var(--text-muted)' }}>Henüz yorum yok. İlk yorumu sen yap!</p>
                 )}
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                     {comments.map((c) => (
-                        <div key={c.id} style={{ display: 'flex', gap: '16px' }}>
-                            <div className="comment-avatar">{c.user.charAt(0).toLocaleUpperCase('tr')}</div>
-                            <div>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                                    <span style={{ fontWeight: '600' }}>{c.user}</span>
-                                    <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>• {formatShortDate(c.time)}</span>
+                        <CommentItem key={c.id} c={c} isLoggedIn={isLoggedIn} onReply={handleReply} onReport={handleReport}>
+                            {c.replies?.length > 0 && (
+                                <div className="replies">
+                                    {c.replies.map((r) => (
+                                        <CommentItem key={r.id} c={r} isLoggedIn={isLoggedIn} onReport={handleReport} isReply />
+                                    ))}
                                 </div>
-                                <p style={{ color: 'var(--text-secondary)', lineHeight: '1.5', overflowWrap: 'anywhere' }}>{c.text}</p>
-                            </div>
-                        </div>
+                            )}
+                        </CommentItem>
                     ))}
                 </div>
             </div>
@@ -145,9 +172,67 @@ export default function NewsInteractions({
                 .comment-input { flex: 1; padding: 14px 20px; background: var(--bg-hover); border: 1px solid var(--border); border-radius: 99px; color: var(--text-main); outline: none; }
                 .comment-input:focus { border-color: var(--primary); }
                 .comment-avatar { width: 40px; height: 40px; flex-shrink: 0; background: var(--bg-hover); border: 1px solid var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+                .replies { margin-top: 16px; padding-left: 20px; border-left: 2px solid var(--border); display: flex; flex-direction: column; gap: 16px; }
                 .login-hint { margin-bottom: 32px; padding: 16px 20px; border: 1px dashed var(--border); border-radius: 12px; color: var(--text-muted); }
                 .login-hint :global(a) { color: var(--primary); font-weight: 600; }
             `}</style>
         </>
+    );
+}
+
+function CommentItem({ c, isLoggedIn, onReply, onReport, isReply = false, children }) {
+    const [replying, setReplying] = useState(false);
+    const [text, setText] = useState('');
+    const [busy, setBusy] = useState(false);
+
+    const submit = async (e) => {
+        e.preventDefault();
+        if (!text.trim() || busy) return;
+        setBusy(true);
+        const okay = await onReply(c, text.trim());
+        setBusy(false);
+        if (okay) { setText(''); setReplying(false); }
+    };
+
+    return (
+        <div style={{ display: 'flex', gap: '14px' }}>
+            <div className="c-avatar" style={isReply ? { width: 32, height: 32, fontSize: 13 } : undefined}>{c.user.charAt(0).toLocaleUpperCase('tr')}</div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px', flexWrap: 'wrap' }}>
+                    <span style={{ fontWeight: 600 }}>{c.user}</span>
+                    <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>• {formatShortDate(c.time)}</span>
+                </div>
+                <p style={{ color: 'var(--text-secondary)', lineHeight: '1.5', overflowWrap: 'anywhere' }}>{c.text}</p>
+                {isLoggedIn && (
+                    <div className="c-actions">
+                        {!isReply && (
+                            <button type="button" onClick={() => setReplying(!replying)}><CornerDownRight size={14} /> Cevapla</button>
+                        )}
+                        {!c.mine && (
+                            <button type="button" onClick={() => onReport(c)} aria-label="Yorumu şikayet et"><Flag size={13} /> Şikayet et</button>
+                        )}
+                    </div>
+                )}
+                {replying && (
+                    <form onSubmit={submit} className="c-reply-form">
+                        <input
+                            autoFocus value={text} maxLength={1000} onChange={(e) => setText(e.target.value)}
+                            placeholder={`${c.user} kullanıcısına cevap yaz...`} aria-label="Cevap"
+                        />
+                        <button type="submit" disabled={busy} className="btn btn-primary" style={{ padding: '8px 16px' }}>Gönder</button>
+                    </form>
+                )}
+                {children}
+            </div>
+            <style jsx>{`
+                .c-avatar { width: 40px; height: 40px; flex-shrink: 0; background: var(--bg-hover); border: 1px solid var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+                .c-actions { display: flex; gap: 16px; margin-top: 6px; }
+                .c-actions button { background: none; border: none; color: var(--text-muted); font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; cursor: pointer; padding: 0; }
+                .c-actions button:hover { color: var(--primary); }
+                .c-reply-form { display: flex; gap: 8px; margin-top: 10px; }
+                .c-reply-form input { flex: 1; min-width: 0; padding: 10px 16px; background: var(--bg-hover); border: 1px solid var(--border); border-radius: 99px; color: var(--text-main); outline: none; }
+                .c-reply-form input:focus { border-color: var(--primary); }
+            `}</style>
+        </div>
     );
 }

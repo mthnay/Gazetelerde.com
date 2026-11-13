@@ -2,13 +2,14 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { User, Settings, Trash2, Save, Lock, AlertTriangle, Bookmark } from 'lucide-react';
+import { User, Settings, Trash2, Save, Lock, AlertTriangle, Bookmark, Heart, Bell, Check, Plus } from 'lucide-react';
 import { articleUrl, formatDate } from '@/lib/format';
 import Modal from '@/components/Modal';
 
-export default function ProfileView({ initialUser, bookmarks = [] }) {
+export default function ProfileView({ initialUser, initialTab = 'general', bookmarks = [], likes = [], categories = [], followed = [] }) {
     const [user, setUser] = useState(initialUser);
-    const [activeTab, setActiveTab] = useState('general');
+    const [activeTab, setActiveTab] = useState(initialTab);
+    const [following, setFollowing] = useState(followed);
     const [loading, setLoading] = useState(false);
     const [notice, setNotice] = useState('');
     const router = useRouter();
@@ -43,6 +44,14 @@ export default function ProfileView({ initialUser, bookmarks = [] }) {
         const data = await patchProfile(pw);
         setPwMsg(data.success ? 'Şifreniz değiştirildi. Diğer cihazlardaki oturumlar kapatıldı.' : data.message);
         if (data.success) setPw({ currentPassword: '', newPassword: '' });
+    };
+
+    const toggleFollow = async (slug) => {
+        const on = !following.includes(slug);
+        setFollowing(on ? [...following, slug] : following.filter((x) => x !== slug));
+        const res = await fetch(`/api/categories/${slug}/follow`, { method: on ? 'POST' : 'DELETE' }).catch(() => null);
+        const data = await res?.json().catch(() => null);
+        if (!data?.success) setFollowing(following); // geri al
     };
 
     const handleDeleteAccount = async () => {
@@ -87,6 +96,18 @@ export default function ProfileView({ initialUser, bookmarks = [] }) {
                             onClick={() => setActiveTab('bookmarks')}
                         >
                             <Bookmark size={18} /> Kaydettiklerim ({bookmarks.length})
+                        </button>
+                        <button
+                            className={`nav-item ${activeTab === 'likes' ? 'active' : ''}`}
+                            onClick={() => setActiveTab('likes')}
+                        >
+                            <Heart size={18} /> Beğendiklerim ({likes.length})
+                        </button>
+                        <button
+                            className={`nav-item ${activeTab === 'takip' ? 'active' : ''}`}
+                            onClick={() => setActiveTab('takip')}
+                        >
+                            <Bell size={18} /> Takip ettiklerim ({following.length})
                         </button>
                     </nav>
                 </div>
@@ -133,20 +154,33 @@ export default function ProfileView({ initialUser, bookmarks = [] }) {
                     {activeTab === 'bookmarks' && (
                         <div className="animate-fade-in">
                             <h2 className="tab-title">Kaydettiklerim</h2>
-                            {bookmarks.length === 0 ? (
-                                <p style={{ color: 'var(--text-muted)' }}>Henüz kaydettiğiniz bir haber yok. Haberlerdeki <Bookmark size={14} style={{ display: 'inline' }} /> simgesiyle kaydedebilirsiniz.</p>
-                            ) : (
-                                <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                                    {bookmarks.map((b) => (
-                                        <li key={b.id}>
-                                            <Link href={articleUrl(b)} className="bookmark-row">
-                                                <span style={{ fontWeight: 600 }}>{b.title}</span>
-                                                <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{b.categoryLabel} · {formatDate(b.publishedAt)}</span>
-                                            </Link>
-                                        </li>
-                                    ))}
-                                </ul>
-                            )}
+                            <ArticleList items={bookmarks} empty="Henüz kaydettiğiniz bir haber yok. Haberlerdeki kaydet simgesiyle sonra okumak üzere saklayabilirsiniz." />
+                        </div>
+                    )}
+
+                    {activeTab === 'likes' && (
+                        <div className="animate-fade-in">
+                            <h2 className="tab-title">Beğendiklerim</h2>
+                            <ArticleList items={likes} empty="Henüz beğendiğiniz bir haber yok." />
+                        </div>
+                    )}
+
+                    {activeTab === 'takip' && (
+                        <div className="animate-fade-in">
+                            <h2 className="tab-title">Takip ettiklerim</h2>
+                            <p style={{ color: 'var(--text-muted)', marginBottom: '20px', lineHeight: 1.5 }}>
+                                Takip ettiğiniz kategorilerde yeni haber çıkınca üst menüdeki zil simgesinde görürsünüz.
+                            </p>
+                            <div className="follow-grid">
+                                {categories.map((c) => {
+                                    const on = following.includes(c.slug);
+                                    return (
+                                        <button key={c.slug} type="button" onClick={() => toggleFollow(c.slug)} className={`follow-chip ${on ? 'on' : ''}`} aria-pressed={on}>
+                                            {on ? <Check size={14} /> : <Plus size={14} />} {c.label}
+                                        </button>
+                                    );
+                                })}
+                            </div>
                         </div>
                     )}
 
@@ -233,6 +267,10 @@ export default function ProfileView({ initialUser, bookmarks = [] }) {
             </Modal>
 
             <style jsx>{`
+        .follow-grid { display: flex; flex-wrap: wrap; gap: 10px; }
+        .follow-chip { display: inline-flex; align-items: center; gap: 6px; padding: 10px 16px; border-radius: 99px; border: 1px solid var(--border); background: var(--bg-hover); color: var(--text-main); font-weight: 700; font-size: 13px; cursor: pointer; transition: 0.2s; }
+        .follow-chip:hover { border-color: var(--primary); }
+        .follow-chip.on { background: var(--primary); color: #000; border-color: var(--primary); }
         .bookmark-row { display: flex; flex-direction: column; gap: 4px; padding: 14px 16px; border: 1px solid var(--border); border-radius: 12px; transition: border-color 0.2s; }
         .bookmark-row:hover { border-color: var(--primary); }
         .profile-grid {
@@ -337,5 +375,25 @@ export default function ProfileView({ initialUser, bookmarks = [] }) {
         }
       `}</style>
         </div>
+    );
+}
+
+function ArticleList({ items, empty }) {
+    if (!items.length) return <p style={{ color: 'var(--text-muted)' }}>{empty}</p>;
+    return (
+        <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {items.map((b) => (
+                <li key={b.id}>
+                    <Link href={articleUrl(b)} className="article-row">
+                        <span style={{ fontWeight: 600 }}>{b.title}</span>
+                        <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{b.categoryLabel} · {formatDate(b.publishedAt)}</span>
+                    </Link>
+                </li>
+            ))}
+            <style jsx>{`
+                li :global(.article-row) { display: flex; flex-direction: column; gap: 4px; padding: 14px 16px; border: 1px solid var(--border); border-radius: 12px; transition: border-color 0.2s; }
+                li :global(.article-row:hover) { border-color: var(--primary); }
+            `}</style>
+        </ul>
     );
 }

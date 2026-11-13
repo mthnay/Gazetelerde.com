@@ -1,22 +1,35 @@
 import { redirect } from 'next/navigation';
 import ProfileView from '@/components/ProfileView';
 import { getCurrentUser } from '@/lib/auth';
+import { getCategories } from '@/lib/news';
 import { prisma } from '@/lib/db';
 
 export const metadata = { title: 'Profilim | Gazetelerde', robots: { index: false } };
 
-export default async function ProfilePage() {
+const articleSel = { id: true, slug: true, title: true, publishedAt: true, category: { select: { label: true } } };
+const toItem = (a) => ({ id: a.id, slug: a.slug, title: a.title, publishedAt: a.publishedAt?.toISOString(), categoryLabel: a.category.label });
+
+export default async function ProfilePage({ searchParams }) {
     const user = await getCurrentUser();
     if (!user) redirect('/login?next=/profile');
+    const { sekme } = await searchParams;
 
-    const rows = await prisma.bookmark.findMany({
-        where: { userId: user.id, article: { status: 'PUBLISHED' } },
-        orderBy: { createdAt: 'desc' },
-        select: { article: { select: { id: true, slug: true, title: true, publishedAt: true, category: { select: { label: true } } } } },
-    });
-    const bookmarks = rows.map(({ article: a }) => ({
-        id: a.id, slug: a.slug, title: a.title, publishedAt: a.publishedAt?.toISOString(), categoryLabel: a.category.label,
-    }));
+    const visible = { article: { status: 'PUBLISHED' } };
+    const [bookmarks, likes, follows, categories] = await Promise.all([
+        prisma.bookmark.findMany({ where: { userId: user.id, ...visible }, orderBy: { createdAt: 'desc' }, select: { article: { select: articleSel } } }),
+        prisma.like.findMany({ where: { userId: user.id, ...visible }, orderBy: { createdAt: 'desc' }, select: { article: { select: articleSel } } }),
+        prisma.categoryFollow.findMany({ where: { userId: user.id }, select: { category: { select: { slug: true } } } }),
+        getCategories(),
+    ]);
 
-    return <ProfileView initialUser={{ name: user.name, email: user.email }} bookmarks={bookmarks} />;
+    return (
+        <ProfileView
+            initialUser={{ name: user.name, email: user.email }}
+            initialTab={['general', 'security', 'bookmarks', 'likes', 'takip'].includes(sekme) ? sekme : 'general'}
+            bookmarks={bookmarks.map((b) => toItem(b.article))}
+            likes={likes.map((l) => toItem(l.article))}
+            categories={categories.map((c) => ({ slug: c.slug, label: c.label }))}
+            followed={follows.map((f) => f.category.slug)}
+        />
+    );
 }

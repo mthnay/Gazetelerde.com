@@ -9,7 +9,12 @@ export async function PATCH(request, { params }) {
     const id = await idParam(params);
     const body = await readJson(request);
     if (!['VISIBLE', 'HIDDEN'].includes(body?.status)) return fail('Geçersiz durum.');
-    const res = await prisma.comment.updateMany({ where: { id: id ?? -1 }, data: { status: body.status } });
+    // Editör yorumu tekrar yayına alırsa şikayetler temizlenir (yeniden otomatik gizlenmesin)
+    if (body.status === 'VISIBLE' && id) await prisma.commentReport.deleteMany({ where: { commentId: id } });
+    const res = await prisma.comment.updateMany({
+        where: { id: id ?? -1 },
+        data: { status: body.status, ...(body.status === 'VISIBLE' ? { reportCount: 0 } : {}) },
+    });
     if (!res.count) return fail('Yorum bulunamadı.', 404);
     return ok({ status: body.status });
 }

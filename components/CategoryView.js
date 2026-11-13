@@ -3,7 +3,7 @@ import NewsCard from "@/components/NewsCard";
 import Link from 'next/link';
 import { articleUrl } from '@/lib/format';
 
-export default function CategoryView({ catInfo, filteredNews }) {
+export default function CategoryView({ catInfo, filteredNews, followButton = null }) {
 
     return (
         <div className="container" style={{ paddingTop: '40px', paddingBottom: '80px' }}>
@@ -13,6 +13,7 @@ export default function CategoryView({ catInfo, filteredNews }) {
                 <span className="cat-subtitle">KATEGORİ</span>
                 <h1 className="cat-title">{catInfo.label}</h1>
                 <p className="cat-desc">{catInfo.description}</p>
+                {followButton && <div style={{ marginTop: '24px' }}>{followButton}</div>}
             </div>
 
             {/* News Grid */}

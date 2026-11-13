@@ -5,7 +5,7 @@ import { formatDate, articleUrl } from '@/lib/format';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, Clock, Zap, Activity, Globe } from 'lucide-react';
 
-export default function HomeView({ allNews = [], categories = [] }) {
+export default function HomeView({ allNews = [], categories = [], breaking = null, mostRead = null }) {
   const [activeFilter, setActiveFilter] = useState('all');
   const [nlStatus, setNlStatus] = useState('');
   const [email, setEmail] = useState('');
@@ -13,17 +13,20 @@ export default function HomeView({ allNews = [], categories = [] }) {
   const news = allNews.slice(0, 9);
   const filters = [{ slug: 'all', label: 'HEPSİ' }, ...categories];
   const filteredNews = activeFilter === 'all' ? news : allNews.filter(n => n.category === activeFilter);
-  const breaking = news[0];
 
-  const handleSubscribe = (e) => {
+  const handleSubscribe = async (e) => {
     e.preventDefault();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       setNlStatus('Lütfen geçerli bir e-posta adresi girin.');
       return;
     }
-    // TODO: bülten servisine (ör. API route) bağlanacak
-    setNlStatus('Teşekkürler! Bültene abone oldunuz.');
-    setEmail('');
+    setNlStatus('Gönderiliyor…');
+    const res = await fetch('/api/newsletter', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email }),
+    }).catch(() => null);
+    const data = await res?.json().catch(() => null);
+    setNlStatus(data?.message || (data?.success ? 'Teşekkürler!' : 'Bir hata oluştu, lütfen tekrar deneyin.'));
+    if (data?.success) setEmail('');
   };
 
   // Varians
@@ -141,6 +144,8 @@ export default function HomeView({ allNews = [], categories = [] }) {
             )}
           </motion.div>
         </section>
+
+        {mostRead && <section className="most-read-section">{mostRead}</section>}
 
         {/* NEWSLETTER SECTION */}
         <section className="newsletter-section">
@@ -326,6 +331,7 @@ export default function HomeView({ allNews = [], categories = [] }) {
                 .footer-links a:hover { color: var(--prim); }
 
                 .badge-glow { text-decoration: none; max-width: 100%; }
+                .most-read-section { padding: 20px 0 40px; max-width: 760px; }
                 [data-theme='light'] .badge-glow { color: #92400e; background: rgba(251, 191, 36, 0.25); }
                 .btn-outline { justify-content: center; }
                 .empty-feed { grid-column: 1 / -1; padding: 60px; text-align: center; color: var(--text-muted); border: 1px dashed var(--border); border-radius: 24px; }

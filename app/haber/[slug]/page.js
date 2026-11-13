@@ -3,10 +3,16 @@ import { notFound } from 'next/navigation';
 import { after } from 'next/server';
 import NewsCard from '@/components/NewsCard';
 import NewsInteractions from '@/components/NewsInteractions';
+import MostRead from '@/components/MostRead';
 import { prisma } from '@/lib/db';
 import { getCurrentUser } from '@/lib/auth';
-import { getArticleBySlug, getRelatedNews, incrementViews } from '@/lib/news';
+import { getArticleBySlug, getRelatedNews, getMostRead, incrementViews } from '@/lib/news';
 import { formatDate, readingTime, paragraphs, articleUrl } from '@/lib/format';
+
+// Yorumu istemciye gönderirken kullanıcı kimliği yerine sadece "benim mi" bilgisi gider
+const toClientComment = (c, user) => ({
+    id: c.id, text: c.text, user: c.user.name, time: c.createdAt.toISOString(), mine: c.userId === user?.id,
+});
 
 export async function generateMetadata({ params }) {
     const { slug } = await params;
@@ -29,13 +35,20 @@ export default async function NewsDetail({ params }) {
     if (!item) notFound();
 
     const user = await getCurrentUser();
-    const [related, comments, liked, saved] = await Promise.all([
+    const [related, mostRead, comments, liked, saved] = await Promise.all([
         getRelatedNews(item),
+        getMostRead(5),
         prisma.comment.findMany({
-            where: { articleId: item.id, status: 'VISIBLE' },
+            where: { articleId: item.id, status: 'VISIBLE', parentId: null },
             orderBy: { createdAt: 'desc' },
             take: 100,
-            select: { id: true, text: true, createdAt: true, user: { select: { name: true } } },
+            select: {
+                id: true, text: true, createdAt: true, userId: true, user: { select: { name: true } },
+                replies: {
+                    where: { status: 'VISIBLE' }, orderBy: { createdAt: 'asc' },
+                    select: { id: true, text: true, createdAt: true, userId: true, user: { select: { name: true } } },
+                },
+            },
         }),
         user ? prisma.like.findUnique({ where: { userId_articleId: { userId: user.id, articleId: item.id } } }) : null,
         user ? prisma.bookmark.findUnique({ where: { userId_articleId: { userId: user.id, articleId: item.id } } }) : null,
@@ -89,7 +102,10 @@ export default async function NewsDetail({ params }) {
                 initialLiked={!!liked}
                 initialSaved={!!saved}
                 initialLikeCount={item.likeCount}
-                initialComments={comments.map((c) => ({ id: c.id, text: c.text, user: c.user.name, time: c.createdAt.toISOString() }))}
+                initialComments={comments.map((c) => ({
+                    ...toClientComment(c, user),
+                    replies: c.replies.map((r) => toClientComment(r, user)),
+                }))}
             />
 
             {related.length > 0 && (
@@ -104,6 +120,10 @@ export default async function NewsDetail({ params }) {
                     </div>
                 </section>
             )}
+
+            <div style={{ marginBottom: '80px' }}>
+                <MostRead items={mostRead.filter((n) => n.id !== item.id).slice(0, 5)} />
+            </div>
         </div>
     );
 }

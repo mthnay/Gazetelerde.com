@@ -24,6 +24,7 @@ export default function ArticleForm({ article = null, categories, canPublish, in
         category: article?.category ?? categories[0]?.slug ?? '',
         status: article?.status ?? 'DRAFT',
         featured: article?.featured ?? false,
+        breaking: article?.breaking ?? false,
         authorName: article?.authorName ?? '',
         publishedAt: toLocalInput(article?.publishedAt),
     });
@@ -144,6 +145,11 @@ export default function ArticleForm({ article = null, categories, canPublish, in
                         {canPublish && (
                             <label className="admin-check" style={{ marginBottom: 16 }}>
                                 <input type="checkbox" checked={form.featured} onChange={set('featured')} /> Manşette göster
+                            </label>
+                        )}
+                        {canPublish && (
+                            <label className="admin-check" style={{ marginBottom: 16 }}>
+                                <input type="checkbox" checked={form.breaking} onChange={set('breaking')} /> Son dakika şeridinde göster (24 saat)
                             </label>
                         )}
                         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>

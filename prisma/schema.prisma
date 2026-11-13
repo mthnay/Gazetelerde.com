@@ -31,22 +31,27 @@ model User {
   email        String    @unique
   passwordHash String
   role         Role      @default(READER)
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  createdAt    DateTime @db.Timestamptz(3)  @default(now())
+  updatedAt    DateTime @db.Timestamptz(3)  @updatedAt
+
+  // Bildirim zilinin en son açıldığı an; bundan sonra çıkan haberler "yeni" sayılır
+  notificationsSeenAt DateTime @db.Timestamptz(3) @default(now())
 
   sessions  Session[]
   articles  Article[]
   comments  Comment[]
   likes     Like[]
   bookmarks Bookmark[]
+  follows   CategoryFollow[]
+  reports   CommentReport[]
 }
 
 model Session {
   id        String   @id // rastgele token'ın SHA-256 özeti
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  expiresAt DateTime
-  createdAt DateTime @default(now())
+  expiresAt DateTime @db.Timestamptz(3)
+  createdAt DateTime @db.Timestamptz(3) @default(now())
 
   @@index([userId])
 }
@@ -58,6 +63,7 @@ model Category {
   description String    @default("")
   sortOrder   Int       @default(0)
   articles    Article[]
+  followers   CategoryFollow[]
 }
 
 model Article {
@@ -69,10 +75,11 @@ model Article {
   image       String?
   status      ArticleStatus @default(DRAFT)
   featured    Boolean       @default(false)
+  breaking    Boolean       @default(false) // son dakika şeridinde gösterilir
   viewCount   Int           @default(0)
-  publishedAt DateTime?
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  publishedAt DateTime? @db.Timestamptz(3)
+  createdAt   DateTime @db.Timestamptz(3)      @default(now())
+  updatedAt   DateTime @db.Timestamptz(3)      @updatedAt
 
   categoryId Int
   category   Category @relation(fields: [categoryId], references: [id])
@@ -92,20 +99,59 @@ model Comment {
   id        Int           @id @default(autoincrement())
   text      String
   status    CommentStatus @default(VISIBLE)
-  createdAt DateTime      @default(now())
+  createdAt DateTime @db.Timestamptz(3)      @default(now())
 
   articleId Int
   article   Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
   userId    String
   user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  // Cevaplar tek seviyelidir: cevabın cevabı, ana yoruma bağlanır
+  parentId Int?
+  parent   Comment?  @relation("Replies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies  Comment[] @relation("Replies")
+
+  reports     CommentReport[]
+  reportCount Int @default(0)
+
   @@index([articleId, createdAt])
+  @@index([parentId])
+}
+
+model CommentReport {
+  commentId Int
+  userId    String
+  reason    String   @default("")
+  createdAt DateTime @db.Timestamptz(3) @default(now())
+  comment   Comment  @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([commentId, userId])
+}
+
+model CategoryFollow {
+  userId     String
+  categoryId Int
+  createdAt  DateTime @db.Timestamptz(3) @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([userId, categoryId])
+  @@index([categoryId])
+}
+
+model Subscriber {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  token     String   @unique // abonelikten çıkma linki için
+  active    Boolean  @default(true)
+  createdAt DateTime @db.Timestamptz(3) @default(now())
 }
 
 model Like {
   userId    String
   articleId Int
-  createdAt DateTime @default(now())
+  createdAt DateTime @db.Timestamptz(3) @default(now())
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   article   Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
 
@@ -116,7 +162,7 @@ model Like {
 model Bookmark {
   userId    String
   articleId Int
-  createdAt DateTime @default(now())
+  createdAt DateTime @db.Timestamptz(3) @default(now())
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   article   Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
 
