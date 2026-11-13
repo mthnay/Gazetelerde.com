@@ -3,6 +3,7 @@ import BreakingTicker from '@/components/BreakingTicker';
 import MostRead from '@/components/MostRead';
 import { getBreakingNews, getCategories, getLatestNews, getMostRead } from '@/lib/news';
 import { absoluteUrl, SITE_NAME, SITE_DESCRIPTION } from '@/lib/site';
+import { buildSafe } from '@/lib/db';
 
 // Google'da site adı ve site içi arama kutusu için
 const siteJsonLd = [
@@ -17,9 +18,10 @@ const siteJsonLd = [
 export const revalidate = 60;
 
 export default async function Home() {
-  const [allNews, categories, breaking, mostRead] = await Promise.all([
-    getLatestNews({ take: 40 }), getCategories(), getBreakingNews(), getMostRead(5),
-  ]);
+  const [allNews, categories, breaking, mostRead] = await buildSafe(
+    () => Promise.all([getLatestNews({ take: 40 }), getCategories(), getBreakingNews(), getMostRead(5)]),
+    [[], [], { flagged: false, items: [] }, []],
+  );
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(siteJsonLd) }} />

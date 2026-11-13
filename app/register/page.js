@@ -155,13 +155,13 @@ export default function RegisterPage() {
 
             {/* KVKK MODAL */}
             <Modal isOpen={showKVKK} onClose={() => setShowKVKK(false)} title="KVKK Aydınlatma Metni">
-                <h4 style={{ color: 'white', marginBottom: '10px' }}>Veri Sorumlusu</h4>
+                <h4 style={{ color: 'var(--text-main)', marginBottom: '10px' }}>Veri Sorumlusu</h4>
                 <p style={{ marginBottom: '16px' }}>6698 sayılı Kişisel Verilerin Korunması Kanunu (&quot;KVKK&quot;) uyarınca, Gazetelerde.com olarak, veri sorumlusu sıfatıyla, kişisel verilerinizi aşağıda açıklanan amaçlar kapsamında işlemekteyiz.</p>
 
-                <h4 style={{ color: 'white', marginBottom: '10px' }}>İşlenen Kişisel Verileriniz</h4>
+                <h4 style={{ color: 'var(--text-main)', marginBottom: '10px' }}>İşlenen Kişisel Verileriniz</h4>
                 <p style={{ marginBottom: '16px' }}>Adınız, soyadınız, e-posta adresiniz, IP adresiniz ve site içi hareketleriniz gibi veriler tarafımızca işlenmektedir.</p>
 
-                <h4 style={{ color: 'white', marginBottom: '10px' }}>İşleme Amaçları</h4>
+                <h4 style={{ color: 'var(--text-main)', marginBottom: '10px' }}>İşleme Amaçları</h4>
                 <ul style={{ paddingLeft: '20px', marginBottom: '16px' }}>
                     <li>Üyelik işlemlerinin gerçekleştirilmesi</li>
                     <li>Hizmet kalitesinin artırılması</li>

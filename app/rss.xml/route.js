@@ -1,4 +1,4 @@
-import { prisma } from '@/lib/db';
+import { prisma, buildSafe } from '@/lib/db';
 import { absoluteUrl, SITE_NAME, SITE_DESCRIPTION } from '@/lib/site';
 import { xmlEscape } from '@/lib/xml';
 
@@ -7,12 +7,12 @@ export const revalidate = 300;
 // Sitenin kendi RSS akışı: haber okuyucular ve toplayıcılar (Google News, Feedly vb.) için
 export async function GET() {
     const now = new Date();
-    const articles = await prisma.article.findMany({
+    const articles = await buildSafe(() => prisma.article.findMany({
         where: { status: 'PUBLISHED', publishedAt: { lte: now } },
         orderBy: { publishedAt: 'desc' },
         take: 50,
         select: { slug: true, title: true, summary: true, image: true, publishedAt: true, authorName: true, author: { select: { name: true } }, category: { select: { label: true } } },
-    });
+    }), []);
 
     const body = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:media="http://search.yahoo.com/mrss/" xmlns:dc="http://purl.org/dc/elements/1.1/">

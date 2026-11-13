@@ -5,7 +5,7 @@ export default function Modal({ isOpen, onClose, title, children }) {
     if (!isOpen) return null;
 
     return (
-        <div style={{
+        <div role="dialog" aria-modal="true" aria-label={title} onClick={(e) => { if (e.target === e.currentTarget) onClose(); }} style={{
             position: 'fixed',
             top: 0,
             left: 0,
@@ -20,8 +20,8 @@ export default function Modal({ isOpen, onClose, title, children }) {
             padding: '20px'
         }}>
             <div className="modal-content" style={{
-                background: '#18181b',
-                border: '1px solid #27272a',
+                background: 'var(--bg-main)',
+                border: '1px solid var(--border)',
                 borderRadius: '16px',
                 width: '100%',
                 maxWidth: '600px',
@@ -34,12 +34,12 @@ export default function Modal({ isOpen, onClose, title, children }) {
                 {/* Header */}
                 <div style={{
                     padding: '20px',
-                    borderBottom: '1px solid #27272a',
+                    borderBottom: '1px solid var(--border)',
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'center'
                 }}>
-                    <h3 style={{ fontSize: '1.2rem', fontWeight: '700', color: 'white' }}>{title}</h3>
+                    <h3 style={{ fontSize: '1.2rem', fontWeight: '700', color: 'var(--text-main)' }}>{title}</h3>
                     <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#a1a1aa', cursor: 'pointer' }}>
                         <X size={24} />
                     </button>
@@ -50,7 +50,7 @@ export default function Modal({ isOpen, onClose, title, children }) {
                     padding: '24px',
                     overflowY: 'auto',
                     lineHeight: '1.6',
-                    color: '#d4d4d8',
+                    color: 'var(--text-secondary)',
                     fontSize: '0.95rem'
                 }}>
                     {children}
@@ -59,7 +59,7 @@ export default function Modal({ isOpen, onClose, title, children }) {
                 {/* Footer */}
                 <div style={{
                     padding: '20px',
-                    borderTop: '1px solid #27272a',
+                    borderTop: '1px solid var(--border)',
                     textAlign: 'right'
                 }}>
                     <button

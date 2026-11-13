@@ -2,7 +2,9 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import ThemeToggle from "@/components/ThemeToggle";
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 import { getCategories } from "@/lib/news";
+import { buildSafe } from "@/lib/db";
 import { SessionProvider } from "@/components/SessionProvider";
 import { SITE_URL, SITE_NAME, SITE_DESCRIPTION } from "@/lib/site";
 import "./globals.css";
@@ -39,7 +41,7 @@ export const viewport = {
 };
 
 export default async function RootLayout({ children }) {
-  const categories = await getCategories();
+  const categories = await buildSafe(() => getCategories(), []);
   return (
     <html lang="tr" data-theme="dark" suppressHydrationWarning>
       <head>
@@ -52,6 +54,7 @@ export default async function RootLayout({ children }) {
           <main style={{ paddingTop: 'var(--header-height)', minHeight: '100vh' }}>
             {children}
           </main>
+          <Footer categories={categories} />
           <ThemeToggle />
           </SessionProvider>
         </ThemeProvider>

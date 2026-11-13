@@ -1,4 +1,4 @@
-import { prisma } from '@/lib/db';
+import { prisma, buildSafe } from '@/lib/db';
 import { absoluteUrl, SITE_NAME } from '@/lib/site';
 import { xmlEscape } from '@/lib/xml';
 
@@ -9,12 +9,12 @@ export const revalidate = 300;
 export async function GET() {
     const now = new Date();
     const since = new Date(now.getTime() - 48 * 3600 * 1000);
-    const articles = await prisma.article.findMany({
+    const articles = await buildSafe(() => prisma.article.findMany({
         where: { status: 'PUBLISHED', publishedAt: { gte: since, lte: now } },
         orderBy: { publishedAt: 'desc' },
         take: 1000,
         select: { slug: true, title: true, publishedAt: true },
-    });
+    }), []);
 
     const body = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">

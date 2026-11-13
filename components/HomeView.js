@@ -173,16 +173,6 @@ export default function HomeView({ allNews = [], categories = [], breaking = nul
           </div>
         </section>
 
-        <footer className="footer">
-          <div className="footer-content">
-            <p>&copy; 2026 Gazetelerde.com · Geleceğin Medyası</p>
-            <div className="footer-links">
-              <a href="#">Gizlilik</a>
-              <a href="#">Künye</a>
-              <a href="#">İletişim</a>
-            </div>
-          </div>
-        </footer>
       </div>
 
       <style jsx global>{`
@@ -324,13 +314,6 @@ export default function HomeView({ allNews = [], categories = [], breaking = nul
 
                 .nl-decoration { position: absolute; right: -50px; bottom: -50px; opacity: 0.1; transform: rotate(-15deg); }
 
-                /* FOOTER */
-                .footer { border-top: 1px solid var(--glass-border); padding: 60px 0; margin-top: 60px; text-align: center; color: var(--text-muted); }
-                .footer-content { display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; padding: 0 24px; }
-                .footer-links { display: flex; gap: 24px; }
-                .footer-links a { color: var(--text-muted); text-decoration: none; transition: 0.2s; }
-                .footer-links a:hover { color: var(--prim); }
-
                 .badge-glow { text-decoration: none; max-width: 100%; }
                 .most-read-section { padding: 20px 0 40px; max-width: 760px; }
                 [data-theme='light'] .badge-glow { color: #92400e; background: rgba(251, 191, 36, 0.25); }
@@ -346,7 +329,6 @@ export default function HomeView({ allNews = [], categories = [], breaking = nul
                     .news-card.featured .card-image, .news-card.featured .card-content { width: 100%; }
                     .newsletter-box { flex-direction: column; text-align: center; gap: 40px; }
                     .input-group { flex-direction: column; width: 100%; }
-                    .footer-content { flex-direction: column; gap: 24px; }
                 }
                 @media (max-width: 600px) {
                     .hero-title { font-size: 2.25rem; }

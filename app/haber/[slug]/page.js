@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import NewsCard from '@/components/NewsCard';
+import NewsGrid from '@/components/NewsGrid';
 import NewsInteractions from '@/components/NewsInteractions';
 import MostRead from '@/components/MostRead';
 import SmartImage from '@/components/SmartImage';
@@ -129,13 +129,7 @@ export default async function NewsDetail({ params }) {
             {related.length > 0 && (
                 <section style={{ marginBottom: '80px' }}>
                     <h2 className="section-title" style={{ marginBottom: '24px' }}>İlgili Haberler</h2>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '24px' }}>
-                        {related.map((n) => (
-                            <Link key={n.id} href={articleUrl(n)}>
-                                <NewsCard news={n} />
-                            </Link>
-                        ))}
-                    </div>
+                    <NewsGrid items={related} min={220} />
                 </section>
             )}
 

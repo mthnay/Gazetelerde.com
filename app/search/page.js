@@ -1,7 +1,5 @@
-import Link from 'next/link';
-import NewsCard from '@/components/NewsCard';
+import NewsGrid from '@/components/NewsGrid';
 import { searchNews } from '@/lib/news';
-import { articleUrl } from '@/lib/format';
 
 export const metadata = { title: 'Arama | Gazetelerde', robots: { index: false, follow: true } };
 
@@ -34,13 +32,7 @@ export default async function SearchPage({ searchParams }) {
                 <p style={{ color: 'var(--text-muted)' }}>Sonuç bulunamadı. Farklı bir kelime deneyin.</p>
             )}
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '24px' }}>
-                {results.map((n) => (
-                    <Link key={n.id} href={articleUrl(n)}>
-                        <NewsCard news={n} />
-                    </Link>
-                ))}
-            </div>
+            <NewsGrid items={results} min={260} />
         </div>
     );
 }

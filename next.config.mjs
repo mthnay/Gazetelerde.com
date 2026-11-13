@@ -6,6 +6,9 @@ export const imageHosts = (process.env.NEXT_PUBLIC_IMAGE_HOSTS || 'images.unspla
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Docker için: sadece gereken dosyaları içeren küçük bir sunucu paketi üretir (.next/standalone)
+  output: 'standalone',
+  poweredByHeader: false,
   images: {
     formats: ['image/avif', 'image/webp'],
     remotePatterns: imageHosts.map((hostname) => ({ protocol: 'https', hostname })),
