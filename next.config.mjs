@@ -10,7 +10,8 @@ const nextConfig = {
   output: 'standalone',
   poweredByHeader: false,
   images: {
-    formats: ['image/avif', 'image/webp'],
+    // AVIF kodlaması işlemciyi çok yorar (sunucuda görsel başına saniyeler); WebP hem hızlı hem yeterince küçük
+    formats: ['image/webp'],
     remotePatterns: imageHosts.map((hostname) => ({ protocol: 'https', hostname })),
     localPatterns: [{ pathname: '/media/**' }],
     minimumCacheTTL: 60 * 60 * 24 * 7,

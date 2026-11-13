@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import BreakingTicker from '@/components/BreakingTicker';
 import MostRead from '@/components/MostRead';
 import LiveFeed from '@/components/LiveFeed';
@@ -46,9 +45,19 @@ export default async function Home() {
   const rest = allNews.filter((n) => n.id !== lead.id);
   const side = rest.slice(0, 4);
   const strip = rest.slice(4, 8);
+  // Kategori satırları: 4+ haber -> büyük blok, 3 -> üç kart, 1-2 -> başka küçük kategoriyle yan yana
   const blocks = categories
-    .map((c) => ({ cat: c, items: allNews.filter((n) => n.category === c.slug).slice(0, 4) }))
-    .filter((b) => b.items.length >= 2);
+    .map((c) => ({ cat: c, items: allNews.filter((n) => n.category === c.slug).slice(0, 5) }))
+    .filter((b) => b.items.length > 0);
+  const rows = [];
+  let pending = null;
+  for (const b of blocks) {
+    if (b.items.length >= 4) rows.push({ type: 'big', ...b });
+    else if (b.items.length === 3) rows.push({ type: 'three', ...b });
+    else if (pending) { rows.push({ type: 'pair', items: [pending, b] }); pending = null; }
+    else pending = b;
+  }
+  if (pending) rows.push({ type: 'pair', items: [pending] });
 
   return (
     <>
@@ -73,8 +82,14 @@ export default async function Home() {
         )}
       </section>
 
+      {/* Okunanlar + canlı akış: yan yana, eşit genişlikte (uzun yan sütun boşluk bırakmasın) */}
+      <section className="container section home-band" aria-label="Öne çıkanlar">
+        <MostRead items={mostRead} />
+        <LiveFeed items={allNews.slice(0, 6)} />
+      </section>
+
       {/* Tipografik akış bandı */}
-      <div className="marquee-band" aria-hidden="true" style={{ marginTop: 'clamp(40px, 6vw, 72px)' }}>
+      <div className="marquee-band" aria-hidden="true">
         <div className="marquee-band-track">
           {[0, 1].map((k) => (
             <span key={k}>
@@ -86,29 +101,39 @@ export default async function Home() {
         </div>
       </div>
 
-      {/* KATEGORİLER + KENAR SÜTUNU */}
-      <div className="container section split">
-        <div>
-          {blocks.map(({ cat, items }, bi) => (
-            <section key={cat.slug} className="section" style={bi === 0 ? { paddingTop: 0 } : undefined} aria-label={cat.label}>
-              <SectionHead title={titleCase(cat.label)} kicker={cat.description} href={`/category/${cat.slug}`} />
+      {/* KATEGORİLER: haber sayısına göre düzen; küçük kategoriler ikişer ikişer eşleşir */}
+      <div className="container home-cats">
+        {rows.map((row) => (row.type === 'pair' ? (
+          <div key={row.items.map((b) => b.cat.slug).join('-')} className="cat-pair">
+            {row.items.map(({ cat, items }) => (
+              <section key={cat.slug} aria-label={cat.label}>
+                <SectionHead title={titleCase(cat.label)} kicker={cat.description} href={`/category/${cat.slug}`} />
+                <div className="cat-pair-list">
+                  {items.slice(0, 3).map((n, i) => <Story key={n.id} item={n} variant={i === 0 ? 'card' : 'row'} index={i} summary={i === 0} />)}
+                </div>
+              </section>
+            ))}
+          </div>
+        ) : (
+          <section key={row.cat.slug} className="cat-row" aria-label={row.cat.label}>
+            <SectionHead title={titleCase(row.cat.label)} kicker={row.cat.description} href={`/category/${row.cat.slug}`} />
+            {row.type === 'big' ? (
               <div className="cat-block">
-                <Story item={items[0]} variant="feature" summary />
+                <Story item={row.items[0]} variant="feature" summary />
                 <div className="cat-block-list">
-                  {items.slice(1).map((n, i) => <Story key={n.id} item={n} variant="text" index={i + 1} />)}
+                  {row.items.slice(1, 4).map((n, i) => <Story key={n.id} item={n} variant="row" index={i + 1} />)}
                 </div>
               </div>
-            </section>
-          ))}
-        </div>
-        <aside className="split-aside" aria-label="Kenar sütunu">
-          <MostRead items={mostRead} />
-          <LiveFeed items={allNews.slice(0, 7)} />
-          <Link href="/search" className="btn btn-block" data-reveal>Arşivde ara</Link>
-        </aside>
+            ) : (
+              <div className="grid-3">
+                {row.items.slice(0, 3).map((n, i) => <Story key={n.id} item={n} variant="card" summary index={i} />)}
+              </div>
+            )}
+          </section>
+        )))}
       </div>
 
-      <div className="container">
+      <div className="container" style={{ marginTop: 'clamp(40px, 6vw, 72px)' }}>
         <Newsletter />
       </div>
     </>
