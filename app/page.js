@@ -326,6 +326,8 @@ export default function Home() {
                 .footer-links a:hover { color: var(--prim); }
 
                 .badge-glow { text-decoration: none; max-width: 100%; }
+                [data-theme='light'] .badge-glow { color: #92400e; background: rgba(251, 191, 36, 0.25); }
+                .btn-outline { justify-content: center; }
                 .empty-feed { grid-column: 1 / -1; padding: 60px; text-align: center; color: var(--text-muted); border: 1px dashed var(--border); border-radius: 24px; }
                 .nl-status { margin-top: 12px !important; margin-bottom: 0 !important; font-size: 0.95rem !important; color: var(--primary) !important; }
                 .news-card h3 a, .news-card > a { color: inherit; }
