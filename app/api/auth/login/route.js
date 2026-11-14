@@ -1,6 +1,6 @@
 import { prisma } from '@/lib/db';
 import { verifyPassword } from '@/lib/password';
-import { createSession, isStaff } from '@/lib/auth';
+import { createSession } from '@/lib/auth';
 import { ok, fail, readJson, rateLimit, clientIp } from '@/lib/api';
 
 export async function POST(request) {
@@ -21,5 +21,5 @@ export async function POST(request) {
 
     await createSession(user.id);
     const publicUser = { id: user.id, name: user.name, email: user.email, role: user.role };
-    return ok({ user: publicUser, role: user.role, redirectUrl: isStaff(publicUser) ? '/admin' : '/' });
+    return ok({ user: publicUser, role: user.role, redirectUrl: '/' }); // yöneticiler de siteyle başlar; panele menüden geçerler
 }
