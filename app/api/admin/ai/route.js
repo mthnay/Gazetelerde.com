@@ -21,7 +21,13 @@ export async function POST(request) {
 
     let text;
     const extra = {};
-    if (b.task === 'mac-ozeti') {
+    if (b.task === 'istatistik') {
+        const m = await prisma.match.findUnique({ where: { id: Number(b.matchId) }, select: { home: { select: { name: true } }, away: { select: { name: true } } } });
+        if (!m) return fail('Maç bulunamadı.', 404);
+        text = String(b.text || '').slice(0, MAX_CHARS + 1);
+        if (text.trim().length < 20) return fail('İstatistik tablosunu yapıştırın.');
+        extra.home = m.home.name; extra.away = m.away.name;
+    } else if (b.task === 'mac-ozeti') {
         const id = Number(b.articleId);
         const [entries, match] = await Promise.all([
             prisma.liveEntry.findMany({ where: { articleId: id }, orderBy: { createdAt: 'asc' }, select: { text: true, kind: true, createdAt: true } }),

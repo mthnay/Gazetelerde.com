@@ -10,7 +10,7 @@ const toLocal = (iso) => { const d = new Date(iso); d.setMinutes(d.getMinutes() 
 
 // Tek maç satırı: skoru hızlıca güncellemek için satır içi düzenleme
 function MatchRow({ m, teams, volley, onSaved, onError }) {
-    const [f, setF] = useState({ status: m.status, sets: m.sets.map((s) => s.join('-')).join(', '), homeScore: m.homeScore ?? '', awayScore: m.awayScore ?? '', startAt: toLocal(m.startAt), week: m.week ?? '', venue: m.venue, articleSlug: m.articleSlug });
+    const [f, setF] = useState({ status: m.status, sets: m.sets.map((s) => s.join('-')).join(', '), homeScore: m.homeScore ?? '', awayScore: m.awayScore ?? '', startAt: toLocal(m.startAt), week: m.week ?? '', venue: m.venue, articleSlug: m.articleSlug, broadcaster: m.broadcaster ?? '', round: m.round ?? '', group: m.group ?? '' });
     const [dirty, setDirty] = useState(false);
     const [busy, setBusy] = useState(false);
     const name = (id) => teams.find((t) => t.id === id)?.name || '?';
@@ -46,8 +46,13 @@ function MatchRow({ m, teams, volley, onSaved, onError }) {
                     : <><input className="admin-input" type="number" min="0" value={f.homeScore} onChange={set('homeScore')} aria-label="Ev sahibi skor" style={{ width: 70 }} />
                         <input className="admin-input" type="number" min="0" value={f.awayScore} onChange={set('awayScore')} aria-label="Deplasman skor" style={{ width: 70 }} /></>}
                 <input className="admin-input" value={f.venue} onChange={set('venue')} placeholder="Salon" aria-label="Salon" />
+                <input className="admin-input" value={f.broadcaster} onChange={set('broadcaster')} placeholder="Yayın (ör. TRT Spor)" aria-label="Yayıncı kanal" />
+                <input className="admin-input" value={f.round} onChange={set('round')} placeholder="Tur (ör. Yarı final)" aria-label="Eleme turu" />
+                <input className="admin-input" value={f.group} onChange={set('group')} placeholder="Grup (ör. A Grubu)" aria-label="Grup" />
                 <input className="admin-input" value={f.articleSlug} onChange={set('articleSlug')} placeholder="Bağlı haber adresi (isteğe bağlı)" aria-label="Bağlı haber" />
                 <button type="button" className={`admin-btn ${dirty ? 'primary' : ''}`} onClick={save} disabled={busy || !dirty}><Save size={14} /> Kaydet</button>
+                <a className="admin-btn" href={`/admin/mac/${m.id}`}>İstatistik</a>
+                <a className="admin-btn" href={`/admin/mac/${m.id}/canli`}>Canlı skor</a>
                 <button type="button" className="admin-icon-btn danger" onClick={remove} aria-label="Maçı sil"><Trash2 size={15} /></button>
             </div>
         </div>
@@ -103,6 +108,7 @@ export default function LeagueAdmin({ league, teams, matches }) {
                 </div>
                 <div style={{ display: 'flex', gap: 8 }}>
                     <a href={`/mac-merkezi/${league.slug}`} target="_blank" rel="noreferrer" className="admin-btn"><ExternalLink size={15} /> Sitede gör</a>
+                    <button type="button" className="admin-btn" onClick={async () => { const d = await api(`/api/admin/leagues/${league.id}`, 'PATCH', { featured: !league.featured }); if (d.success) done(); }}>{league.featured ? 'Ana sayfadan kaldır' : 'Ana sayfada göster'}</button>
                     <button type="button" className="admin-btn" onClick={toggle}>{league.active ? 'Gizle' : 'Yayınla'}</button>
                     <button type="button" className="admin-btn danger" onClick={removeLeague}><Trash2 size={15} /> Sil</button>
                 </div>

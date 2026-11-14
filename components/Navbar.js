@@ -88,6 +88,9 @@ function Drawer({ onClose, categories, user, onLogout }) {
                 </div>
                 <div className="drawer-links" onClick={onClose}>
                     <Link href="/">Ana Sayfa <ArrowRight size={18} /></Link>
+                    <Link href="/voleybol">🏐 Voleybol <ArrowRight size={18} /></Link>
+                    <Link href="/tahmin-ligi">Tahmin Ligi <ArrowRight size={18} /></Link>
+                    <Link href="/transfer">Transfer <ArrowRight size={18} /></Link>
                     {categories.map((c) => (
                         <Link key={c.slug} href={`/category/${c.slug}`}>{titleCase(c.label)} <ArrowRight size={18} /></Link>
                     ))}
@@ -213,6 +216,7 @@ export default function Navbar({ categories = [] }) {
                         </div>
                         <nav className="cat-nav" aria-label="Ana menü">
                             <Link href="/" className={`cat-link cat-link--home ${pathname === '/' ? 'is-active' : ''}`}>Ana Sayfa</Link>
+                            <Link href="/voleybol" className={`cat-link cat-link--volley ${['/voleybol', '/oyuncu', '/takim', '/mac/', '/transfer', '/tahmin-ligi', '/rehber', '/oyuncular'].some((x) => pathname?.startsWith(x)) ? 'is-active' : ''}`}>🏐 Voleybol</Link>
                             {categories.map((c) => {
                                 const href = `/category/${c.slug}`;
                                 return (

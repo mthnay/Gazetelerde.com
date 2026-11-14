@@ -31,15 +31,14 @@ export default function MatchCard({ m, showLeague = false, showDate = true }) {
                 <Team t={m.away} score={played ? m.awayScore : null} win={played && m.awayScore > m.homeScore} align="away" />
             </span>
             {m.sets?.length > 0 && <span className="mc-sets" aria-label="Set skorları">{m.sets.map((s) => s.join('-')).join('  ')}</span>}
-            {(m.articleSlug || m.venue) && (
+            {(m.articleSlug || m.venue || m.broadcaster) && (
                 <span className="mc-foot">
-                    {m.venue && <span>{m.venue}</span>}
+                    {(m.venue || m.broadcaster) && <span>{[m.broadcaster && `📺 ${m.broadcaster}`, m.venue].filter(Boolean).join(' · ')}</span>}
                     {m.articleSlug && <span className="mc-link">{m.live ? 'Canlı anlatım →' : 'Maç haberi →'}</span>}
                 </span>
             )}
         </>
     );
-    return m.articleSlug
-        ? <Link href={`/haber/${m.articleSlug}`} className={`match-card status-${m.status.toLowerCase()}`}>{body}</Link>
-        : <div className={`match-card status-${m.status.toLowerCase()}`}>{body}</div>;
+    // Canlı anlatım varsa habere, yoksa maç sayfasına gider
+    return <Link href={m.articleSlug && m.live ? `/haber/${m.articleSlug}` : `/mac/${m.id}`} className={`match-card status-${m.status.toLowerCase()}`}>{body}</Link>;
 }

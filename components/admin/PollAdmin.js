@@ -25,6 +25,11 @@ export default function PollAdmin({ polls, matches }) {
     return (
         <>
             {msg && <div className={`admin-msg ${msg.type}`} role="status">{msg.text}</div>}
+            <button type="button" className="admin-btn" style={{ marginBottom: 16 }} onClick={async () => {
+                const d = await api('/api/admin/polls/bulk', 'POST', {});
+                setMsg(d.success ? { type: 'success', text: `${d.total} yaklaşan maçtan ${d.created} tanesi için tahmin oluşturuldu (tahmin ligi).` } : { type: 'error', text: d.message });
+                router.refresh();
+            }}>Önümüzdeki 7 günün maçları için tahmin oluştur</button>
             <div className="admin-grid-2">
                 <section style={{ display: 'grid', gap: 12, alignContent: 'start' }}>
                     {!polls.length && <div className="admin-panel"><p className="admin-empty">Henüz anket yok.</p></div>}

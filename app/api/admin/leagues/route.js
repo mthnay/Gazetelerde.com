@@ -15,6 +15,8 @@ export async function POST(request) {
     const sport = SPORTS[b.sport] ? b.sport : 'voleybol';
     const slug = slugify(`${name} ${season}`.trim()) || 'lig';
     if (await prisma.league.findUnique({ where: { slug } })) return fail('Bu ad ve sezonla bir lig zaten var.', 409);
-    const league = await prisma.league.create({ data: { name, season, sport, slug }, select: { id: true } });
+    const kind = ['lig', 'kupa', 'avrupa', 'milli'].includes(b.kind) ? b.kind : 'lig';
+    const gender = b.gender === 'erkek' ? 'erkek' : 'kadin';
+    const league = await prisma.league.create({ data: { name, season, sport, slug, kind, gender, featured: !!b.featured }, select: { id: true } });
     return ok({ id: league.id }, 201);
 }

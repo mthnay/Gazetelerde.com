@@ -14,6 +14,9 @@ export async function PATCH(request, { params }) {
     if (b.season !== undefined) data.season = String(b.season).trim().slice(0, 20);
     if (b.active !== undefined) data.active = !!b.active;
     if (b.sortOrder !== undefined) data.sortOrder = Number(b.sortOrder) || 0;
+    if (b.kind !== undefined && ['lig', 'kupa', 'avrupa', 'milli'].includes(b.kind)) data.kind = b.kind;
+    if (b.gender !== undefined) data.gender = b.gender === 'erkek' ? 'erkek' : 'kadin';
+    if (b.featured !== undefined) data.featured = !!b.featured;
     const r = await prisma.league.updateMany({ where: { id: id || 0 }, data });
     if (!r.count) return fail('Lig bulunamadı.', 404);
     await revalidateLeague(id);

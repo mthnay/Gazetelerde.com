@@ -8,7 +8,8 @@ import Link from 'next/link';
 import MatchCard from '@/components/MatchCard';
 import AdSlot from '@/components/AdSlot';
 import ForYou from '@/components/ForYou';
-import { getMatchDay } from '@/lib/matchCenter';
+import { getMatchDay, getFeaturedStandings } from '@/lib/matchCenter';
+import StandingsTable from '@/components/StandingsTable';
 import { getBreakingNews, getCategories, getLatestNews, getMostRead, getTrendingTags } from '@/lib/news';
 import { absoluteUrl, SITE_NAME, SITE_DESCRIPTION } from '@/lib/site';
 import { buildSafe } from '@/lib/db';
@@ -28,9 +29,9 @@ const siteJsonLd = [
 const titleCase = (s) => s.charAt(0) + s.slice(1).toLocaleLowerCase('tr');
 
 export default async function Home() {
-  const [allNews, categories, breaking, mostRead, topics, matchDay] = await buildSafe(
-    () => Promise.all([getLatestNews({ take: 60 }), getCategories(), getBreakingNews(), getMostRead(5), getTrendingTags(12), getMatchDay()]),
-    [[], [], { flagged: false, items: [] }, [], [], { live: [], upcoming: [], results: [] }],
+  const [allNews, categories, breaking, mostRead, topics, matchDay, standings, volleyNews] = await buildSafe(
+    () => Promise.all([getLatestNews({ take: 60 }), getCategories(), getBreakingNews(), getMostRead(5), getTrendingTags(12), getMatchDay(), getFeaturedStandings(2), getLatestNews({ tag: 'voleybol', take: 5 })]),
+    [[], [], { flagged: false, items: [] }, [], [], { live: [], upcoming: [], results: [] }, [], []],
   );
 
   if (!allNews.length) {
@@ -109,6 +110,34 @@ export default async function Home() {
 
       {/* Okunanlar + canlı akış: yan yana, eşit genişlikte (uzun yan sütun boşluk bırakmasın) */}
       <ForYou />
+
+      {/* VOLEYBOL: sitenin odağı — puan durumu özetleri + son voleybol haberleri */}
+      {(standings.length > 0 || volleyNews.length > 0) && (
+        <section className="container section volley-home" aria-labelledby="voleybol-baslik">
+          <div className="section-head">
+            <div><span className="kicker">🏐 Voleybol</span><h2 id="voleybol-baslik" className="section-title"><Link href="/voleybol">Filede bugün</Link></h2></div>
+            <nav className="league-tabs" aria-label="Voleybol bağlantıları">
+              <Link href="/tahmin-ligi" className="article-tag">Tahmin Ligi</Link>
+              <Link href="/transfer" className="article-tag">Transfer</Link>
+              <Link href="/oyuncular" className="article-tag">Oyuncular</Link>
+            </nav>
+          </div>
+          <div className="volley-home-grid">
+            {standings.map((f) => (
+              <div key={f.league.slug}>
+                <h3 className="group-title"><Link href={`/mac-merkezi/${f.league.slug}`}>{f.league.name}</Link></h3>
+                <StandingsTable rows={f.standings} compact label={`${f.league.name} puan durumu`} />
+              </div>
+            ))}
+            {volleyNews.length > 0 && (
+              <div>
+                <h3 className="group-title"><Link href="/etiket/voleybol">Son voleybol haberleri</Link></h3>
+                <div className="volley-home-news">{volleyNews.map((n, i) => <Story key={n.id} item={n} variant="row" index={i} />)}</div>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
 
       <div className="container"><AdSlot place="ana-ust" /></div>
 

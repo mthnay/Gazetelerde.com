@@ -26,7 +26,8 @@ export async function POST(request, { params }) {
     const voter = voterHash({ userId: user?.id, anonId: anon });
     try {
         await prisma.$transaction([
-            prisma.pollVote.create({ data: { pollId: id, voterHash: voter, optionId } }),
+            // Üye oyları tahmin ligi puanı için hesaba bağlanır
+            prisma.pollVote.create({ data: { pollId: id, voterHash: voter, optionId, userId: user?.id ?? null } }),
             prisma.pollOption.update({ where: { id: optionId }, data: { votes: { increment: 1 } } }),
         ]);
     } catch (e) {

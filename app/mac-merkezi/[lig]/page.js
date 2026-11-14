@@ -1,7 +1,10 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import MatchCard from '@/components/MatchCard';
-import FollowTeamButton from '@/components/FollowTeamButton';
+import StandingsTable from '@/components/StandingsTable';
+import Bracket from '@/components/Bracket';
+import StatLeaders from '@/components/StatLeaders';
+import { statLeaders } from '@/lib/volley';
 import { getLeague, getLeagues } from '@/lib/matchCenter';
 import { absoluteUrl } from '@/lib/site';
 
@@ -25,20 +28,21 @@ export default async function LeaguePage({ params }) {
     const { lig } = await params;
     const [data, leagues] = await Promise.all([getLeague(lig), getLeagues()]);
     if (!data) notFound();
-    const { league, matches, standings } = data;
+    const { league, matches, standings, groups, bracket } = data;
+    const leaders = await statLeaders({ leagueId: league.id, season: league.season || undefined });
     const volley = league.sport === 'voleybol';
     const name = `${league.name}${league.season ? ` ${league.season}` : ''}`;
 
     // Haftalara göre grupla (hafta yoksa tarihe göre)
-    const groups = new Map();
+    const weeks = new Map();
     for (const m of matches) {
-        const key = m.week ? `${m.week}. hafta` : new Intl.DateTimeFormat('tr-TR', { day: 'numeric', month: 'long', timeZone: 'Europe/Istanbul' }).format(new Date(m.startAt));
-        if (!groups.has(key)) groups.set(key, []);
-        groups.get(key).push(m);
+        const key = m.round ? m.round : m.group ? m.group : m.week ? `${m.week}. hafta` : new Intl.DateTimeFormat('tr-TR', { day: 'numeric', month: 'long', timeZone: 'Europe/Istanbul' }).format(new Date(m.startAt));
+        if (!weeks.has(key)) weeks.set(key, []);
+        weeks.get(key).push(m);
     }
     // Varsayılan olarak ilk oynanmamış haftaya odaklan
-    const keys = [...groups.keys()];
-    const current = keys.find((k) => groups.get(k).some((m) => m.status !== 'FINISHED')) || keys[keys.length - 1];
+    const keys = [...weeks.keys()];
+    const current = keys.find((k) => weeks.get(k).some((m) => m.status !== 'FINISHED')) || keys[keys.length - 1];
 
     const jsonLd = {
         '@context': 'https://schema.org', '@type': 'SportsOrganization', name, sport: volley ? 'Volleyball' : league.sport, url: absoluteUrl(`/mac-merkezi/${league.slug}`),
@@ -66,48 +70,28 @@ export default async function LeaguePage({ params }) {
             <div className="league-layout">
                 <section aria-labelledby="puan-durumu">
                     <h2 id="puan-durumu" className="mc-title">Puan durumu</h2>
-                    {!standings.length ? <p className="field-hint">Takımlar eklendiğinde puan durumu burada görünecek.</p> : (
-                        <div className="table-scroll" tabIndex={0} role="region" aria-label="Puan durumu tablosu">
-                            <table className="standings">
-                                <thead>
-                                    <tr>
-                                        <th scope="col">#</th><th scope="col" className="left">Takım</th>
-                                        <th scope="col"><abbr title="Oynanan">O</abbr></th><th scope="col"><abbr title="Galibiyet">G</abbr></th><th scope="col"><abbr title="Mağlubiyet">M</abbr></th>
-                                        {!volley && <th scope="col"><abbr title="Beraberlik">B</abbr></th>}
-                                        <th scope="col" className="hide-sm">{volley ? <abbr title="Alınan / verilen set">Set</abbr> : <abbr title="Atılan / yenilen">A/Y</abbr>}</th>
-                                        <th scope="col"><abbr title="Puan">P</abbr></th>
-                                        <th scope="col" className="hide-sm">Form</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {standings.map((r, i) => (
-                                        <tr key={r.team.id}>
-                                            <td className="pos">{i + 1}</td>
-                                            <th scope="row" className="left"><FollowTeamButton teamId={r.team.id} teamName={r.team.name} />{r.team.name}</th>
-                                            <td>{r.played}</td><td>{r.won}</td><td>{r.lost}</td>
-                                            {!volley && <td>{r.drawn}</td>}
-                                            <td className="hide-sm">{r.for}:{r.against}</td>
-                                            <td className="pts">{r.points}</td>
-                                            <td className="hide-sm"><span className="form">{r.form.map((f, k) => <i key={k} className={`f-${f}`} title={f === 'G' ? 'Galibiyet' : f === 'M' ? 'Mağlubiyet' : 'Beraberlik'}>{f}</i>)}</span></td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                    {!standings.length && !groups.length ? <p className="field-hint">Takımlar eklendiğinde puan durumu burada görünecek.</p> : standings.length > 0 && <StandingsTable rows={standings} sport={league.sport} />}
+                    {groups.map((g) => (
+                        <div key={g.name} style={{ marginTop: 20 }}>
+                            <h3 className="group-title">{g.name}</h3>
+                            <StandingsTable rows={g.standings} sport={league.sport} label={`${g.name} puan durumu`} />
                         </div>
-                    )}
-                    {volley && standings.length > 0 && <p className="field-hint" style={{ marginTop: 8 }}>3-0 ve 3-1 galibiyet 3 puan, 3-2 galibiyet 2 puan, 2-3 mağlubiyet 1 puan.</p>}
+                    ))}
+                    {volley && (standings.length > 0 || groups.length > 0) && <p className="field-hint" style={{ marginTop: 8 }}>3-0 ve 3-1 galibiyet 3 puan, 3-2 galibiyet 2 puan, 2-3 mağlubiyet 1 puan.</p>}
                 </section>
 
                 <section aria-labelledby="fikstur">
+                    <Bracket rounds={bracket} />
                     <h2 id="fikstur" className="mc-title">Fikstür ve sonuçlar</h2>
                     {!matches.length ? <p className="field-hint">Henüz maç eklenmedi.</p> : keys.map((k) => (
                         <details key={k} className="week" open={k === current}>
-                            <summary>{k}<span>{groups.get(k).filter((m) => m.status === 'FINISHED').length}/{groups.get(k).length} oynandı</span></summary>
-                            <div className="match-list">{groups.get(k).map((m) => <MatchCard key={m.id} m={m} />)}</div>
+                            <summary>{k}<span>{weeks.get(k).filter((m) => m.status === 'FINISHED').length}/{weeks.get(k).length} oynandı</span></summary>
+                            <div className="match-list">{weeks.get(k).map((m) => <MatchCard key={m.id} m={m} />)}</div>
                         </details>
                     ))}
                 </section>
             </div>
+            <StatLeaders leaders={leaders} title={`${league.name} istatistik liderleri`} />
         </div>
     );
 }

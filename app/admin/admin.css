@@ -463,3 +463,17 @@
 .ai-row { display: flex; gap: 8px; align-items: flex-start; justify-content: space-between; }
 .ai-row > span { flex: 1; }
 .ai-row del { color: var(--a-danger); } .ai-row ins { color: var(--a-ok); text-decoration: none; font-weight: 600; }
+.stats-table .admin-input { width: 64px; padding: 5px 6px; text-align: center; }
+
+/* ---------- Canlı skor masası ---------- */
+.ls-board { display: grid; gap: 16px; max-width: 900px; }
+.ls-sets { font-size: 1.1rem; }
+.ls-sides { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.ls-btn { display: grid; gap: 6px; justify-items: center; padding: 28px 16px; border-radius: 22px; border: 2px solid var(--border); background: var(--a-panel); color: inherit; font: inherit; cursor: pointer; touch-action: manipulation; transition: transform .08s, border-color .2s; }
+.ls-btn:active { transform: scale(.97); }
+.ls-btn:hover:not(:disabled) { border-color: var(--primary); }
+.ls-btn:disabled { opacity: .6; cursor: default; }
+.ls-name { font-weight: 700; font-size: 1.1rem; text-align: center; }
+.ls-pts { font-family: var(--font-serif); font-size: clamp(64px, 12vw, 120px); font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
+.ls-hint { font-size: .8rem; color: var(--text-muted); }
+kbd { padding: 1px 6px; border: 1px solid var(--border); border-radius: 5px; font-size: .8em; }

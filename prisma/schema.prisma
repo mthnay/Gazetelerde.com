@@ -522,6 +522,9 @@ model League {
   active    Boolean @default(true)
   teams     Team[]
   matches   Match[]
+  kind      String  @default("lig") // lig | kupa | avrupa | milli
+  gender    String  @default("kadin") // kadin | erkek
+  featured  Boolean @default(false) // ana sayfada puan durumu özeti
 }
 
 model Team {
@@ -534,28 +537,35 @@ model Team {
   home      Match[]      @relation("HomeTeam")
   away      Match[]      @relation("AwayTeam")
   followers TeamFollow[]
+  clubId    Int?
+  club      Club?        @relation(fields: [clubId], references: [id], onDelete: SetNull)
 
   @@unique([leagueId, name])
 }
 
 model Match {
-  id        Int         @id @default(autoincrement())
-  leagueId  Int
-  homeId    Int
-  awayId    Int
-  startAt   DateTime    @db.Timestamptz(3)
-  week      Int?
-  venue     String      @default("")
-  status    MatchStatus @default(SCHEDULED)
-  homeScore Int?
-  awayScore Int?
-  sets      Json? // voleybol set skorları: [[25,21],[23,25],...]
-  articleId Int? // maç haberi ya da canlı anlatım
-  updatedAt DateTime    @updatedAt @db.Timestamptz(3)
-  league    League      @relation(fields: [leagueId], references: [id], onDelete: Cascade)
-  home      Team        @relation("HomeTeam", fields: [homeId], references: [id], onDelete: Cascade)
-  away      Team        @relation("AwayTeam", fields: [awayId], references: [id], onDelete: Cascade)
-  article   Article?    @relation(fields: [articleId], references: [id], onDelete: SetNull)
+  id          Int         @id @default(autoincrement())
+  leagueId    Int
+  homeId      Int
+  awayId      Int
+  startAt     DateTime    @db.Timestamptz(3)
+  week        Int?
+  venue       String      @default("")
+  status      MatchStatus @default(SCHEDULED)
+  homeScore   Int?
+  awayScore   Int?
+  sets        Json? // voleybol set skorları: [[25,21],[23,25],...]
+  articleId   Int? // maç haberi ya da canlı anlatım
+  updatedAt   DateTime    @updatedAt @db.Timestamptz(3)
+  league      League      @relation(fields: [leagueId], references: [id], onDelete: Cascade)
+  home        Team        @relation("HomeTeam", fields: [homeId], references: [id], onDelete: Cascade)
+  away        Team        @relation("AwayTeam", fields: [awayId], references: [id], onDelete: Cascade)
+  article     Article?    @relation(fields: [articleId], references: [id], onDelete: SetNull)
+  round       String      @default("") // ör. "Çeyrek final", "Yarı final", "Final" (eleme ağacı)
+  slot        Int? // ağaçtaki sıra
+  group       String      @default("") // ör. "A Grubu"
+  broadcaster String      @default("") // ör. "TRT Spor"
+  stats       MatchStat[]
 
   @@index([leagueId, startAt])
   @@index([startAt])
@@ -660,10 +670,12 @@ model PollVote {
   pollId    Int
   voterHash String
   optionId  Int
+  userId    String? // üye oyu (tahmin ligi puanı için)
   createdAt DateTime @default(now()) @db.Timestamptz(3)
   poll      Poll     @relation(fields: [pollId], references: [id], onDelete: Cascade)
 
   @@id([pollId, voterHash])
+  @@index([userId])
 }
 
 // ---------------------------------------------------------------- Takım takibi
@@ -688,4 +700,101 @@ model AiUsage {
   createdAt DateTime @default(now()) @db.Timestamptz(3)
 
   @@index([createdAt])
+}
+
+// ---------------------------------------------------------------- Voleybol veri merkezi
+// Kulüp: aynı kulübün farklı liglerdeki Team kayıtlarını bir araya getirir (/takim/<slug>)
+model Club {
+  id           Int           @id @default(autoincrement())
+  slug         String        @unique
+  name         String
+  shortName    String        @default("")
+  city         String        @default("")
+  venue        String        @default("")
+  founded      Int?
+  logo         String?
+  colors       String        @default("") // ör. "Sarı-Lacivert"
+  coach        String        @default("")
+  bio          String        @default("")
+  website      String?
+  national     Boolean       @default(false) // milli takım (Filenin Sultanları / Efeler)
+  gender       String        @default("kadin") // kadin | erkek
+  createdAt    DateTime      @default(now()) @db.Timestamptz(3)
+  teams        Team[]
+  roster       RosterEntry[]
+  transfersIn  Transfer[]    @relation("TransferTo")
+  transfersOut Transfer[]    @relation("TransferFrom")
+}
+
+model Player {
+  id          Int           @id @default(autoincrement())
+  slug        String        @unique
+  name        String
+  position    String        @default("") // pasor | smacor | orta | libero | pasor-capraz
+  height      Int? // cm
+  birthYear   Int?
+  nationality String        @default("Türkiye")
+  photo       String?
+  bio         String        @default("")
+  gender      String        @default("kadin")
+  active      Boolean       @default(true)
+  createdAt   DateTime      @default(now()) @db.Timestamptz(3)
+  roster      RosterEntry[]
+  stats       MatchStat[]
+  transfers   Transfer[]
+
+  @@index([name])
+}
+
+// Kadro: oyuncu hangi sezon hangi kulüpte, forma numarası
+model RosterEntry {
+  id       Int     @id @default(autoincrement())
+  playerId Int
+  clubId   Int
+  season   String // ör. 2025-26
+  number   Int?
+  captain  Boolean @default(false)
+  player   Player  @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  club     Club    @relation(fields: [clubId], references: [id], onDelete: Cascade)
+
+  @@unique([playerId, clubId, season])
+  @@index([clubId, season])
+}
+
+// Transfer merkezi: söylenti -> görüşme -> resmi
+model Transfer {
+  id         Int      @id @default(autoincrement())
+  playerId   Int
+  fromClubId Int?
+  toClubId   Int?
+  fromName   String   @default("") // kulüp sistemde yoksa (yurt dışı vb.)
+  toName     String   @default("")
+  status     String   @default("soylenti") // soylenti | gorusme | resmi
+  season     String   @default("")
+  date       DateTime @default(now()) @db.Timestamptz(3)
+  note       String   @default("")
+  sourceUrl  String?
+  articleId  Int?
+  player     Player   @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  fromClub   Club?    @relation("TransferFrom", fields: [fromClubId], references: [id], onDelete: SetNull)
+  toClub     Club?    @relation("TransferTo", fields: [toClubId], references: [id], onDelete: SetNull)
+
+  @@index([date])
+}
+
+// Maç istatistiği (oyuncu başına)
+model MatchStat {
+  matchId  Int
+  playerId Int
+  side     String // home | away
+  points   Int     @default(0)
+  attack   Int     @default(0) // hücum sayısı
+  block    Int     @default(0)
+  ace      Int     @default(0)
+  mvp      Boolean @default(false)
+  match    Match   @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  player   Player  @relation(fields: [playerId], references: [id], onDelete: Cascade)
+
+  @@id([matchId, playerId])
+  @@index([playerId])
 }

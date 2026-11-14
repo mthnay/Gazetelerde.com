@@ -39,6 +39,11 @@ if (article) await check(`Haber sayfası ${article}`, article, (r) => r.status =
 if (category) await check(`Kategori ${category}`, category);
 const topic = first(/href="(\/etiket\/[^"#?]+)"/);
 if (topic) await check(`Konu ${topic}`, topic);
+await check('Voleybol merkezi', '/voleybol', (r) => r.status === 200 && r.body.includes('Voleybol'));
+await check('Oyuncular', '/oyuncular');
+await check('Transfer merkezi', '/transfer');
+await check('Tahmin ligi', '/tahmin-ligi');
+await check('Voleybol rehberi', '/rehber/voleybol-kurallari', (r) => r.status === 200 && r.body.includes('FAQPage'));
 await check('Arşiv', '/arsiv', (r) => r.status === 200 && r.body.includes('Arşiv'));
 await check('Video', '/video');
 await check('Galeri', '/galeri');

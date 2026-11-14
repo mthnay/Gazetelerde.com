@@ -143,6 +143,17 @@ npm ci && npm run db:deploy && npm run build && npm start
   yapılandırılmış çıktı, `GEMINI_API_KEY`, varsayılan model `gemini-3.8-flash`) ya da Claude Opus 5.5
   (`@anthropic-ai/sdk`, katı şemalı araç, sunucu tarafı reddetme yedeği, `ANTHROPIC_API_KEY`). İkisi de aynı görev
   istemlerini ve şemaları kullanır; sonuç ayrıca şemaya göre denetlenir. Kullanım `/admin/sistem`'de.
+- **Voleybol veri merkezi:** `/admin/voleybol` (kulüpler, oyuncular, toplu kadro yapıştırma, transferler).
+  Kulüp lig takımlarıyla aynı adla eklenirse maçları otomatik bağlanır. Sayfalar: `/voleybol`, `/oyuncu/<slug>`,
+  `/takim/<slug>`, `/oyuncular`, `/transfer`, `/mac/<id>`, `/rehber`. Sezon: `VOLLEY_SEASON` (varsayılan 2025-26).
+- **Maç istatistiği:** `/admin/mac/<id>`; elle ya da yapıştırılan tabloyu yapay zekâyla ayrıştırarak. İstatistik
+  liderleri lig ve voleybol sayfalarında.
+- **Canlı skor:** `/admin/mac/<id>/canli` sayı sayı (A / L / Z kısayolları). Kurallar `lib/volleyScore.js`
+  (25 / 5. set 15, 2 fark, 3 set); set ve maç sonu otomatik, maç bitince tahminler sonuçlanır, takipçilere bildirim.
+- **Gruplar ve eleme:** maçlara “Grup” ya da “Tur” yazılır; lig sayfası grup tablolarını ve eleme ağacını
+  (aynı eşleşmenin maçları seri olarak) gösterir. Lig türü: lig / kupa / avrupa / milli.
+- **Tahmin ligi:** `/tahmin-ligi`; doğru tahmin 10 puan, haftalık ve sezonluk sıralama (yalnızca ad + soyad baş harfi).
+  Anketler sayfasındaki düğme önümüzdeki 7 günün maçları için tahminleri toplu açar.
 - **Deneme sınırları** (`lib/api.js`) bellekte tutulur: tek sunucu için yeterli; birden fazla sunucuda Redis gibi
   ortak bir depoya taşınmalıdır.
 
