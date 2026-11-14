@@ -24,7 +24,7 @@ export default function Gizlilik() {
                 <li><strong>Okunma istatistikleri:</strong> çerez kullanılmadan, sayfa türü, geldiğiniz site (ör. Google), cihaz türü (mobil/masaüstü) ve gün bazında <em>toplam sayılar</em> tutulur. IP adresi, kimlik ya da gezinti geçmişi saklanmaz; tarayıcınızda “izlenmek istemiyorum” (Do Not Track / GPC) açıksa hiç sayım yapılmaz.</li>
                 <li><strong>Destekçilik:</strong> destek olursanız e-posta adresiniz, paket, tutar ve süre bilgisi (reklamsız okumayı açmak için). Kart bilgileriniz bizde değil, ödeme kuruluşunda işlenir.</li>
                 <li><strong>Anket oyları:</strong> hangi seçeneğe oy verildiği ve tekrar oyu önlemek için geri döndürülemez bir özet; kim olduğunuz saklanmaz.</li>
-                <li><strong>Yapay zekâ:</strong> editörlerimiz haber metinlerini yazım denetimi ve başlık önerisi için Anthropic şirketinin Claude hizmetine gönderebilir; okurların kişisel verileri bu hizmete gönderilmez.</li>
+                <li><strong>Yapay zekâ:</strong> editörlerimiz haber metinlerini yazım denetimi ve başlık önerisi için yapay zekâ hizmet sağlayıcısına (Google Gemini ya da Anthropic Claude) gönderebilir; okurların kişisel verileri bu hizmete gönderilmez.</li>
                 <li><strong>Hata kayıtları:</strong> site düzgün çalışmadığında oluşan teknik hata mesajı ve sayfa adresi; kişisel veri içermez.</li>
             </ul>
 

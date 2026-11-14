@@ -139,8 +139,10 @@ npm ci && npm run db:deploy && npm run build && npm start
   `gz_v` çerezinin tuzlu özeti.
 - **Kişisel akış:** takım takibi (puan durumundaki ☆), ana sayfada “Sizin için”; maç başlayınca / bitince yalnızca
   takipçilere bildirim (`PushMessage.teamIds`).
-- **Yapay zekâ yardımcısı:** `lib/ai.js` (Claude Opus 5.5, `@anthropic-ai/sdk`, katı şemalı araçla yapılandırılmış
-  sonuç, sunucu tarafı reddetme yedeği). `ANTHROPIC_API_KEY` yoksa kapalı. Kullanım ve tahmini maliyet `/admin/sistem`'de.
+- **Yapay zekâ yardımcısı:** `lib/ai.js`, iki sağlayıcı: Google Gemini (`@google/genai`, `responseJsonSchema` ile
+  yapılandırılmış çıktı, `GEMINI_API_KEY`, varsayılan model `gemini-3.8-flash`) ya da Claude Opus 5.5
+  (`@anthropic-ai/sdk`, katı şemalı araç, sunucu tarafı reddetme yedeği, `ANTHROPIC_API_KEY`). İkisi de aynı görev
+  istemlerini ve şemaları kullanır; sonuç ayrıca şemaya göre denetlenir. Kullanım `/admin/sistem`'de.
 - **Deneme sınırları** (`lib/api.js`) bellekte tutulur: tek sunucu için yeterli; birden fazla sunucuda Redis gibi
   ortak bir depoya taşınmalıdır.
 

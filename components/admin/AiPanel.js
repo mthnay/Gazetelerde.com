@@ -17,12 +17,13 @@ const ACTIONS = [
  */
 export default function AiPanel({ form, update, replaceContent }) {
     const [enabled, setEnabled] = useState(null);
+    const [provider, setProvider] = useState('');
     const [busy, setBusy] = useState(null);
     const [res, setRes] = useState({});
     const [err, setErr] = useState('');
 
     useEffect(() => {
-        fetch('/api/admin/ai').then((r) => r.json()).then((d) => setEnabled(Boolean(d.enabled))).catch(() => setEnabled(false));
+        fetch('/api/admin/ai').then((r) => r.json()).then((d) => { setEnabled(Boolean(d.enabled)); setProvider(d.provider || ''); }).catch(() => setEnabled(false));
     }, []);
 
     const run = async (task) => {
@@ -43,12 +44,12 @@ export default function AiPanel({ form, update, replaceContent }) {
     };
 
     if (enabled === null) return <p className="st-hint">Yükleniyor…</p>;
-    if (!enabled) return <p className="st-hint">Yapay zekâ yardımcısı kapalı. Açmak için sunucuya <code>ANTHROPIC_API_KEY</code> eklenmesi gerekiyor.</p>;
+    if (!enabled) return <p className="st-hint">Yapay zekâ yardımcısı kapalı. Açmak için sunucuya <code>GEMINI_API_KEY</code> (Google) ya da <code>ANTHROPIC_API_KEY</code> eklenmesi gerekiyor.</p>;
 
     const r = res;
     return (
         <div className="ai-panel">
-            <p className="st-hint" style={{ marginTop: 0 }}><Sparkles size={13} style={{ verticalAlign: -2 }} /> Öneriler yalnızca bu haberdeki bilgilere dayanır, ama yayından önce mutlaka kontrol edin. Hiçbir öneri siz onaylamadan uygulanmaz.</p>
+            <p className="st-hint" style={{ marginTop: 0 }}><Sparkles size={13} style={{ verticalAlign: -2 }} /> {provider && <b>{provider} · </b>}Öneriler yalnızca bu haberdeki bilgilere dayanır, ama yayından önce mutlaka kontrol edin. Hiçbir öneri siz onaylamadan uygulanmaz.</p>
             <div className="ai-actions">
                 {ACTIONS.map(([k, Icon, label, hint]) => (
                     <button key={k} type="button" className="ai-action" onClick={() => run(k)} disabled={!!busy}>

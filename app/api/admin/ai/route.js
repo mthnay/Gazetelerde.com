@@ -1,14 +1,14 @@
 import { prisma } from '@/lib/db';
 import { ok, fail, readJson, rateLimit } from '@/lib/api';
 import { requireStaff } from '@/lib/adminApi';
-import { runAi, articleText, AiError, AI_TASKS, MAX_CHARS, aiEnabled } from '@/lib/ai';
+import { runAi, articleText, AiError, AI_TASKS, MAX_CHARS, aiEnabled, aiProvider, AI_LABEL } from '@/lib/ai';
 
 export const maxDuration = 120;
 
 export async function GET() {
     const { error } = await requireStaff();
     if (error) return error;
-    return ok({ enabled: aiEnabled() });
+    return ok({ enabled: aiEnabled(), provider: AI_LABEL[aiProvider()] ?? null });
 }
 
 // { task, title, summary, content, sourceUrl } ya da mac-ozeti için { task, articleId }

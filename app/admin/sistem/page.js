@@ -3,7 +3,7 @@ import { requirePageUser } from '@/lib/adminPage';
 import { canManageUsers } from '@/lib/permissions';
 import { mailMode } from '@/lib/mail/mailer';
 import { pushEnabled } from '@/lib/push';
-import { aiEnabled } from '@/lib/ai';
+import { aiEnabled, aiProvider, AI_LABEL } from '@/lib/ai';
 import ErrorList from '@/components/admin/ErrorList';
 
 export const metadata = { title: 'Sistem | Yönetim' };
@@ -93,7 +93,7 @@ export default async function SystemPage({ searchParams }) {
                     <ul className="admin-list">
                         <li className="admin-list-row"><span style={{ flex: 1 }}>E-posta gönderimi</span>{mailMode() === 'smtp' ? <span className="badge ok">SMTP bağlı</span> : mailMode() === 'outbox' ? <span className="badge warn">Geliştirme (dosyaya)</span> : <span className="badge danger">Yapılandırılmadı</span>}</li>
                         <li className="admin-list-row"><span style={{ flex: 1 }}>Web push bildirimleri</span>{pushEnabled() ? <span className="badge ok">Açık</span> : <span className="badge danger">VAPID anahtarı yok</span>}</li>
-                        <li className="admin-list-row"><span style={{ flex: 1 }}>Yapay zekâ yardımcısı<small className="muted" style={{ display: 'block' }}>Son 30 gün: {ai30._count} istek, tahmini ${(((ai30._sum.inputTok || 0) * 4 + (ai30._sum.outputTok || 0) * 20) / 1e6).toFixed(2)} (Claude Opus 5.5 liste fiyatı)</small></span>{aiEnabled() ? <span className="badge ok">Açık</span> : <span className="badge">Kapalı</span>}</li>
+                        <li className="admin-list-row"><span style={{ flex: 1 }}>Yapay zekâ yardımcısı<small className="muted" style={{ display: 'block' }}>Son 30 gün: {ai30._count} istek, {Math.round(((ai30._sum.inputTok || 0) + (ai30._sum.outputTok || 0)) / 1000)} bin token. Ücreti sağlayıcının panelinden takip edin.</small></span>{aiEnabled() ? <span className="badge ok">{AI_LABEL[aiProvider()]}</span> : <span className="badge">Kapalı</span>}</li>
                         <li className="admin-list-row"><span style={{ flex: 1 }}>Kuyrukta bekleyen e-posta</span><strong>{pendingMail}</strong></li>
                         <li className="admin-list-row"><span style={{ flex: 1 }}>Kuyrukta bekleyen bildirim</span><strong>{pendingPush}</strong></li>
                         <li className="admin-list-row"><span style={{ flex: 1 }}>Site adresi</span><code>{process.env.NEXT_PUBLIC_SITE_URL || '—'}</code></li>
