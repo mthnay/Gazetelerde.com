@@ -11,5 +11,5 @@ export async function GET(request) {
     const period = new URL(request.url).searchParams.get('donem') === 'hafta' ? 'hafta' : 'sezon';
     const rows = await leaderboard(period, 1000);
     const mine = rows.find((r) => r.userId === me.id);
-    return ok({ me: mine ? { rank: mine.rank, points: mine.points, correct: mine.correct, total: mine.total, of: rows.length } : { rank: null } });
+    return ok({ me: mine ? { rank: mine.rank, points: mine.points, correct: mine.correct, exact: mine.exact, total: mine.total, of: rows.length } : { rank: null } });
 }

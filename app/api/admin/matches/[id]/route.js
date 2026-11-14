@@ -1,4 +1,6 @@
+import { after } from 'next/server';
 import { prisma } from '@/lib/db';
+import { draftMatchReport } from '@/lib/matchDraft';
 import { ok, fail, readJson } from '@/lib/api';
 import { requireStaff, idParam } from '@/lib/adminApi';
 import { canPublish } from '@/lib/permissions';
@@ -19,6 +21,7 @@ export async function PATCH(request, { params }) {
     const m = await prisma.match.update({ where: { id }, data: parsed.data, select: { id: true, status: true, homeScore: true, awayScore: true, articleId: true } });
     await resolveMatchPolls(m); // maç bittiyse bağlı tahminleri sonuçlandır
     await queueMatchPush(m, existing.status); // takipçilere başladı / bitti bildirimi
+    if (m.status === 'FINISHED' && existing.status !== 'FINISHED') after(() => draftMatchReport(id));
     await revalidateLeague(existing.leagueId);
     if (m.articleId) await revalidateArticle(m.articleId); // haber sayfasındaki skor kutusu
     return ok({ match: m });

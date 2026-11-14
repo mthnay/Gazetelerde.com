@@ -65,13 +65,14 @@ async function main(file) {
             await upsertMatch(week, home, away, { startAt: at(date, time), status: 'SCHEDULED', sets: [], homeScore: null, awayScore: null, venue, broadcaster: tv });
             upcoming++;
         }
-        // Önümüzdeki 7 günün maçları için tahmin ligi soruları (yoksa)
+        // Önümüzdeki 7 günün maçları için tahmin ligi soruları (kazanan + set skoru; yoksa)
         const soon = await prisma.match.findMany({ where: { leagueId: league.id, status: 'SCHEDULED', startAt: { gt: new Date(), lte: new Date(Date.now() + 7 * 864e5) } }, include: { home: true, away: true } });
+        const SCORES = ['3-0', '3-1', '3-2', '2-3', '1-3', '0-3'];
         let polls = 0;
         for (const m of soon) {
-            if (await prisma.poll.findFirst({ where: { matchId: m.id }, select: { id: true } })) continue;
-            await prisma.poll.create({ data: { question: `${m.home.name} - ${m.away.name}: kim kazanır?`, kind: 'tahmin', matchId: m.id, closesAt: m.startAt, options: { create: [{ text: `${m.home.name} kazanır`, sort: 0 }, { text: `${m.away.name} kazanır`, sort: 1 }] } } });
-            polls++;
+            const kinds = new Set((await prisma.poll.findMany({ where: { matchId: m.id }, select: { kind: true } })).map((p) => p.kind));
+            if (!kinds.has('tahmin')) { await prisma.poll.create({ data: { question: `${m.home.name} - ${m.away.name}: kim kazanır?`, kind: 'tahmin', matchId: m.id, closesAt: m.startAt, options: { create: [{ text: `${m.home.name} kazanır`, sort: 0 }, { text: `${m.away.name} kazanır`, sort: 1 }] } } }); polls++; }
+            if (!kinds.has('skor')) { await prisma.poll.create({ data: { question: `${m.home.name} - ${m.away.name}: set skoru kaç olur?`, kind: 'skor', matchId: m.id, closesAt: m.startAt, options: { create: SCORES.map((t, sort) => ({ text: `${t} (${Number(t[0]) > Number(t[2]) ? m.home.name : m.away.name})`, sort })) } } }); polls++; }
         }
         console.log(`${L.name}: ${L.teams.length} takım, ${played} oynanmış maç, ${upcoming} yaklaşan maç, ${polls} yeni tahmin.`);
     }

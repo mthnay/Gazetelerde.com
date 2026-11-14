@@ -2,6 +2,8 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import LiveScoreboard from '@/components/LiveScoreboard';
 import PollWidget from '@/components/PollWidget';
+import MatchPreview from '@/components/MatchPreview';
+import { getPreview } from '@/lib/matchPreview';
 import { prisma } from '@/lib/db';
 import { POSITIONS } from '@/lib/volley';
 import { absoluteUrl } from '@/lib/site';
@@ -58,7 +60,10 @@ export default async function MatchPage({ params }) {
     const id = Number((await params).id);
     const m = Number.isInteger(id) && (await load(id));
     if (!m) notFound();
-    const poll = await prisma.poll.findFirst({ where: { matchId: m.id }, select: { id: true } });
+    const [polls, preview] = await Promise.all([
+        prisma.poll.findMany({ where: { matchId: m.id }, orderBy: { id: 'asc' }, select: { id: true } }),
+        getPreview(m),
+    ]);
     const mvp = m.stats.find((s) => s.mvp);
     const name = (t) => (t.club ? <Link href={`/takim/${t.club.slug}`} className="team-link">{t.name}</Link> : t.name);
     const jsonLd = {
@@ -85,7 +90,8 @@ export default async function MatchPage({ params }) {
                 {mvp && <li><b>Maçın oyuncusu</b><Link href={`/oyuncu/${mvp.player.slug}`}>{mvp.player.name}</Link></li>}
             </ul>
             {m.article?.status === 'PUBLISHED' && <p><Link href={`/haber/${m.article.slug}`} className="btn btn-primary">{m.article.live ? 'Canlı anlatımı izle' : 'Maç haberini oku'} →</Link></p>}
-            {poll && <PollWidget pollId={poll.id} />}
+            {polls.map((p) => <PollWidget key={p.id} pollId={p.id} />)}
+            {m.status !== 'FINISHED' && <MatchPreview preview={preview} home={m.home.name} away={m.away.name} />}
             {m.stats.length > 0 && (
                 <section className="mc-section" aria-labelledby="istatistik">
                     <h2 id="istatistik" className="mc-title">Oyuncu istatistikleri</h2>
@@ -95,6 +101,7 @@ export default async function MatchPage({ params }) {
                     </div>
                 </section>
             )}
+            {m.status === 'FINISHED' && <MatchPreview preview={preview} home={m.home.name} away={m.away.name} />}
         </div>
     );
 }

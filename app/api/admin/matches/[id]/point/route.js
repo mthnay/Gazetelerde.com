@@ -1,5 +1,7 @@
 import { revalidatePath } from 'next/cache';
+import { after } from 'next/server';
 import { prisma } from '@/lib/db';
+import { draftMatchReport } from '@/lib/matchDraft';
 import { ok, fail, readJson } from '@/lib/api';
 import { requireStaff, idParam } from '@/lib/adminApi';
 import { canPublish } from '@/lib/permissions';
@@ -32,6 +34,8 @@ export async function POST(request, { params }) {
         const m = { id, status: result.status, homeScore: result.home, awayScore: result.away };
         await resolveMatchPolls(m);
         await queueMatchPush(m, result.before);
+        // Maç bittiyse yanıttan sonra, arka planda maç sonu haber taslağı
+        if (result.status === 'FINISHED') after(() => draftMatchReport(id));
     }
     // Sayfaları her sayıda değil, set ve maç sonunda tazele (canlı ekranlar API'den yoklar)
     if (result.setEnded || result.matchEnded || result.before !== result.status) {

@@ -30,15 +30,15 @@ export default function PollWidget({ pollId, standalone = false }) {
 
     const voted = poll.myVote != null;
     const showResults = poll.total != null;
-    const tahmin = poll.kind === 'tahmin';
+    const tahmin = poll.kind === 'tahmin' || poll.kind === 'skor';
     const correct = poll.options.find((o) => o.id === poll.correctId);
     return (
         <section className={`poll ${tahmin ? 'poll--tahmin' : ''}`} aria-labelledby={`poll-${poll.id}`}>
-            <span className="kicker">{tahmin ? <><Trophy size={13} aria-hidden="true" /> Tahmin</> : 'Anket'}</span>
+            <span className="kicker">{poll.kind === 'skor' ? <><Trophy size={13} aria-hidden="true" /> Set skoru tahmini · 25 puan</> : tahmin ? <><Trophy size={13} aria-hidden="true" /> Tahmin · 10 puan</> : 'Anket'}</span>
             {standalone
                 ? <h1 id={`poll-${poll.id}`} className="poll-q">{poll.question}</h1>
                 : <h2 id={`poll-${poll.id}`} className="poll-q">{poll.question}</h2>}
-            <ul className="poll-options">
+            <ul className={`poll-options ${poll.kind === 'skor' && !showResults ? 'is-grid' : ''}`}>
                 {poll.options.map((o) => {
                     const mine = poll.myVote === o.id;
                     const isCorrect = poll.correctId === o.id;

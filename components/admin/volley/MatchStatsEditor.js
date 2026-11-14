@@ -72,6 +72,12 @@ export default function MatchStatsEditor({ match, homeRoster, awayRoster, initia
                 </div>
                 <div style={{ display: 'flex', gap: 8 }}>
                     <a className="admin-btn" href={`/mac/${match.id}`} target="_blank" rel="noreferrer">Maç sayfası</a>
+                    <button type="button" className="admin-btn" disabled={busy} title="Set skorları, istatistikler ve puan durumundan maç sonu haberi taslağı (onaya düşer)" onClick={async () => {
+                        setBusy(true); setMsg(null);
+                        const d = await fetch(`/api/admin/matches/${match.id}/draft`, { method: 'POST' }).then((r) => r.json()).catch(() => null);
+                        setBusy(false);
+                        if (d?.success) location.href = `/admin/haberler/${d.id}`; else setMsg({ type: 'error', text: d?.message || 'Taslak oluşturulamadı.' });
+                    }}><Sparkles size={15} /> Maç sonu haber taslağı</button>
                     <button type="button" className="admin-btn primary" onClick={save} disabled={busy}><Save size={15} /> Kaydet</button>
                 </div>
             </header>

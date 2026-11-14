@@ -45,8 +45,9 @@ export async function register() {
     }
 
     // Son dakika bildirimleri: dakikada bir kuyruğa bakılır
-    const { sendPendingPushes } = await import('./lib/push.js');
+    const { sendPendingPushes, queueMatchReminders } = await import('./lib/push.js');
     every('bildirim', 60 * 1000, async () => {
+        await queueMatchReminders(); // maçtan 1 saat önce takipçilere hatırlatma
         const p = await sendPendingPushes();
         if (p) console.log(`[bildirim] ${p.sent} gönderildi, ${p.failed} başarısız.`);
         return p;
@@ -54,7 +55,9 @@ export async function register() {
 
     // Bülten: zamanı gelen sayıları başlatır ve dakikada bir parti e-posta gönderir
     const { newsletterTick } = await import('./lib/newsletter/service.js');
+    const { maybeCreateWeeklyVolley } = await import('./lib/newsletter/weeklyVolley.js');
     every('bulten', 60 * 1000, async () => {
+        await maybeCreateWeeklyVolley(); // pazartesi 08:00 voleybol özeti taslağı
         const r = await newsletterTick();
         if (r?.sent || r?.failed) console.log(`[bülten] sayı ${r.issueId}: ${r.sent} gönderildi, ${r.failed} başarısız, ${r.pending} bekliyor.`);
         return r;

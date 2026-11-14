@@ -50,20 +50,21 @@ model User {
   avatar String?
   title  String  @default("") // ör. "Spor Editörü"
 
-  sessions      Session[]
-  articles      Article[]
-  comments      Comment[]
-  likes         Like[]
-  bookmarks     Bookmark[]
-  follows       CategoryFollow[]
-  reports       CommentReport[]
-  media         Media[]
-  revisions     ArticleRevision[]
-  templates     ArticleTemplate[]
-  newsletters   NewsletterIssue[]
-  notifications UserNotification[]
-  supports      Supporter[]
-  teamFollows   TeamFollow[]
+  sessions         Session[]
+  articles         Article[]
+  comments         Comment[]
+  likes            Like[]
+  bookmarks        Bookmark[]
+  follows          CategoryFollow[]
+  reports          CommentReport[]
+  media            Media[]
+  revisions        ArticleRevision[]
+  templates        ArticleTemplate[]
+  newsletters      NewsletterIssue[]
+  notifications    UserNotification[]
+  supports         Supporter[]
+  teamFollows      TeamFollow[]
+  predictionGroups PredictionGroupMember[]
 }
 
 model Session {
@@ -567,6 +568,8 @@ model Match {
   group       String      @default("") // ör. "A Grubu"
   broadcaster String      @default("") // ör. "TRT Spor"
   stats       MatchStat[]
+  remindedAt  DateTime?   @db.Timestamptz(3) // maç öncesi hatırlatma bildirimi gönderildi
+  draftedAt   DateTime?   @db.Timestamptz(3) // maç sonu haber taslağı oluşturuldu
 
   @@index([leagueId, startAt])
   @@index([startAt])
@@ -798,4 +801,25 @@ model MatchStat {
 
   @@id([matchId, playerId])
   @@index([playerId])
+}
+
+// ---------------------------------------------------------------- Arkadaş ligi (tahmin)
+model PredictionGroup {
+  id        Int                     @id @default(autoincrement())
+  name      String
+  code      String                  @unique // davet kodu
+  ownerId   String
+  createdAt DateTime                @default(now()) @db.Timestamptz(3)
+  members   PredictionGroupMember[]
+}
+
+model PredictionGroupMember {
+  groupId  Int
+  userId   String
+  joinedAt DateTime        @default(now()) @db.Timestamptz(3)
+  group    PredictionGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user     User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([groupId, userId])
+  @@index([userId])
 }
