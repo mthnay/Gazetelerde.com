@@ -11,6 +11,8 @@ import { STATUS_LABELS } from '@/lib/permissions';
 import { HERO_OPTIONS, WIDTH_OPTIONS, DEFAULT_LAYOUT, normalizeLayout } from '@/lib/layout';
 import StudioEditor from './editor/StudioEditor';
 import TagInput from './TagInput';
+import GalleryEditor from './GalleryEditor';
+import AiPanel from './AiPanel';
 import CoverImage from './CoverImage';
 import { BUILTIN_TEMPLATES } from './editor/templates';
 import { moveBlock, duplicateBlock, deleteBlock } from './editor/blocks';
@@ -75,12 +77,16 @@ export default function ArticleStudio({ article = null, categories, canPublish, 
         category: article?.category ?? initial.category ?? categories[0]?.slug ?? '',
         status: article?.status ?? 'DRAFT',
         featured: article?.featured ?? false,
+        sponsored: article?.sponsored ?? false,
         breaking: article?.breaking ?? false,
         authorName: article?.authorName ?? '',
         sourceUrl: article?.sourceUrl ?? initial.sourceUrl ?? '',
         tags: article?.tags ?? initial.tags ?? [],
         imageCredit: article?.imageCredit ?? initial.imageCredit ?? '',
         reviewNote: article?.reviewNote ?? '',
+        format: article?.format ?? initial.format ?? 'standart',
+        videoUrl: article?.videoUrl ?? '',
+        gallery: article?.gallery ?? [],
         publishedAt: toLocalInput(article?.publishedAt),
         layout: normalizeLayout(article?.layout ?? initial.layout ?? DEFAULT_LAYOUT),
     });
@@ -549,6 +555,7 @@ export default function ArticleStudio({ article = null, categories, canPublish, 
                     <div className="st-tabs">
                         <button type="button" className={rightTab === 'haber' ? 'is-on' : ''} onClick={() => setRightTab('haber')}>Haber</button>
                         <button type="button" className={rightTab === 'blok' ? 'is-on' : ''} onClick={() => setRightTab('blok')}>Blok</button>
+                        <button type="button" className={rightTab === 'ai' ? 'is-on' : ''} onClick={() => setRightTab('ai')}>Yapay zekâ</button>
                         {!isNew && <button type="button" className={rightTab === 'gecmis' ? 'is-on' : ''} onClick={() => setRightTab('gecmis')}><History size={13} /> Geçmiş</button>}
                     </div>
                     <div className="st-scroll">
@@ -584,6 +591,7 @@ export default function ArticleStudio({ article = null, categories, canPublish, 
                                         <>
                                             <label className="admin-check"><input type="checkbox" checked={form.featured} onChange={set('featured')} /> Manşette göster</label>
                                             <label className="admin-check" style={{ marginTop: 8 }}><input type="checkbox" checked={form.breaking} onChange={set('breaking')} /> Son dakika şeridi (24 saat)</label>
+                                            <label className="admin-check" style={{ marginTop: 8 }}><input type="checkbox" checked={form.sponsored} onChange={set('sponsored')} /> Sponsorlu içerik (okura “Sponsorlu” etiketiyle gösterilir)</label>
                                         </>
                                     )}
                                 </Section>
@@ -603,6 +611,20 @@ export default function ArticleStudio({ article = null, categories, canPublish, 
                                     </div>
                                     <label className="admin-check" style={{ marginTop: 10 }}><input type="checkbox" checked={form.layout.aside} onChange={(e) => setLayout({ aside: e.target.checked })} /> Yanda &quot;Çok okunanlar&quot;</label>
                                     <label className="admin-check" style={{ marginTop: 8 }}><input type="checkbox" checked={form.layout.dropcap} onChange={(e) => setLayout({ dropcap: e.target.checked })} /> Büyük ilk harf</label>
+                                </Section>
+                                <Section title="Haber türü">
+                                    <div className="st-seg" role="radiogroup" aria-label="Haber türü">
+                                        {[['standart', 'Standart'], ['video', 'Video'], ['galeri', 'Foto galeri']].map(([k, v]) => (
+                                            <button key={k} type="button" role="radio" aria-checked={form.format === k} className={form.format === k ? 'is-on' : ''} onClick={() => update({ format: k })}>{v}</button>
+                                        ))}
+                                    </div>
+                                    {form.format === 'video' && (
+                                        <label className="admin-field" style={{ marginTop: 10 }}><span>Video adresi</span>
+                                            <input className="admin-input" type="url" value={form.videoUrl} onChange={set('videoUrl')} placeholder="https://www.youtube.com/watch?v=… ya da Vimeo / .mp4" />
+                                            <span className="hint">YouTube çerezsiz modda, okur oynat&apos;a basınca yüklenir. Kapak görseli videonun önizlemesi olur.</span>
+                                        </label>
+                                    )}
+                                    {form.format === 'galeri' && <div style={{ marginTop: 10 }}><GalleryEditor value={form.gallery} onChange={(gallery) => update({ gallery })} /></div>}
                                 </Section>
                                 <Section title="Kapak görseli">
                                     <CoverImage value={form.image || ''} onChange={(v) => update({ image: v })} />
@@ -635,6 +657,8 @@ export default function ArticleStudio({ article = null, categories, canPublish, 
                                 {!isNew && <button type="button" onClick={remove} className="admin-btn danger" style={{ width: '100%', justifyContent: 'center' }}><Trash2 size={15} /> Haberi sil</button>}
                             </>
                         )}
+
+                        {rightTab === 'ai' && <AiPanel form={form} update={update} replaceContent={replaceContent} />}
 
                         {rightTab === 'blok' && (
                             !editor || !sel.length ? <p className="st-hint">Ayarlarını görmek için sayfada bir bloğa tıklayın.</p> : (

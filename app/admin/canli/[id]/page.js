@@ -12,8 +12,8 @@ export const dynamic = 'force-dynamic';
 export default async function LiveAdmin({ params }) {
     const user = await requirePageUser();
     const id = Number((await params).id);
-    const a = Number.isInteger(id) && (await prisma.article.findUnique({ where: { id }, select: { id: true, slug: true, title: true, status: true, live: true, authorId: true } }));
+    const a = Number.isInteger(id) && (await prisma.article.findUnique({ where: { id }, select: { id: true, slug: true, title: true, status: true, live: true, authorId: true, category: { select: { slug: true } } } }));
     if (!a) notFound();
     if (!canEditArticle(user, a) && !['EDITOR', 'ADMIN'].includes(user.role)) redirect('/admin/haberler');
-    return <LiveComposer article={a} initial={await getLiveEntries(a.id)} canPush={pushEnabled() && a.status === 'PUBLISHED'} />;
+    return <LiveComposer article={{ ...a, category: a.category.slug }} initial={await getLiveEntries(a.id)} canPush={pushEnabled() && a.status === 'PUBLISHED'} />;
 }

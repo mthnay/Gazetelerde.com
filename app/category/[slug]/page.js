@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import Story from '@/components/Story';
 import NewsGrid from '@/components/NewsGrid';
 import LoadMore from '@/components/LoadMore';
+import AdSlot from '@/components/AdSlot';
 import FollowButton from '@/components/FollowButton';
 import { getCategory, getLatestNews } from '@/lib/news';
 
@@ -42,6 +43,7 @@ export default async function CategoryPage({ params }) {
                 </div>
                 <p className="page-hero-desc rise" style={{ '--i': 2 }}>{cat.description}</p>
             </header>
+            <AdSlot place="kategori-ust" />
 
             {!lead ? (
                 <div className="empty"><p className="display">Henüz haber yok</p><p>Bu kategoride yayınlanan ilk haber burada görünecek.</p></div>

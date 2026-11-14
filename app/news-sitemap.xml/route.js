@@ -10,7 +10,7 @@ export async function GET() {
     const now = new Date();
     const since = new Date(now.getTime() - 48 * 3600 * 1000);
     const articles = await buildSafe(() => prisma.article.findMany({
-        where: { status: 'PUBLISHED', publishedAt: { gte: since, lte: now } },
+        where: { status: 'PUBLISHED', sponsored: false, publishedAt: { gte: since, lte: now } }, // sponsorlu içerik Google Haberler'e gönderilmez
         orderBy: { publishedAt: 'desc' },
         take: 1000,
         select: { slug: true, title: true, publishedAt: true },

@@ -39,6 +39,14 @@ if (article) await check(`Haber sayfası ${article}`, article, (r) => r.status =
 if (category) await check(`Kategori ${category}`, category);
 const topic = first(/href="(\/etiket\/[^"#?]+)"/);
 if (topic) await check(`Konu ${topic}`, topic);
+await check('Arşiv', '/arsiv', (r) => r.status === 200 && r.body.includes('Arşiv'));
+await check('Video', '/video');
+await check('Galeri', '/galeri');
+await check('Destek', '/destek');
+await check('Uygulama bildirimi', '/manifest.webmanifest', (r) => r.status === 200 && JSON.parse(r.body).display === 'standalone');
+await check('Çevrimdışı sayfa', '/cevrimdisi');
+await check('Reklam API', '/api/ads?yer=haber-ici', (r) => r.status === 200 && Array.isArray(JSON.parse(r.body).ads));
+await check('Yapay zekâ API girişsiz 401', '/api/admin/ai', (r) => r.status === 401);
 await check('Maç merkezi', '/mac-merkezi', (r) => r.status === 200 && r.body.includes('Maç Merkezi'));
 if (article) await check('Paylaşım kartı', `${article}/opengraph-image`, (r) => r.status === 200 && r.headers.get('content-type') === 'image/png');
 if (article) await check('Canlı anlatım API', '/api/articles/1/live', (r) => r.status === 200 || r.status === 404);

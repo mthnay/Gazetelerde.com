@@ -1,5 +1,6 @@
 "use client";
 import Link from 'next/link';
+import { openConsentSettings } from '@/lib/consentClient';
 import { usePathname } from 'next/navigation';
 import { Rss, ArrowUp } from 'lucide-react';
 
@@ -28,13 +29,16 @@ export default function Footer({ categories = [] }) {
                     <h2 className="footer-heading">Kurumsal</h2>
                     <ul style={{ gridTemplateColumns: '1fr' }}>
                         <li><Link href="/kunye">Künye</Link></li>
+                        <li><Link href="/arsiv">Arşiv</Link></li>
+                        <li><Link href="/mac-merkezi">Maç Merkezi</Link></li>
+                        <li><Link href="/destek">Bizi destekleyin</Link></li>
                         <li><Link href="/iletisim">İletişim</Link></li>
                         <li><Link href="/gizlilik">Gizlilik ve KVKK</Link></li>
                     </ul>
                 </nav>
             </div>
             <div className="container footer-bottom">
-                <span>© {new Date().getFullYear()} Gazetelerde.com · Tüm hakları saklıdır.</span>
+                <span>© {new Date().getFullYear()} Gazetelerde.com · Tüm hakları saklıdır. · <button type="button" className="linklike-footer" onClick={openConsentSettings}>Çerez tercihleri</button></span>
                 <button
                     onClick={() => window.scrollTo({ top: 0, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' })}
                     style={{ background: 'none', border: 'none', display: 'inline-flex', alignItems: 'center', gap: 6, fontWeight: 600, color: 'inherit' }}

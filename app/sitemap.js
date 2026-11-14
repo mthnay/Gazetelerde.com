@@ -19,6 +19,10 @@ export default async function sitemap() {
     ]), [[], [], [], []]);
     return [
         { url: absoluteUrl('/'), lastModified: now, changeFrequency: 'always', priority: 1 },
+        { url: absoluteUrl('/arsiv'), lastModified: now, changeFrequency: 'daily', priority: 0.4 },
+        { url: absoluteUrl('/video'), lastModified: now, changeFrequency: 'daily', priority: 0.5 },
+        { url: absoluteUrl('/galeri'), lastModified: now, changeFrequency: 'daily', priority: 0.5 },
+        { url: absoluteUrl('/mac-merkezi'), lastModified: now, changeFrequency: 'hourly', priority: 0.6 },
         ...categories.map((c) => ({ url: absoluteUrl(`/category/${c.slug}`), lastModified: now, changeFrequency: 'hourly', priority: 0.7 })),
         ...authors.map((a) => ({ url: absoluteUrl(`/yazar/${a.slug}`), lastModified: now, changeFrequency: 'weekly', priority: 0.5 })),
         ...tags.map((t) => ({ url: absoluteUrl(`/etiket/${t.slug}`), lastModified: now, changeFrequency: 'daily', priority: 0.6 })),

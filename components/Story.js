@@ -35,7 +35,7 @@ export default function Story({ item, variant = 'card', summary = false, priorit
                     </div>
                 )}
                 <div className="story-body">
-                    <span className="kicker">{item.categoryLabel}</span>
+                    <span className="kicker">{item.sponsored ? 'Sponsorlu' : item.categoryLabel}{item.format === 'video' ? ' · Video' : item.format === 'galeri' ? ' · Galeri' : ''}</span>
                     {/* Başlık düzeyi sayfaya göre: h1'in hemen altındaki listelerde h2, bölüm başlıklı alanlarda h3 */}
                     <H className="story-title"><span className="ink-link">{item.title}</span></H>
                     {summary && item.summary && <p className="story-summary">{item.summary}</p>}

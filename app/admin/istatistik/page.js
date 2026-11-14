@@ -3,6 +3,7 @@ import { prisma } from '@/lib/db';
 import { requirePageUser } from '@/lib/adminPage';
 import { canPublish } from '@/lib/permissions';
 import { istanbulDay } from '@/lib/analytics';
+import { THRESHOLDS, percentile, BUCKETS } from '@/lib/vitals';
 
 export const metadata = { title: 'İstatistik | Yönetim' };
 
@@ -16,6 +17,46 @@ const SOURCE = {
 const DAY = 24 * 60 * 60 * 1000;
 const n = (x) => new Intl.NumberFormat('tr-TR').format(x || 0);
 const pct = (a, b) => (b ? Math.round((a / b) * 100) : 0);
+
+const VITALS = [
+    ['LCP', 'En büyük içerik (LCP)', 'Ana görselin / başlığın görünmesi', 'ms'],
+    ['INP', 'Etkileşim gecikmesi (INP)', 'Tıklamaya tepki süresi', 'ms'],
+    ['CLS', 'Görsel kayma (CLS)', 'Sayfanın yüklenirken kayması', ''],
+    ['FCP', 'İlk içerik (FCP)', 'İlk metnin görünmesi', 'ms'],
+    ['TTFB', 'Sunucu yanıtı (TTFB)', 'İlk baytın gelmesi', 'ms'],
+];
+const fmtV = (m, v) => (v == null ? '—' : m === 'CLS' ? v.toFixed(2) : v >= 1000 ? `${(v / 1000).toFixed(1)} sn` : `${v} ms`);
+
+// Günlük histogramları birleştirip p75 ve iyi/orta/kötü oranlarını hesaplar
+function summarizeVitals(rows, metric, device) {
+    const sel = rows.filter((r) => r.metric === metric && (!device || r.device === device));
+    const buckets = Array(BUCKETS).fill(0);
+    let good = 0, ni = 0, poor = 0;
+    for (const r of sel) { good += r.good; ni += r.ni; poor += r.poor; r.buckets.forEach((v, i) => { buckets[i] += v || 0; }); }
+    const n = good + ni + poor;
+    return { n, p75: percentile(metric, buckets), good: n ? good / n : 0, ni: n ? ni / n : 0, poor: n ? poor / n : 0 };
+}
+
+function VitalCard({ metric, label, hint, rows }) {
+    const [goodT, poorT] = THRESHOLDS[metric];
+    const all = summarizeVitals(rows, metric);
+    const tone = all.p75 == null ? '' : all.p75 <= goodT ? 'ok' : all.p75 <= poorT ? 'warn' : 'danger';
+    return (
+        <div className={`admin-panel vital-card vital-${tone}`}>
+            <span className="label">{label}</span>
+            <strong className="value" style={{ fontSize: '1.8rem' }}>{fmtV(metric, all.p75)}</strong>
+            <span className="sub">{hint} · iyi ≤ {fmtV(metric, goodT)}</span>
+            {all.n > 0 && (
+                <>
+                    <div className="vital-bar" role="img" aria-label={`%${Math.round(all.good * 100)} iyi, %${Math.round(all.ni * 100)} orta, %${Math.round(all.poor * 100)} kötü`}>
+                        <i className="g" style={{ width: `${all.good * 100}%` }} /><i className="n" style={{ width: `${all.ni * 100}%` }} /><i className="p" style={{ width: `${all.poor * 100}%` }} />
+                    </div>
+                    <span className="sub">Mobil {fmtV(metric, summarizeVitals(rows, metric, 'mobil').p75)} · Masaüstü {fmtV(metric, summarizeVitals(rows, metric, 'masaustu').p75)} · {all.n} ölçüm</span>
+                </>
+            )}
+        </div>
+    );
+}
 
 function Bars({ rows, total }) {
     if (!rows.length) return <p className="hint">Bu aralıkta veri yok.</p>;
@@ -40,7 +81,7 @@ export default async function Stats({ searchParams }) {
     const from = new Date(today.getTime() - (days - 1) * DAY);
     const prevFrom = new Date(from.getTime() - days * DAY);
 
-    const [byDay, prevTotal, bySource, byDevice, byKind, topArticles, readsByDay, subs, newSubs, pushSubs, issues] = await Promise.all([
+    const [byDay, prevTotal, bySource, byDevice, byKind, topArticles, readsByDay, subs, newSubs, pushSubs, issues, vitals] = await Promise.all([
         prisma.pageDailyStat.groupBy({ by: ['day'], where: { day: { gte: from } }, _sum: { views: true } }),
         prisma.pageDailyStat.aggregate({ where: { day: { gte: prevFrom, lt: from } }, _sum: { views: true } }),
         prisma.pageDailyStat.groupBy({ by: ['source'], where: { day: { gte: from }, source: { not: 'site-ici' } }, _sum: { views: true }, orderBy: { _sum: { views: 'desc' } }, take: 12 }),
@@ -52,6 +93,7 @@ export default async function Stats({ searchParams }) {
         prisma.subscriber.count({ where: { confirmedAt: { gte: from } } }),
         prisma.pushSubscription.count(),
         prisma.newsletterIssue.findMany({ where: { status: 'SENT', sentAt: { gte: from } }, select: { sentCount: true } }),
+        prisma.vitalDaily.findMany({ where: { day: { gte: from } } }),
     ]);
 
     const arts = await prisma.article.findMany({
@@ -115,6 +157,13 @@ export default async function Stats({ searchParams }) {
                     ))}
                 </div>
                 <p className="hint" style={{ marginTop: 8 }}><span className="st-key" /> Tüm sayfalar <span className="st-key in" /> Haber okunması</p>
+            </section>
+
+            <section style={{ marginBottom: 16 }}>
+                <h2>Gerçek kullanıcı hızı <small className="hint" style={{ fontWeight: 400 }}>(okurların tarayıcılarından, %75&apos;lik dilim — Google sıralamasında kullanılan ölçü)</small></h2>
+                {!vitals.length ? <p className="hint">Henüz ölçüm yok; okurlar siteyi gezdikçe birikir.</p> : (
+                    <div className="admin-stats">{VITALS.map(([m, l, h]) => <VitalCard key={m} metric={m} label={l} hint={h} rows={vitals} />)}</div>
+                )}
             </section>
 
             <div className="admin-grid-2">

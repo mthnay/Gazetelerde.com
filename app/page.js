@@ -6,6 +6,8 @@ import SectionHead from '@/components/SectionHead';
 import Newsletter from '@/components/Newsletter';
 import Link from 'next/link';
 import MatchCard from '@/components/MatchCard';
+import AdSlot from '@/components/AdSlot';
+import ForYou from '@/components/ForYou';
 import { getMatchDay } from '@/lib/matchCenter';
 import { getBreakingNews, getCategories, getLatestNews, getMostRead, getTrendingTags } from '@/lib/news';
 import { absoluteUrl, SITE_NAME, SITE_DESCRIPTION } from '@/lib/site';
@@ -91,7 +93,7 @@ export default async function Home() {
       <section className="container front" aria-label="Manşet">
         <div className="front-grid">
           <div className="rise">
-            <Story item={lead} variant="lead" summary priority reveal={false} as="div" />
+            <Story item={lead} variant="lead" summary priority reveal={false} as="div" level={2} />
           </div>
           <div className="front-side">
             <span className="kicker kicker--live">Şimdi gündemde</span>
@@ -106,6 +108,10 @@ export default async function Home() {
       </section>
 
       {/* Okunanlar + canlı akış: yan yana, eşit genişlikte (uzun yan sütun boşluk bırakmasın) */}
+      <ForYou />
+
+      <div className="container"><AdSlot place="ana-ust" /></div>
+
       <section className="container section home-band" aria-label="Öne çıkanlar">
         <MostRead items={mostRead} />
         <LiveFeed items={allNews.slice(0, 6)} />
@@ -157,6 +163,7 @@ export default async function Home() {
       </div>
 
       <div className="container" style={{ marginTop: 'clamp(40px, 6vw, 72px)' }}>
+        <AdSlot place="ana-orta" />
         <Newsletter />
       </div>
     </>

@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Send, Pin, PinOff, Trash2, Radio, Square, ExternalLink, ImagePlus, X } from 'lucide-react';
+import { ArrowLeft, Send, Pin, PinOff, Trash2, Radio, Square, ExternalLink, ImagePlus, X, Sparkles } from 'lucide-react';
 import { uploadImage } from './uploadImage';
 
 const KINDS = { normal: 'Gelişme', onemli: 'Önemli', skor: 'Skor', son: 'Son durum' };
@@ -51,6 +51,21 @@ export default function LiveComposer({ article, initial, canPush }) {
         const d = await call(article.id, 'DELETE', null, `?entry=${e.id}`);
         if (d.success) setEntries((x) => x.filter((y) => y.id !== e.id));
     };
+    // Canlı anlatım notlarından yapay zekâ ile maç sonu haberi taslağı oluşturur (taslak olarak kaydedilir, yayınlanmaz)
+    const summarize = async () => {
+        setBusy(true); setMsg(null);
+        const d = await fetch('/api/admin/ai', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ task: 'mac-ozeti', articleId: article.id }) }).then((r) => r.json()).catch(() => null);
+        if (!d?.success) { setBusy(false); return setMsg({ type: 'error', text: d?.message || 'Özet oluşturulamadı.' }); }
+        const esc = (x) => String(x).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+        const c = await fetch('/api/admin/articles', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ title: d.result.title, summary: d.result.summary, content: d.result.paragraphs.map((p) => `<p>${esc(p)}</p>`).join(''), category: article.category, status: 'DRAFT' }),
+        }).then((r) => r.json()).catch(() => null);
+        setBusy(false);
+        if (!c?.success) return setMsg({ type: 'error', text: c?.message || 'Taslak kaydedilemedi.' });
+        router.push(`/admin/haberler/${c.article.id}`);
+    };
+
     const pickImage = async (f) => {
         if (!f) return;
         try { setImage((await uploadImage(f, '')).url); } catch (ex) { setMsg({ type: 'error', text: ex.message }); }
@@ -66,6 +81,7 @@ export default function LiveComposer({ article, initial, canPush }) {
                 </div>
                 <div style={{ display: 'flex', gap: 8 }}>
                     {article.status === 'PUBLISHED' && <a href={`/haber/${article.slug}`} target="_blank" rel="noreferrer" className="admin-btn"><ExternalLink size={15} /> Sayfayı aç</a>}
+                    {entries.length >= 3 && <button type="button" className="admin-btn" onClick={summarize} disabled={busy} title="Canlı anlatım notlarından maç sonu haberi taslağı"><Sparkles size={15} /> Maç özeti taslağı</button>}
                     <button type="button" className={`admin-btn ${live ? 'danger' : 'primary'}`} onClick={toggleLive}>{live ? <><Square size={15} /> Anlatımı bitir</> : <><Radio size={15} /> Canlı anlatımı başlat</>}</button>
                 </div>
             </header>

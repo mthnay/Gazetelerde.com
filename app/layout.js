@@ -5,7 +5,11 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import NavProgress from "@/components/motion/NavProgress";
 import Analytics from "@/components/Analytics";
+import WebVitals from "@/components/WebVitals";
+import PwaInstall from "@/components/PwaInstall";
 import ErrorReporter from "@/components/ErrorReporter";
+import ConsentBanner from "@/components/ConsentBanner";
+import { prisma } from "@/lib/db";
 import { getCategories } from "@/lib/news";
 import { buildSafe } from "@/lib/db";
 import { SessionProvider } from "@/components/SessionProvider";
@@ -31,6 +35,8 @@ export const metadata = {
   title: "Gazetelerde | Geleceğin Haberciliği",
   description: SITE_DESCRIPTION,
   applicationName: SITE_NAME,
+  // iPhone ana ekran uygulaması
+  appleWebApp: { capable: true, title: SITE_NAME, statusBarStyle: "black-translucent" },
   alternates: { canonical: "/", types: { "application/rss+xml": [{ url: "/rss.xml", title: "Gazetelerde RSS" }] } },
   openGraph: { siteName: SITE_NAME, locale: "tr_TR", type: "website" },
   twitter: { card: "summary_large_image" },
@@ -54,7 +60,7 @@ export const viewport = {
 };
 
 export default async function RootLayout({ children }) {
-  const categories = await buildSafe(() => getCategories(), []);
+  const [categories, codeAds] = await buildSafe(() => Promise.all([getCategories(), prisma.adSlot.count({ where: { kind: 'kod', active: true } })]), [[], 0]);
   return (
     <html lang="tr" data-theme="light" suppressHydrationWarning className={`${fraunces.variable} ${geistSans.variable} ${geistMono.variable}`}>
       <head>
@@ -72,7 +78,11 @@ export default async function RootLayout({ children }) {
           </SessionProvider>
         </ThemeProvider>
         <Analytics />
+        <WebVitals />
+        <PwaInstall />
         <ErrorReporter />
+        {/* Çerez bandı yalnızca onay gerektiren (üçüncü taraf) reklam kodu varken gösterilir */}
+        <ConsentBanner adsEnabled={codeAds > 0} />
       </body>
     </html>
   );

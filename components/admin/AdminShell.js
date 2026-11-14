@@ -1,7 +1,7 @@
 "use client";
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { LayoutDashboard, FileText, MessageSquare, Users, Rss, Mail, Trophy, CalendarDays, Images, Tags, BarChart3, BellRing, Activity, LogOut, ExternalLink } from 'lucide-react';
+import { LayoutDashboard, FileText, MessageSquare, Users, Rss, Mail, Megaphone, HeartHandshake, Vote, Trophy, CalendarDays, Images, Tags, BarChart3, BellRing, Activity, LogOut, ExternalLink } from 'lucide-react';
 import { canModerate, canManageUsers, canPublish, ROLE_LABELS } from '@/lib/permissions';
 import { useSession } from '@/components/SessionProvider';
 
@@ -20,6 +20,9 @@ export default function AdminShell({ user, children }) {
         canPublish(user) && { href: '/admin/etiketler', icon: Tags, label: 'Etiketler' },
         canPublish(user) && { href: '/admin/istatistik', icon: BarChart3, label: 'İstatistik' },
         canPublish(user) && { href: '/admin/bulten', icon: Mail, label: 'Bülten' },
+        canPublish(user) && { href: '/admin/reklamlar', icon: Megaphone, label: 'Reklamlar' },
+        canPublish(user) && { href: '/admin/destek', icon: HeartHandshake, label: 'Destekçiler' },
+        canPublish(user) && { href: '/admin/anketler', icon: Vote, label: 'Anketler' },
         canPublish(user) && { href: '/admin/bildirim', icon: BellRing, label: 'Bildirimler' },
         canManageUsers(user) && { href: '/admin/sistem', icon: Activity, label: 'Sistem' },
         canModerate(user) && { href: '/admin/yorumlar', icon: MessageSquare, label: 'Yorumlar' },

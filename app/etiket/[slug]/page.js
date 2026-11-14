@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import Story from '@/components/Story';
 import NewsGrid from '@/components/NewsGrid';
 import LoadMore from '@/components/LoadMore';
+import AdSlot from '@/components/AdSlot';
 import { getTag, getLatestNews } from '@/lib/news';
 import { absoluteUrl } from '@/lib/site';
 
@@ -41,6 +42,7 @@ export default async function TagPage({ params }) {
                 </div>
                 {tag.description && <p className="page-hero-desc rise" style={{ '--i': 2 }}>{tag.description}</p>}
             </header>
+            <AdSlot place="kategori-ust" />
             {!lead ? (
                 <div className="empty"><p className="display">Henüz haber yok</p><p>Bu konuda yayınlanan ilk haber burada görünecek.</p></div>
             ) : (

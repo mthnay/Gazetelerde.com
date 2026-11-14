@@ -9,6 +9,11 @@ import MostRead from '@/components/MostRead';
 import SmartImage from '@/components/SmartImage';
 import PushOptIn from '@/components/PushOptIn';
 import LiveBlog from '@/components/LiveBlog';
+import AdSlot from '@/components/AdSlot';
+import VideoPlayer from '@/components/VideoPlayer';
+import GalleryView from '@/components/GalleryView';
+import { parseVideo } from '@/lib/video';
+import PollWidget from '@/components/PollWidget';
 import MatchCardStatic from '@/components/MatchCard';
 import { getLiveEntries, getArticleMatches } from '@/lib/live';
 import { prisma } from '@/lib/db';
@@ -56,7 +61,7 @@ export default async function NewsDetail({ params }) {
     const item = await getArticleBySlug(slug);
     if (!item) notFound();
 
-    const [related, mostRead, comments, liveEntries, matches] = await Promise.all([
+    const [related, mostRead, comments, liveEntries, matches, polls] = await Promise.all([
         getRelatedNews(item),
         getMostRead(5),
         prisma.comment.findMany({
@@ -73,8 +78,11 @@ export default async function NewsDetail({ params }) {
         }),
         getLiveEntries(item.id),
         getArticleMatches(item.id),
+        prisma.poll.findMany({ where: { articleId: item.id }, orderBy: { createdAt: 'asc' }, select: { id: true } }),
     ]);
     const isLiveBlog = item.live || liveEntries.length > 0;
+    const video = item.format === 'video' ? parseVideo(item.videoUrl) : null;
+    const gallery = item.format === 'galeri' && item.gallery.length ? item.gallery : null;
 
     const jsonLd = {
         '@context': 'https://schema.org',
@@ -95,6 +103,12 @@ export default async function NewsDetail({ params }) {
             ? (item.img.startsWith('/media/') ? ['16x9', '4x3', '1x1'].map((r) => absoluteUrl(`${item.img}?ar=${r}&w=1200&f=jpg`)) : [item.img])
             : [absoluteUrl(`${articleUrl(item)}/opengraph-image`)],
         isAccessibleForFree: true,
+        ...(video ? { video: {
+            '@type': 'VideoObject', name: item.title, description: item.summary, uploadDate: item.publishedAt,
+            thumbnailUrl: [item.img ? absoluteUrl(`${item.img}?w=1200&f=jpg`) : video.thumb].filter(Boolean),
+            ...(video.provider === 'file' ? { contentUrl: video.src } : { embedUrl: video.embed.replace('autoplay=1', 'autoplay=0') }),
+        } } : {}),
+        ...(gallery ? { associatedMedia: gallery.slice(0, 30).map((g) => ({ '@type': 'ImageObject', contentUrl: g.src.startsWith('/') ? absoluteUrl(g.src) : g.src, caption: g.caption || undefined, creditText: g.credit || undefined })) } : {}),
         inLanguage: 'tr-TR',
         datePublished: item.publishedAt,
         dateModified: item.updatedAt,
@@ -120,6 +134,7 @@ export default async function NewsDetail({ params }) {
     const articleClass = ['article', layout.width === 'wide' && 'article--wide', !layout.aside && 'article--no-aside', !layout.dropcap && 'article--no-dropcap'].filter(Boolean).join(' ');
     const head = (align) => (
         <header className="article-head" style={align === 'left' ? { textAlign: 'left', margin: 0, maxWidth: 820 } : undefined}>
+            {item.sponsored && <span className="sponsored-badge rise">Sponsorlu içerik</span>}
             <Link href={`/category/${item.category}`} className="kicker rise" style={{ justifyContent: align === 'left' ? 'flex-start' : 'center' }}>{item.categoryLabel}</Link>
             <h1 className="article-title rise" style={{ '--i': 1 }}>{item.title}</h1>
             <p className="article-standfirst rise" style={{ '--i': 2, ...(align === 'left' ? { margin: 0 } : {}) }}>{item.summary}</p>
@@ -143,7 +158,7 @@ export default async function NewsDetail({ params }) {
             <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify([jsonLd, breadcrumb]).replace(/</g, '\\u003c') }} />
 
             <article className={articleClass}>
-                {layout.hero === 'immersive' && item.img ? (
+                {layout.hero === 'immersive' && item.img && !video && !gallery ? (
                     <section className="article-hero--immersive">
                         <div className="media">
                             <SmartImage src={item.img} alt={item.title} sizes="100vw" priority />
@@ -151,7 +166,7 @@ export default async function NewsDetail({ params }) {
                         </div>
                         <div className="container" style={{ width: '100%' }}>{head('left')}</div>
                     </section>
-                ) : layout.hero === 'split' && item.img ? (
+                ) : layout.hero === 'split' && item.img && !video && !gallery ? (
                     <section className="article-hero--split">
                         {head('left')}
                         <div className="media">
@@ -162,7 +177,12 @@ export default async function NewsDetail({ params }) {
                 ) : (
                     <>
                         <div className="container">{head('center')}</div>
-                        {layout.hero !== 'minimal' && item.img && (
+                        {(video || gallery) && (
+                            <div className="container article-figure">
+                                {video ? <VideoPlayer video={video} title={item.title} poster={item.img} /> : <GalleryView items={gallery} title={item.title} />}
+                            </div>
+                        )}
+                        {!video && !gallery && layout.hero !== 'minimal' && item.img && (
                             <figure className="container article-figure">
                                 <div className="media">
                                     <SmartImage src={item.img} alt={item.title} sizes="(max-width: 1180px) 100vw, 1120px" priority />
@@ -188,6 +208,8 @@ export default async function NewsDetail({ params }) {
                         {item.sourceUrl && (
                             <p className="article-source">Kaynak: <a href={item.sourceUrl} target="_blank" rel="noopener noreferrer nofollow">{new URL(item.sourceUrl).hostname.replace(/^www\./, '')}</a></p>
                         )}
+                        {polls.map((p) => <PollWidget key={p.id} pollId={p.id} />)}
+                        {!item.sponsored && <AdSlot place="haber-ici" />}
                         <div className="article-push"><PushOptIn /></div>
                         <NewsInteractions
                             articleId={item.id}
@@ -201,6 +223,7 @@ export default async function NewsDetail({ params }) {
                     </div>
                     {layout.aside && <aside className="article-aside" aria-label="Çok okunanlar">
                         <MostRead items={mostRead.filter((n) => n.id !== item.id).slice(0, 5)} />
+                        <div className="aside-sticky"><AdSlot place="haber-yan" /></div>
                     </aside>}
                 </div>
             </article>

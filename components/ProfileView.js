@@ -8,7 +8,7 @@ import { useSession } from '@/components/SessionProvider';
 import Modal from '@/components/Modal';
 import TwoFactor from '@/components/TwoFactor';
 
-export default function ProfileView({ initialUser, twoFactor = false, staff = false, initialTab = 'general', bookmarks = [], likes = [], categories = [], followed = [] }) {
+export default function ProfileView({ initialUser, twoFactor = false, staff = false, support = null, initialTab = 'general', bookmarks = [], likes = [], categories = [], followed = [] }) {
     const [user, setUser] = useState(initialUser);
     const [activeTab, setActiveTab] = useState(initialTab);
     const [following, setFollowing] = useState(followed);
@@ -108,6 +108,9 @@ export default function ProfileView({ initialUser, twoFactor = false, staff = fa
                     {activeTab === 'general' && (
                         <>
                             <h2>Profil bilgileri</h2>
+                            {support
+                                ? <div className="alert alert-success" style={{ marginBottom: 16 }}>💛 Destekçimizsiniz ({support.tier || 'destekçi'}{support.until ? `, ${formatDate(support.until)} tarihine kadar` : ''}). Sitede reklam görmezsiniz. Teşekkürler!</div>
+                                : <p className="field-hint" style={{ marginBottom: 16 }}>Bağımsız haberciliği desteklemek ve reklamsız okumak için <Link href="/destek">destekçi olun</Link>.</p>}
                             <form onSubmit={handleUpdate} className="profile-form">
                                 <label className="field">
                                     <span className="field-label">Ad soyad</span>

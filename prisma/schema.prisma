@@ -62,6 +62,8 @@ model User {
   templates     ArticleTemplate[]
   newsletters   NewsletterIssue[]
   notifications UserNotification[]
+  supports      Supporter[]
+  teamFollows   TeamFollow[]
 }
 
 model Session {
@@ -117,6 +119,12 @@ model Article {
   matches     Match[]
   // Editörün yazara notu (onaydan geri gönderilirken)
   reviewNote  String?
+  // Haber türü: standart | video | galeri
+  format      String                   @default("standart")
+  videoUrl    String?
+  gallery     Json? // [{ src, caption, credit }]
+  sponsored   Boolean                  @default(false) // "Sponsorlu içerik" etiketi
+  polls       Poll[]
   tags        ArticleTag[]
   dailyStats  ArticleDailyStat[]
   likes       Like[]
@@ -418,6 +426,7 @@ model PushSubscription {
   failures   Int       @default(0)
   createdAt  DateTime  @default(now()) @db.Timestamptz(3)
   lastSentAt DateTime? @db.Timestamptz(3)
+  userId     String? // giriş yapmış okur (takım bildirimleri için)
 }
 
 model PushMessage {
@@ -431,6 +440,7 @@ model PushMessage {
   createdAt   DateTime  @default(now()) @db.Timestamptz(3)
   sentAt      DateTime? @db.Timestamptz(3) // gönderim başladığında dolar (iki kez gönderilmesin)
   createdById String?
+  teamIds     Int[] // boş değilse yalnızca bu takımları takip edenlere
 }
 
 // ---------------------------------------------------------------- Hata takibi
@@ -515,14 +525,15 @@ model League {
 }
 
 model Team {
-  id        Int     @id @default(autoincrement())
+  id        Int          @id @default(autoincrement())
   leagueId  Int
   name      String
-  shortName String  @default("")
+  shortName String       @default("")
   logo      String?
-  league    League  @relation(fields: [leagueId], references: [id], onDelete: Cascade)
-  home      Match[] @relation("HomeTeam")
-  away      Match[] @relation("AwayTeam")
+  league    League       @relation(fields: [leagueId], references: [id], onDelete: Cascade)
+  home      Match[]      @relation("HomeTeam")
+  away      Match[]      @relation("AwayTeam")
+  followers TeamFollow[]
 
   @@unique([leagueId, name])
 }
@@ -548,4 +559,133 @@ model Match {
 
   @@index([leagueId, startAt])
   @@index([startAt])
+}
+
+// ---------------------------------------------------------------- Reklam
+// Yerleşim (placement): ana-ust | ana-orta | haber-ici | haber-yan | kategori-ust | mobil-alt
+model AdSlot {
+  id        Int       @id @default(autoincrement())
+  name      String
+  placement String
+  kind      String    @default("gorsel") // gorsel (birinci taraf, çerezsiz) | kod (üçüncü taraf, reklam onayı gerekir)
+  image     String?
+  link      String?
+  alt       String    @default("")
+  code      String    @default("") // ör. AdSense / Google Ad Manager kodu (yalnızca yönetici girer)
+  label     String    @default("Reklam") // "Reklam" | "Sponsorlu"
+  active    Boolean   @default(true)
+  startsAt  DateTime? @db.Timestamptz(3)
+  endsAt    DateTime? @db.Timestamptz(3)
+  weight    Int       @default(1)
+  views     Int       @default(0)
+  clicks    Int       @default(0)
+  createdAt DateTime  @default(now()) @db.Timestamptz(3)
+
+  @@index([placement, active])
+}
+
+// ---------------------------------------------------------------- Destek / üyelik
+model SupportTier {
+  id          Int     @id @default(autoincrement())
+  name        String
+  description String  @default("")
+  amount      Int // TL
+  period      String  @default("aylik") // tek | aylik | yillik
+  paymentUrl  String // ödeme sağlayıcısındaki ödeme bağlantısı (iyzico / Shopier / Papara linki)
+  adFree      Boolean @default(true)
+  sortOrder   Int     @default(0)
+  active      Boolean @default(true)
+}
+
+model Supporter {
+  id        Int       @id @default(autoincrement())
+  userId    String?
+  email     String
+  name      String    @default("")
+  tier      String    @default("")
+  amount    Int       @default(0)
+  until     DateTime? @db.Timestamptz(3) // reklamsız okuma bitişi (boşsa süresiz)
+  note      String    @default("")
+  createdAt DateTime  @default(now()) @db.Timestamptz(3)
+  user      User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([email])
+}
+
+// ---------------------------------------------------------------- Gerçek kullanıcı hız ölçümü (çerezsiz, günlük toplam)
+// buckets: metriğin değer aralıklarına göre sayılar (p75 tahmini için), good/ni/poor: Google eşikleri
+model VitalDaily {
+  day     DateTime @db.Date
+  metric  String // LCP | CLS | INP | FCP | TTFB
+  kind    String // haber | anasayfa | kategori | ...
+  device  String // mobil | masaustu
+  good    Int      @default(0)
+  ni      Int      @default(0)
+  poor    Int      @default(0)
+  buckets Int[]
+
+  @@id([day, metric, kind, device])
+}
+
+// ---------------------------------------------------------------- Anket ve tahmin
+model Poll {
+  id          Int          @id @default(autoincrement())
+  question    String
+  kind        String       @default("anket") // anket | tahmin
+  articleId   Int?
+  matchId     Int?
+  closesAt    DateTime?    @db.Timestamptz(3)
+  correctId   Int? // tahminde doğru seçenek (maç bitince)
+  showResults String       @default("oy-sonrasi") // oy-sonrasi | kapaninca
+  createdAt   DateTime     @default(now()) @db.Timestamptz(3)
+  options     PollOption[]
+  votes       PollVote[]
+  article     Article?     @relation(fields: [articleId], references: [id], onDelete: SetNull)
+
+  @@index([articleId])
+}
+
+model PollOption {
+  id     Int    @id @default(autoincrement())
+  pollId Int
+  text   String
+  votes  Int    @default(0)
+  sort   Int    @default(0)
+  poll   Poll   @relation(fields: [pollId], references: [id], onDelete: Cascade)
+}
+
+// Tekrar oyu önlemek için: üye kimliği ya da anonim tarayıcı kimliği + IP'nin tuzlu özeti (kişisel veri saklanmaz)
+model PollVote {
+  pollId    Int
+  voterHash String
+  optionId  Int
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  poll      Poll     @relation(fields: [pollId], references: [id], onDelete: Cascade)
+
+  @@id([pollId, voterHash])
+}
+
+// ---------------------------------------------------------------- Takım takibi
+model TeamFollow {
+  userId    String
+  teamId    Int
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@id([userId, teamId])
+  @@index([teamId])
+}
+
+// ---------------------------------------------------------------- Yapay zekâ kullanım kaydı (maliyet takibi)
+model AiUsage {
+  id        Int      @id @default(autoincrement())
+  userId    String?
+  task      String
+  inputTok  Int      @default(0)
+  outputTok Int      @default(0)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+
+  @@index([createdAt])
 }

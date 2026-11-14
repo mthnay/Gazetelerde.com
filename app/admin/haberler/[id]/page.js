@@ -26,6 +26,10 @@ export default async function EditArticlePage({ params }) {
         tags: a.tags.map((t) => t.tag.name),
         imageCredit: a.imageCredit ?? '',
         reviewNote: a.reviewNote ?? '',
+        sponsored: a.sponsored,
+        format: a.format,
+        videoUrl: a.videoUrl ?? '',
+        gallery: Array.isArray(a.gallery) ? a.gallery : [],
     };
 
     return (

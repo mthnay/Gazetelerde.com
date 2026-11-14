@@ -22,6 +22,9 @@ export default function Gizlilik() {
                 <li><strong>Tarayıcı bildirimleri:</strong> izin verirseniz tarayıcınızın bildirim için ürettiği adres ve şifreleme anahtarları. Bu bilgiler sizi kişi olarak tanımlamaz; bildirimleri kapattığınızda silinir.</li>
                 <li><strong>Güvenlik kayıtları:</strong> giriş denemeleri (e-posta, başarılı/başarısız, tarih) ve IP adresinizin geri döndürülemez özeti; hesabınızı yetkisiz girişlere karşı korumak için 30 gün saklanır. İki adımlı doğrulamayı açarsanız doğrulama anahtarınız şifreli olarak saklanır.</li>
                 <li><strong>Okunma istatistikleri:</strong> çerez kullanılmadan, sayfa türü, geldiğiniz site (ör. Google), cihaz türü (mobil/masaüstü) ve gün bazında <em>toplam sayılar</em> tutulur. IP adresi, kimlik ya da gezinti geçmişi saklanmaz; tarayıcınızda “izlenmek istemiyorum” (Do Not Track / GPC) açıksa hiç sayım yapılmaz.</li>
+                <li><strong>Destekçilik:</strong> destek olursanız e-posta adresiniz, paket, tutar ve süre bilgisi (reklamsız okumayı açmak için). Kart bilgileriniz bizde değil, ödeme kuruluşunda işlenir.</li>
+                <li><strong>Anket oyları:</strong> hangi seçeneğe oy verildiği ve tekrar oyu önlemek için geri döndürülemez bir özet; kim olduğunuz saklanmaz.</li>
+                <li><strong>Yapay zekâ:</strong> editörlerimiz haber metinlerini yazım denetimi ve başlık önerisi için Anthropic şirketinin Claude hizmetine gönderebilir; okurların kişisel verileri bu hizmete gönderilmez.</li>
                 <li><strong>Hata kayıtları:</strong> site düzgün çalışmadığında oluşan teknik hata mesajı ve sayfa adresi; kişisel veri içermez.</li>
             </ul>
 
@@ -29,7 +32,10 @@ export default function Gizlilik() {
             <ul>
                 <li><strong>Oturum çerezi (zorunlu):</strong> giriş yaptığınızda oturumunuzu tanımak için kullanılır, 30 gün geçerlidir.</li>
                 <li><strong>Tema tercihi:</strong> açık/koyu tema seçiminiz tarayıcınızda saklanır.</li>
-                <li>Okunma istatistikleri çerezsiz çalışır. Reklam veya üçüncü taraf takip çerezi kullanılmamaktadır; bu nedenle çerez onay bandı gösterilmez.</li>
+                <li><strong>Çerez tercihi (zorunlu):</strong> reklam çerezlerine izin verip vermediğiniz, 6 ay saklanır.</li>
+                <li><strong>Reklam çerezleri (isteğe bağlı):</strong> reklam ağı kodları (ör. Google AdSense) yalnızca çerez bandında izin verirseniz yüklenir ve kendi çerezlerini kullanabilir. Tercihinizi alt bilgideki “Çerez tercihleri” bağlantısından dilediğiniz an değiştirebilirsiniz. Doğrudan sponsor görselleri çerez kullanmaz.</li>
+                <li><strong>Anket çerezi (işlevsel):</strong> üye olmadan ankete oy verirseniz aynı ankete ikinci kez oy verilmemesi için rastgele, sizi tanımlamayan bir kimlik 1 yıl saklanır.</li>
+                <li>Okunma istatistikleri ve sayfa hızı ölçümleri (yüklenme süresi gibi teknik değerler) çerezsiz çalışır; kişi ya da cihaz kimliği tutulmaz.</li>
             </ul>
 
             <h2>4. İşleme amaçları ve hukuki sebepler</h2>

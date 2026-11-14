@@ -8,6 +8,7 @@ export async function GET(request) {
     const take = Math.max(1, Math.min(24, Number(sp.get('take')) || 12));
     const category = sp.get('kategori') || undefined;
     const tag = sp.get('etiket') || undefined;
+    const format = ['video', 'galeri'].includes(sp.get('tur')) ? sp.get('tur') : undefined;
     let authorId;
     if (sp.get('yazar')) {
         const a = await getAuthor(sp.get('yazar'));
@@ -15,6 +16,6 @@ export async function GET(request) {
         authorId = a.id;
     }
     // Bir sonraki sayfanın olup olmadığını anlamak için bir fazlası istenir
-    const rows = await getLatestNews({ skip, take: take + 1, category, tag, authorId });
+    const rows = await getLatestNews({ skip, take: take + 1, category, tag, authorId, format });
     return ok({ items: rows.slice(0, take), hasMore: rows.length > take }, 200);
 }

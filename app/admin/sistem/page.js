@@ -3,6 +3,7 @@ import { requirePageUser } from '@/lib/adminPage';
 import { canManageUsers } from '@/lib/permissions';
 import { mailMode } from '@/lib/mail/mailer';
 import { pushEnabled } from '@/lib/push';
+import { aiEnabled } from '@/lib/ai';
 import ErrorList from '@/components/admin/ErrorList';
 
 export const metadata = { title: 'Sistem | Yönetim' };
@@ -29,18 +30,19 @@ async function collect(show) {
         prisma.media.aggregate({ _sum: { size: true }, _count: true }),
     ]);
     const day = new Date(Date.now() - 86400000);
-    const [staffNo2fa, failed24, lockedEmails] = await Promise.all([
+    const [staffNo2fa, failed24, lockedEmails, ai30] = await Promise.all([
         prisma.user.findMany({ where: { role: { not: 'READER' }, totpEnabledAt: null }, select: { name: true, email: true, role: true, lastLoginAt: true } }),
         prisma.loginAttempt.count({ where: { success: false, createdAt: { gte: day } } }),
         prisma.loginAttempt.groupBy({ by: ['email'], where: { success: false, createdAt: { gte: day } }, _count: true, orderBy: { _count: { email: 'desc' } }, take: 5 }),
+        prisma.aiUsage.aggregate({ where: { createdAt: { gte: new Date(Date.now() - 30 * 864e5) } }, _count: true, _sum: { inputTok: true, outputTok: true } }),
     ]);
-    return { dbOk, dbMs, size, errors, openCount, last24, pendingMail, pendingPush, media, staffNo2fa, failed24, lockedEmails };
+    return { dbOk, dbMs, size, errors, openCount, last24, pendingMail, pendingPush, media, staffNo2fa, failed24, lockedEmails, ai30 };
 }
 
 export default async function SystemPage({ searchParams }) {
     await requirePageUser(canManageUsers);
     const show = (await searchParams).goster === 'tumu' ? 'all' : 'open';
-    const { dbOk, dbMs, size, errors, openCount, last24, pendingMail, pendingPush, media, staffNo2fa, failed24, lockedEmails } = await collect(show);
+    const { dbOk, dbMs, size, errors, openCount, last24, pendingMail, pendingPush, media, staffNo2fa, failed24, lockedEmails, ai30 } = await collect(show);
     const mem = process.memoryUsage();
     const jobs = globalThis.__jobs || {};
     const limit = Number(process.env.MEMORY_LIMIT_MB) || 768;
@@ -91,6 +93,7 @@ export default async function SystemPage({ searchParams }) {
                     <ul className="admin-list">
                         <li className="admin-list-row"><span style={{ flex: 1 }}>E-posta gönderimi</span>{mailMode() === 'smtp' ? <span className="badge ok">SMTP bağlı</span> : mailMode() === 'outbox' ? <span className="badge warn">Geliştirme (dosyaya)</span> : <span className="badge danger">Yapılandırılmadı</span>}</li>
                         <li className="admin-list-row"><span style={{ flex: 1 }}>Web push bildirimleri</span>{pushEnabled() ? <span className="badge ok">Açık</span> : <span className="badge danger">VAPID anahtarı yok</span>}</li>
+                        <li className="admin-list-row"><span style={{ flex: 1 }}>Yapay zekâ yardımcısı<small className="muted" style={{ display: 'block' }}>Son 30 gün: {ai30._count} istek, tahmini ${(((ai30._sum.inputTok || 0) * 4 + (ai30._sum.outputTok || 0) * 20) / 1e6).toFixed(2)} (Claude Opus 5.5 liste fiyatı)</small></span>{aiEnabled() ? <span className="badge ok">Açık</span> : <span className="badge">Kapalı</span>}</li>
                         <li className="admin-list-row"><span style={{ flex: 1 }}>Kuyrukta bekleyen e-posta</span><strong>{pendingMail}</strong></li>
                         <li className="admin-list-row"><span style={{ flex: 1 }}>Kuyrukta bekleyen bildirim</span><strong>{pendingPush}</strong></li>
                         <li className="admin-list-row"><span style={{ flex: 1 }}>Site adresi</span><code>{process.env.NEXT_PUBLIC_SITE_URL || '—'}</code></li>

@@ -124,6 +124,23 @@ npm ci && npm run db:deploy && npm run build && npm start
   bildirim. `/admin/takvim` aylık yayın takvimi, `/admin/gorseller` görsel kitaplığı (alt metin, kullanım, temizlik).
 - **Erişilebilirlik:** Renk değişkenleri WCAG AA kontrastına göre ayarlı (`--muted`, `--brand-on-ink`, `--live-bg`);
   değiştirirken iki temada da 4.5:1'i koruyun.
+- **Reklam ve çerez onayı:** `/admin/reklamlar`. Görsel (birinci taraf) reklamlar çerezsiz; reklam ağı kodları
+  (yalnızca yönetici girer) okur çerez bandında izin verirse yüklenir. Bant yalnızca etkin kod reklamı varken çıkar.
+  Destekçilere reklam gösterilmez. Sponsorlu haberler etiketlenir ve Google Haberler site haritasına girmez.
+- **Destek:** `/destek` sayfası; paketler ödeme sağlayıcısının ödeme bağlantısıyla çalışır (iyzico/Shopier/Papara linki),
+  ödeme gelince editör destekçiyi `/admin/destek`'ten ekler → reklamsız okuma. Kart bilgisi sitede işlenmez.
+- **Arşiv:** `/arsiv`, `/arsiv/2026/11`, `/arsiv/2026/11/14` + haftanın / ayın en çok okunanları.
+- **Gerçek kullanıcı hızı:** `web-vitals` ölçümleri `/api/v`'ye gider, günlük histogram (`VitalDaily`) olarak
+  tutulur; `/admin/istatistik`'te p75 değerleri.
+- **PWA:** `app/manifest.js`, `public/sw.js` (önce ağ / çevrimdışı önbellek, `/cevrimdisi`), kurulum önerisi
+  `components/PwaInstall.js`. Service worker'da önbellek adlarını değiştirmek eski önbellekleri temizler.
+- **Video / galeri haberleri:** stüdyoda “Haber türü”. YouTube çerezsiz alan adından ve tıklayınca yüklenir.
+- **Anket / tahmin:** `/admin/anketler`; maça bağlı tahminler maç bitince sonuçlanır. Tekrar oy: üye kimliği ya da
+  `gz_v` çerezinin tuzlu özeti.
+- **Kişisel akış:** takım takibi (puan durumundaki ☆), ana sayfada “Sizin için”; maç başlayınca / bitince yalnızca
+  takipçilere bildirim (`PushMessage.teamIds`).
+- **Yapay zekâ yardımcısı:** `lib/ai.js` (Claude Opus 5.5, `@anthropic-ai/sdk`, katı şemalı araçla yapılandırılmış
+  sonuç, sunucu tarafı reddetme yedeği). `ANTHROPIC_API_KEY` yoksa kapalı. Kullanım ve tahmini maliyet `/admin/sistem`'de.
 - **Deneme sınırları** (`lib/api.js`) bellekte tutulur: tek sunucu için yeterli; birden fazla sunucuda Redis gibi
   ortak bir depoya taşınmalıdır.
 

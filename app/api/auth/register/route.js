@@ -24,6 +24,8 @@ export async function POST(request) {
         data: { name, email, passwordHash: await hashPassword(password) },
         select: { id: true, name: true, email: true, role: true },
     });
+    // Ödemeyi üye olmadan önce yapan destekçinin kaydını hesaba bağla (reklamsız okuma)
+    await prisma.supporter.updateMany({ where: { email, userId: null }, data: { userId: user.id } });
     await createSession(user.id);
     return ok({ user, redirectUrl: '/' }, 201);
 }

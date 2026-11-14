@@ -439,3 +439,27 @@
 .ml-unused { color: var(--a-warn); font-weight: 700; }
 .ml-actions { display: flex; justify-content: flex-end; align-items: center; gap: 4px; min-height: 28px; }
 .ml-saved { margin-right: auto; display: inline-flex; gap: 3px; align-items: center; font-size: .72rem; color: var(--a-ok); }
+.vital-card { border-top: 3px solid var(--border); }
+.vital-ok { border-top-color: var(--a-ok); } .vital-warn { border-top-color: var(--a-warn); } .vital-danger { border-top-color: var(--a-danger); }
+.vital-bar { display: flex; height: 8px; border-radius: 99px; overflow: hidden; background: var(--bg-hover); margin: 4px 0; }
+.vital-bar i { display: block; height: 100%; }
+.vital-bar .g { background: var(--a-ok); } .vital-bar .n { background: var(--a-warn); } .vital-bar .p { background: var(--a-danger); }
+.gal-editor { display: grid; gap: 8px; }
+.gal-row { display: flex; gap: 8px; align-items: flex-start; padding: 8px; border: 1px solid var(--border); border-radius: 10px; }
+.gal-row img { width: 72px; height: 54px; object-fit: cover; border-radius: 6px; flex: none; }
+.gal-fields { flex: 1; display: grid; gap: 4px; min-width: 0; }
+.gal-fields .admin-textarea, .gal-fields .admin-input { font-size: .8rem; padding: 5px 7px; }
+.gal-actions { display: grid; gap: 2px; }
+
+/* ---------- Yapay zekâ paneli ---------- */
+.ai-panel { display: grid; gap: 10px; }
+.ai-actions { display: grid; gap: 6px; }
+.ai-action { display: flex; gap: 10px; align-items: center; text-align: left; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--a-panel); color: inherit; font: inherit; cursor: pointer; }
+.ai-action:hover:not(:disabled) { border-color: var(--primary); }
+.ai-action:disabled { opacity: .6; cursor: default; }
+.ai-action span { flex: 1; display: grid; }
+.ai-action small { color: var(--text-muted); font-size: .75rem; }
+.ai-result { display: grid; gap: 6px; padding: 10px; border-radius: 10px; background: color-mix(in srgb, var(--primary) 6%, transparent); border: 1px solid color-mix(in srgb, var(--primary) 25%, transparent); font-size: .85rem; }
+.ai-row { display: flex; gap: 8px; align-items: flex-start; justify-content: space-between; }
+.ai-row > span { flex: 1; }
+.ai-row del { color: var(--a-danger); } .ai-row ins { color: var(--a-ok); text-decoration: none; font-weight: 600; }

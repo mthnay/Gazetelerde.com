@@ -5,6 +5,8 @@ import { canPublish } from '@/lib/permissions';
 import { parseMatchInput } from '@/lib/matchInput';
 import { revalidateLeague } from '@/lib/matchAdmin';
 import { revalidateArticle } from '@/lib/revalidate';
+import { resolveMatchPolls } from '@/lib/polls';
+import { queueMatchPush } from '@/lib/push';
 
 export async function PATCH(request, { params }) {
     const { error } = await requireStaff(canPublish);
@@ -14,7 +16,9 @@ export async function PATCH(request, { params }) {
     if (!existing) return fail('Maç bulunamadı.', 404);
     const parsed = await parseMatchInput((await readJson(request)) || {}, existing);
     if (parsed.error) return fail(parsed.error);
-    const m = await prisma.match.update({ where: { id }, data: parsed.data, select: { homeScore: true, awayScore: true, articleId: true } });
+    const m = await prisma.match.update({ where: { id }, data: parsed.data, select: { id: true, status: true, homeScore: true, awayScore: true, articleId: true } });
+    await resolveMatchPolls(m); // maç bittiyse bağlı tahminleri sonuçlandır
+    await queueMatchPush(m, existing.status); // takipçilere başladı / bitti bildirimi
     await revalidateLeague(existing.leagueId);
     if (m.articleId) await revalidateArticle(m.articleId); // haber sayfasındaki skor kutusu
     return ok({ match: m });

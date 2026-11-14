@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import MatchCard from '@/components/MatchCard';
+import FollowTeamButton from '@/components/FollowTeamButton';
 import { getLeague, getLeagues } from '@/lib/matchCenter';
 import { absoluteUrl } from '@/lib/site';
 
@@ -82,7 +83,7 @@ export default async function LeaguePage({ params }) {
                                     {standings.map((r, i) => (
                                         <tr key={r.team.id}>
                                             <td className="pos">{i + 1}</td>
-                                            <th scope="row" className="left">{r.team.name}</th>
+                                            <th scope="row" className="left"><FollowTeamButton teamId={r.team.id} teamName={r.team.name} />{r.team.name}</th>
                                             <td>{r.played}</td><td>{r.won}</td><td>{r.lost}</td>
                                             {!volley && <td>{r.drawn}</td>}
                                             <td className="hide-sm">{r.for}:{r.against}</td>

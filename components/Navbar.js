@@ -92,6 +92,8 @@ function Drawer({ onClose, categories, user, onLogout }) {
                         <Link key={c.slug} href={`/category/${c.slug}`}>{titleCase(c.label)} <ArrowRight size={18} /></Link>
                     ))}
                     <Link href="/mac-merkezi">Maç Merkezi <ArrowRight size={18} /></Link>
+                    <Link href="/video">Video <ArrowRight size={18} /></Link>
+                    <Link href="/galeri">Foto Galeri <ArrowRight size={18} /></Link>
                 </div>
                 <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: 10 }} onClick={onClose}>
                     {user ? (
@@ -220,6 +222,8 @@ export default function Navbar({ categories = [] }) {
                                 );
                             })}
                             <Link href="/mac-merkezi" className={`cat-link cat-link--match ${pathname?.startsWith('/mac-merkezi') ? 'is-active' : ''}`}>Maç Merkezi</Link>
+                            <Link href="/video" className={`cat-link ${pathname === '/video' ? 'is-active' : ''}`}>Video</Link>
+                            <Link href="/galeri" className={`cat-link ${pathname === '/galeri' ? 'is-active' : ''}`}>Galeri</Link>
                         </nav>
                         <div className="navbar-actions">
                             <button className="icon-btn" onClick={() => setSearchOpen(true)} aria-label="Haber ara" tabIndex={stuck ? 0 : -1}><Search size={17} /></button>
