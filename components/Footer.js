@@ -21,11 +21,11 @@ export default function Footer({ categories = [] }) {
                     <a href="/rss.xml" className="footer-rss"><Rss size={14} /> RSS ile takip et</a>
                 </div>
                 <nav aria-label="Kategoriler">
-                    <h3>Kategoriler</h3>
+                    <h2 className="footer-heading">Kategoriler</h2>
                     <ul>{categories.map((c) => <li key={c.slug}><Link href={`/category/${c.slug}`}>{titleCase(c.label)}</Link></li>)}</ul>
                 </nav>
                 <nav aria-label="Kurumsal">
-                    <h3>Kurumsal</h3>
+                    <h2 className="footer-heading">Kurumsal</h2>
                     <ul style={{ gridTemplateColumns: '1fr' }}>
                         <li><Link href="/kunye">Künye</Link></li>
                         <li><Link href="/iletisim">İletişim</Link></li>

@@ -91,6 +91,7 @@ function Drawer({ onClose, categories, user, onLogout }) {
                     {categories.map((c) => (
                         <Link key={c.slug} href={`/category/${c.slug}`}>{titleCase(c.label)} <ArrowRight size={18} /></Link>
                     ))}
+                    <Link href="/mac-merkezi">Maç Merkezi <ArrowRight size={18} /></Link>
                 </div>
                 <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: 10 }} onClick={onClose}>
                     {user ? (
@@ -208,7 +209,7 @@ export default function Navbar({ categories = [] }) {
                                 Gazetelerde<span className="wordmark-dot" aria-hidden="true" />
                             </Link>
                         </div>
-                        <nav className="cat-nav" aria-label="Kategoriler">
+                        <nav className="cat-nav" aria-label="Ana menü">
                             <Link href="/" className={`cat-link cat-link--home ${pathname === '/' ? 'is-active' : ''}`}>Ana Sayfa</Link>
                             {categories.map((c) => {
                                 const href = `/category/${c.slug}`;
@@ -218,6 +219,7 @@ export default function Navbar({ categories = [] }) {
                                     </Link>
                                 );
                             })}
+                            <Link href="/mac-merkezi" className={`cat-link cat-link--match ${pathname?.startsWith('/mac-merkezi') ? 'is-active' : ''}`}>Maç Merkezi</Link>
                         </nav>
                         <div className="navbar-actions">
                             <button className="icon-btn" onClick={() => setSearchOpen(true)} aria-label="Haber ara" tabIndex={stuck ? 0 : -1}><Search size={17} /></button>

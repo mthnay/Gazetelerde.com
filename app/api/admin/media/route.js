@@ -2,6 +2,7 @@ import sharp from 'sharp';
 import { prisma } from '@/lib/db';
 import { ok, fail, rateLimit } from '@/lib/api';
 import { requireStaff } from '@/lib/adminApi';
+import { mediaUsage } from '@/lib/mediaUsage';
 
 export const runtime = 'nodejs';
 
@@ -41,13 +42,36 @@ export async function POST(request) {
     return ok({ media: { ...media, url: `/media/${media.id}` } }, 201);
 }
 
-// Son yüklenenler (görsel kitaplığı)
-export async function GET() {
+// Görsel kitaplığı: ?q=alt metinde arama, ?filtre=altsiz|kullanilmayan, ?sayfa=N (48'er)
+export async function GET(request) {
     const { error } = await requireStaff();
     if (error) return error;
-    const rows = await prisma.media.findMany({
-        orderBy: { createdAt: 'desc' }, take: 48,
-        select: { id: true, width: true, height: true, alt: true, createdAt: true },
+    const sp = new URL(request.url).searchParams;
+    const q = String(sp.get('q') || '').trim().slice(0, 100);
+    const filter = sp.get('filtre');
+    const page = Math.max(1, Number(sp.get('sayfa')) || 1);
+    const where = {
+        ...(q ? { alt: { contains: q, mode: 'insensitive' } } : {}),
+        ...(filter === 'altsiz' ? { alt: '' } : {}),
+    };
+    const select = { id: true, width: true, height: true, size: true, alt: true, createdAt: true, uploadedBy: { select: { name: true } } };
+    let rows, total;
+    if (filter === 'kullanilmayan') {
+        // Kullanılmayanlar: veritabanında hesaplanır (en fazla son 500 görsel içinde)
+        const recent = await prisma.media.findMany({ where, orderBy: { createdAt: 'desc' }, take: 500, select: { id: true } });
+        const usage = await mediaUsage(recent.map((r) => r.id));
+        const unused = recent.filter((r) => !usage.get(r.id)).map((r) => r.id);
+        total = unused.length;
+        rows = await prisma.media.findMany({ where: { id: { in: unused.slice((page - 1) * 48, page * 48) } }, orderBy: { createdAt: 'desc' }, select });
+    } else {
+        [rows, total] = await Promise.all([
+            prisma.media.findMany({ where, orderBy: { createdAt: 'desc' }, take: 48, skip: (page - 1) * 48, select }),
+            prisma.media.count({ where }),
+        ]);
+    }
+    const usage = await mediaUsage(rows.map((r) => r.id));
+    return ok({
+        total, page,
+        media: rows.map((m) => ({ ...m, uploadedBy: m.uploadedBy?.name ?? null, uses: usage.get(m.id) ?? 0, url: `/media/${m.id}` })),
     });
-    return ok({ media: rows.map((m) => ({ ...m, url: `/media/${m.id}` })) });
 }

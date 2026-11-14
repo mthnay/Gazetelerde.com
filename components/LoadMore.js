@@ -24,7 +24,7 @@ export default function LoadMore({ query, skip: initialSkip }) {
 
     return (
         <>
-            {items.length > 0 && <div style={{ marginTop: 28 }}><NewsGrid items={items} summary /></div>}
+            {items.length > 0 && <div style={{ marginTop: 28 }}><NewsGrid items={items} summary level={2} /></div>}
             <div className="load-more">
                 {error && <p className="field-hint" role="status">{error}</p>}
                 {hasMore

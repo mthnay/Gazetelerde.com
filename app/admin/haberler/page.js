@@ -12,7 +12,7 @@ const PAGE_SIZE = 20;
 export default async function AdminArticles({ searchParams }) {
     const user = await requirePageUser();
     const sp = await searchParams;
-    const status = ['PUBLISHED', 'DRAFT', 'ARCHIVED'].includes(sp.durum) ? sp.durum : undefined;
+    const status = ['PUBLISHED', 'REVIEW', 'DRAFT', 'ARCHIVED'].includes(sp.durum) ? sp.durum : undefined;
     const q = String(sp.q || '').trim().slice(0, 100);
     const page = Math.max(1, Number(sp.sayfa) || 1);
 
@@ -59,7 +59,7 @@ export default async function AdminArticles({ searchParams }) {
 
             <div className="admin-toolbar">
                 <nav className="admin-tabs">
-                    {[undefined, 'PUBLISHED', 'DRAFT', 'ARCHIVED'].map((s) => (
+                    {[undefined, 'REVIEW', 'PUBLISHED', 'DRAFT', 'ARCHIVED'].map((s) => (
                         <Link key={s || 'all'} href={href({ durum: s })} className={`admin-tab ${status === s ? 'active' : ''}`}>
                             {s ? STATUS_LABELS[s] : 'Tümü'}<span className="count">{countOf(s)}</span>
                         </Link>

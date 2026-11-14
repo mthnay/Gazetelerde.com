@@ -39,6 +39,9 @@ if (article) await check(`Haber sayfası ${article}`, article, (r) => r.status =
 if (category) await check(`Kategori ${category}`, category);
 const topic = first(/href="(\/etiket\/[^"#?]+)"/);
 if (topic) await check(`Konu ${topic}`, topic);
+await check('Maç merkezi', '/mac-merkezi', (r) => r.status === 200 && r.body.includes('Maç Merkezi'));
+if (article) await check('Paylaşım kartı', `${article}/opengraph-image`, (r) => r.status === 200 && r.headers.get('content-type') === 'image/png');
+if (article) await check('Canlı anlatım API', '/api/articles/1/live', (r) => r.status === 200 || r.status === 404);
 await check('Daha fazla yükle API', '/api/articles?skip=0&take=2', (r) => r.status === 200 && JSON.parse(r.body).success);
 
 // Güvenlik: yetkisiz erişimler reddedilmeli

@@ -8,6 +8,9 @@ import NewsInteractions from '@/components/NewsInteractions';
 import MostRead from '@/components/MostRead';
 import SmartImage from '@/components/SmartImage';
 import PushOptIn from '@/components/PushOptIn';
+import LiveBlog from '@/components/LiveBlog';
+import MatchCardStatic from '@/components/MatchCard';
+import { getLiveEntries, getArticleMatches } from '@/lib/live';
 import { prisma } from '@/lib/db';
 import { getArticleBySlug, getRelatedNews, getMostRead } from '@/lib/news';
 import { formatDate, readingTime, articleUrl } from '@/lib/format';
@@ -34,7 +37,6 @@ export async function generateMetadata({ params }) {
     const item = await getArticleBySlug(slug);
     if (!item) return { title: 'Haber bulunamadı | Gazetelerde' };
     const url = articleUrl(item);
-    const images = item.img ? [{ url: item.img, alt: item.title }] : undefined;
     return {
         title: `${item.title} | Gazetelerde`,
         description: item.summary,
@@ -42,10 +44,10 @@ export async function generateMetadata({ params }) {
         authors: [{ name: item.author }],
         openGraph: {
             title: item.title, description: item.summary, type: 'article', url,
-            images, publishedTime: item.publishedAt, modifiedTime: item.updatedAt,
+            publishedTime: item.publishedAt, modifiedTime: item.updatedAt,
             section: item.categoryLabel, authors: [item.author], tags: item.tags?.map((t) => t.name),
         },
-        twitter: { card: 'summary_large_image', title: item.title, description: item.summary, images: item.img ? [item.img] : undefined },
+        twitter: { card: 'summary_large_image', title: item.title, description: item.summary },
     };
 }
 
@@ -54,7 +56,7 @@ export default async function NewsDetail({ params }) {
     const item = await getArticleBySlug(slug);
     if (!item) notFound();
 
-    const [related, mostRead, comments] = await Promise.all([
+    const [related, mostRead, comments, liveEntries, matches] = await Promise.all([
         getRelatedNews(item),
         getMostRead(5),
         prisma.comment.findMany({
@@ -69,21 +71,38 @@ export default async function NewsDetail({ params }) {
                 },
             },
         }),
+        getLiveEntries(item.id),
+        getArticleMatches(item.id),
     ]);
+    const isLiveBlog = item.live || liveEntries.length > 0;
 
     const jsonLd = {
         '@context': 'https://schema.org',
-        '@type': 'NewsArticle',
+        // Canlı anlatımda Google "CANLI" etiketi için LiveBlogPosting
+        '@type': isLiveBlog ? 'LiveBlogPosting' : 'NewsArticle',
+        ...(isLiveBlog ? {
+            coverageStartTime: liveEntries.at(-1)?.createdAt || item.publishedAt,
+            ...(item.live ? {} : { coverageEndTime: item.liveEndedAt || liveEntries[0]?.createdAt }),
+            liveBlogUpdate: liveEntries.slice(0, 20).map((e) => ({
+                '@type': 'BlogPosting', headline: e.text.slice(0, 110), articleBody: e.text, datePublished: e.createdAt, dateModified: e.updatedAt,
+                url: `${absoluteUrl(articleUrl(item))}#g-${e.id}`,
+            })),
+        } : {}),
         headline: item.title,
         description: item.summary,
-        image: item.img ? [item.img] : undefined,
+        // Google: en az 1200 px genişlikte 16:9, 4:3 ve 1:1 oranlarında görseller önerilir
+        image: item.img
+            ? (item.img.startsWith('/media/') ? ['16x9', '4x3', '1x1'].map((r) => absoluteUrl(`${item.img}?ar=${r}&w=1200&f=jpg`)) : [item.img])
+            : [absoluteUrl(`${articleUrl(item)}/opengraph-image`)],
+        isAccessibleForFree: true,
+        inLanguage: 'tr-TR',
         datePublished: item.publishedAt,
         dateModified: item.updatedAt,
         mainEntityOfPage: absoluteUrl(articleUrl(item)),
         articleSection: item.categoryLabel,
         keywords: item.tags?.map((t) => t.name).join(', ') || undefined,
         author: [{ '@type': item.authorSlug ? 'Person' : 'Organization', name: item.author, ...(item.authorSlug ? { url: absoluteUrl(`/yazar/${item.authorSlug}`) } : {}) }],
-        publisher: { '@type': 'Organization', name: SITE_NAME, logo: { '@type': 'ImageObject', url: absoluteUrl('/icon') } },
+        publisher: { '@type': 'Organization', name: SITE_NAME, logo: { '@type': 'ImageObject', url: absoluteUrl('/icon'), width: 512, height: 512 } },
     };
 
     const breadcrumb = {
@@ -158,6 +177,8 @@ export default async function NewsDetail({ params }) {
                     <aside className="article-rail" aria-label="Paylaş"><ShareRail title={item.title} /></aside>
                     <div>
                         {/* İçerik kaydedilirken sunucuda temizlendi (lib/html.js); burada tekrar temizlenir */}
+                        {isLiveBlog && <LiveBlog articleId={item.id} initialEntries={liveEntries} initialMatches={matches} initialLive={item.live} />}
+                        {!isLiveBlog && matches.length > 0 && <div className="live-matches">{matches.map((m) => <MatchCardStatic key={m.id} m={m} />)}</div>}
                         <div id="haber-metni" className="article-body" dangerouslySetInnerHTML={{ __html: bodyHtml }} />
                         {item.tags?.length > 0 && (
                             <nav className="article-tags" aria-label="Konular">

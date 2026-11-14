@@ -5,6 +5,8 @@ import Story from '@/components/Story';
 import SectionHead from '@/components/SectionHead';
 import Newsletter from '@/components/Newsletter';
 import Link from 'next/link';
+import MatchCard from '@/components/MatchCard';
+import { getMatchDay } from '@/lib/matchCenter';
 import { getBreakingNews, getCategories, getLatestNews, getMostRead, getTrendingTags } from '@/lib/news';
 import { absoluteUrl, SITE_NAME, SITE_DESCRIPTION } from '@/lib/site';
 import { buildSafe } from '@/lib/db';
@@ -24,9 +26,9 @@ const siteJsonLd = [
 const titleCase = (s) => s.charAt(0) + s.slice(1).toLocaleLowerCase('tr');
 
 export default async function Home() {
-  const [allNews, categories, breaking, mostRead, topics] = await buildSafe(
-    () => Promise.all([getLatestNews({ take: 60 }), getCategories(), getBreakingNews(), getMostRead(5), getTrendingTags(12)]),
-    [[], [], { flagged: false, items: [] }, [], []],
+  const [allNews, categories, breaking, mostRead, topics, matchDay] = await buildSafe(
+    () => Promise.all([getLatestNews({ take: 60 }), getCategories(), getBreakingNews(), getMostRead(5), getTrendingTags(12), getMatchDay()]),
+    [[], [], { flagged: false, items: [] }, [], [], { live: [], upcoming: [], results: [] }],
   );
 
   if (!allNews.length) {
@@ -63,6 +65,8 @@ export default async function Home() {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(siteJsonLd) }} />
+      {/* Ekran okuyucular ve arama motorları için sayfa başlığı (görsel tasarımda logo bu görevi görüyor) */}
+      <h1 className="sr-only">Gazetelerde: son dakika haberleri, gündem, spor ve ekonomi</h1>
       <BreakingTicker items={breaking.items} flagged={breaking.flagged} />
 
       {topics.length > 0 && (
@@ -71,6 +75,17 @@ export default async function Home() {
           {topics.map((t) => <Link key={t.slug} href={`/etiket/${t.slug}`} className="article-tag">#{t.name}</Link>)}
         </nav>
       )}
+
+      {/* Canlı / yaklaşan maçlar varsa ana sayfada kısa şerit */}
+      {(() => {
+        const strip = [...matchDay.live, ...matchDay.upcoming.slice(0, 6 - matchDay.live.length)].slice(0, 6);
+        return strip.length > 0 && (
+          <section className="container home-matches" aria-label="Maçlar">
+            <SectionHead title={matchDay.live.length ? 'Canlı skorlar' : 'Yaklaşan maçlar'} kicker="Maç Merkezi" href="/mac-merkezi" />
+            <div className="match-grid">{strip.map((m) => <MatchCard key={m.id} m={m} showLeague />)}</div>
+          </section>
+        );
+      })()}
 
       {/* MANŞET */}
       <section className="container front" aria-label="Manşet">

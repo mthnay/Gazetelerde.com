@@ -65,7 +65,7 @@ export default function NotificationBell() {
                                 {data.personal.map((n) => (
                                     <li key={`p${n.id}`}>
                                         <Link href={n.url} onClick={() => setOpen(false)} className={n.isNew ? 'is-new' : ''}>
-                                            <span className="notif-meta">{n.type === 'moderasyon' ? 'Moderasyon' : 'Yorum yanıtı'} · {formatShortDate(n.createdAt)}{n.isNew && <b> · Yeni</b>}</span>
+                                            <span className="notif-meta">{n.type === 'moderasyon' ? 'Moderasyon' : n.type === 'onay' ? 'Yayın akışı' : 'Yorum yanıtı'} · {formatShortDate(n.createdAt)}{n.isNew && <b> · Yeni</b>}</span>
                                             <span className="notif-title">{n.text}</span>
                                         </Link>
                                     </li>

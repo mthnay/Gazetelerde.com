@@ -34,7 +34,16 @@ export const metadata = {
   alternates: { canonical: "/", types: { "application/rss+xml": [{ url: "/rss.xml", title: "Gazetelerde RSS" }] } },
   openGraph: { siteName: SITE_NAME, locale: "tr_TR", type: "website" },
   twitter: { card: "summary_large_image" },
-  robots: { index: true, follow: true, "max-image-preview": "large" },
+  // Google Discover büyük görsel kartı ve uzun önizlemeler için
+  robots: {
+    index: true, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1,
+    googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 },
+  },
+  // Google Search Console / Bing Webmaster doğrulaması (ortam değişkeniyle)
+  verification: {
+    ...(process.env.GOOGLE_SITE_VERIFICATION ? { google: process.env.GOOGLE_SITE_VERIFICATION } : {}),
+    ...(process.env.BING_SITE_VERIFICATION ? { other: { "msvalidate.01": process.env.BING_SITE_VERIFICATION } } : {}),
+  },
 };
 
 export const viewport = {

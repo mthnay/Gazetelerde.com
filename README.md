@@ -114,6 +114,16 @@ npm ci && npm run db:deploy && npm run build && npm start
   `scripts/backfill-authors.mjs` ile tamamlanır. Görünen yazar adı elle değiştirilen haberler yazar sayfasına bağlanmaz.
 - **Deploy kapısı:** `npm run build` öncesinde birim testleri çalışır (`prebuild`); test kırılırsa build ve deploy durur.
   CI ayrıca `scripts/smoke.mjs` ile uçtan uca duman testi yapar (`npm run smoke -- https://site-adresi` canlıda da çalışır).
+- **Maç merkezi:** `/mac-merkezi` ve `/mac-merkezi/<lig>`; ligler, takımlar ve maçlar `/admin/mac-merkezi`'den
+  girilir. Voleybolda set skorları yazılır, maç skoru ve puan durumu (`lib/standings.js`, 3-0/3-1=3, 3-2=2-1) hesaplanır.
+- **Canlı anlatım:** Stüdyodan “Canlı anlatım masası” (`/admin/canli/<id>`). Haber sayfası açıkken 20 sn'de bir
+  yeni girişleri çeker (`/api/articles/<id>/live`); şema `LiveBlogPosting`. Bir maç habere bağlanırsa canlı skor kutusu görünür.
+- **Paylaşım kartları:** `app/haber/[slug]/opengraph-image.js` kapak + başlıkla 1200x630 kart üretir;
+  yazı tipleri `@fontsource` paketlerinden (Türkçe karakterler için latin-ext ayrı adla yedek).
+- **Yayın akışı:** Yazar “Onaya gönder” → editörlere bildirim; editör yayınlar ya da notla geri gönderir → yazara
+  bildirim. `/admin/takvim` aylık yayın takvimi, `/admin/gorseller` görsel kitaplığı (alt metin, kullanım, temizlik).
+- **Erişilebilirlik:** Renk değişkenleri WCAG AA kontrastına göre ayarlı (`--muted`, `--brand-on-ink`, `--live-bg`);
+  değiştirirken iki temada da 4.5:1'i koruyun.
 - **Deneme sınırları** (`lib/api.js`) bellekte tutulur: tek sunucu için yeterli; birden fazla sunucuda Redis gibi
   ortak bir depoya taşınmalıdır.
 

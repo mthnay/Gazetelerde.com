@@ -7,6 +7,7 @@ import { revalidateArticle } from '@/lib/revalidate';
 import { revalidatePath } from 'next/cache';
 import { syncArticleTags } from '@/lib/tags';
 import { ensureAuthorSlug } from '@/lib/authors';
+import { notifyStatusChange } from '@/lib/workflow';
 import { queueArticlePush } from '@/lib/push';
 
 async function load(params) {
@@ -33,8 +34,9 @@ export async function PATCH(request, { params }) {
     const article = await prisma.article.update({
         where: { id: existing.id },
         data: { ...parsed.data, slug },
-        select: { id: true, slug: true, status: true },
+        select: { id: true, slug: true, status: true, title: true, authorId: true, reviewNote: true },
     });
+    await notifyStatusChange({ article, before: existing.status, actor: user });
     await prisma.articleRevision.create({
         data: { kind: 'SAVE', articleId: article.id, userId: user.id, title: parsed.data.title, summary: parsed.data.summary, content: parsed.data.content, image: parsed.data.image },
     });

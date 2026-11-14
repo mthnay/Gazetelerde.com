@@ -50,10 +50,10 @@ export default async function AuthorPage({ params }) {
             ) : (
                 <>
                     <div className="cat-block" style={{ marginBottom: 'clamp(36px, 5vw, 60px)' }}>
-                        <Story item={lead} variant="feature" summary priority reveal={false} />
-                        <div className="cat-block-list">{rest.slice(0, 4).map((n, i) => <Story key={n.id} item={n} variant="row" index={i} />)}</div>
+                        <Story item={lead} variant="feature" summary priority reveal={false} level={2} />
+                        <div className="cat-block-list">{rest.slice(0, 4).map((n, i) => <Story key={n.id} item={n} variant="row" index={i} level={2} />)}</div>
                     </div>
-                    {rest.length > 4 && <NewsGrid items={rest.slice(4)} summary />}
+                    {rest.length > 4 && <NewsGrid items={rest.slice(4)} summary level={2} />}
                     {news.length === 40 && <LoadMore query={{ yazar: slug }} skip={40} />}
                 </>
             )}

@@ -46,12 +46,12 @@ export default async function TagPage({ params }) {
             ) : (
                 <>
                     <div className="cat-block" style={{ marginBottom: 'clamp(36px, 5vw, 60px)' }}>
-                        <Story item={lead} variant="feature" summary priority reveal={false} />
+                        <Story item={lead} variant="feature" summary priority reveal={false} level={2} />
                         <div className="cat-block-list">
-                            {rest.slice(0, 4).map((n, i) => <Story key={n.id} item={n} variant="row" index={i} />)}
+                            {rest.slice(0, 4).map((n, i) => <Story key={n.id} item={n} variant="row" index={i} level={2} />)}
                         </div>
                     </div>
-                    {rest.length > 4 && <NewsGrid items={rest.slice(4)} summary />}
+                    {rest.length > 4 && <NewsGrid items={rest.slice(4)} summary level={2} />}
                     {news.length === 60 && <LoadMore query={{ etiket: slug }} skip={60} />}
                 </>
             )}

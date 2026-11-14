@@ -11,8 +11,9 @@ import { articleUrl } from '@/lib/format';
  *  row     — solda küçük kare görsel
  *  text    — görselsiz, üst çizgili
  */
-export default function Story({ item, variant = 'card', summary = false, priority = false, sizes, reveal = true, index = 0, as: Tag = 'article' }) {
+export default function Story({ item, variant = 'card', summary = false, priority = false, sizes, reveal = true, index = 0, as: Tag = 'article', level = 3 }) {
     const href = articleUrl(item);
+    const H = `h${level}`;
     const showImage = variant !== 'text' && item.img;
     const defaultSizes = {
         lead: '(max-width: 860px) 100vw, 760px',
@@ -35,7 +36,8 @@ export default function Story({ item, variant = 'card', summary = false, priorit
                 )}
                 <div className="story-body">
                     <span className="kicker">{item.categoryLabel}</span>
-                    <h3 className="story-title"><span className="ink-link">{item.title}</span></h3>
+                    {/* Başlık düzeyi sayfaya göre: h1'in hemen altındaki listelerde h2, bölüm başlıklı alanlarda h3 */}
+                    <H className="story-title"><span className="ink-link">{item.title}</span></H>
                     {summary && item.summary && <p className="story-summary">{item.summary}</p>}
                     {variant !== 'row' && (
                         <span className="meta">

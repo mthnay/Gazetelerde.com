@@ -16,6 +16,7 @@ enum Role {
 
 enum ArticleStatus {
   DRAFT
+  REVIEW // yazar onaya gönderdi, editör bekleniyor
   PUBLISHED
   ARCHIVED
 }
@@ -109,6 +110,13 @@ model Article {
   imageCredit String? // görsel kaynağı / fotoğrafçı
   // Tam metin arama: veritabanında üretilen sütun (migration'da tanımlı), elle yazılmaz
   search      Unsupported("tsvector")?
+  // Canlı anlatım: açıkken haber sayfası güncellemeleri sayfa yenilemeden gösterir
+  live        Boolean                  @default(false)
+  liveEndedAt DateTime?                @db.Timestamptz(3)
+  liveEntries LiveEntry[]
+  matches     Match[]
+  // Editörün yazara notu (onaydan geri gönderilirken)
+  reviewNote  String?
   tags        ArticleTag[]
   dailyStats  ArticleDailyStat[]
   likes       Like[]
@@ -468,4 +476,76 @@ model UserNotification {
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, readAt, createdAt])
+}
+
+// ---------------------------------------------------------------- Canlı anlatım
+model LiveEntry {
+  id        Int      @id @default(autoincrement())
+  articleId Int
+  text      String // kısa metin (düz metin, satır sonları korunur)
+  kind      String   @default("normal") // normal | onemli | skor | son
+  image     String?
+  pinned    Boolean  @default(false)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+  authorId  String?
+  article   Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+
+  @@index([articleId, createdAt])
+}
+
+// ---------------------------------------------------------------- Maç merkezi
+enum MatchStatus {
+  SCHEDULED
+  LIVE
+  FINISHED
+  POSTPONED
+}
+
+model League {
+  id        Int     @id @default(autoincrement())
+  slug      String  @unique
+  name      String
+  sport     String  @default("voleybol") // puanlama kuralı: voleybol | futbol | basketbol
+  season    String  @default("")
+  sortOrder Int     @default(0)
+  active    Boolean @default(true)
+  teams     Team[]
+  matches   Match[]
+}
+
+model Team {
+  id        Int     @id @default(autoincrement())
+  leagueId  Int
+  name      String
+  shortName String  @default("")
+  logo      String?
+  league    League  @relation(fields: [leagueId], references: [id], onDelete: Cascade)
+  home      Match[] @relation("HomeTeam")
+  away      Match[] @relation("AwayTeam")
+
+  @@unique([leagueId, name])
+}
+
+model Match {
+  id        Int         @id @default(autoincrement())
+  leagueId  Int
+  homeId    Int
+  awayId    Int
+  startAt   DateTime    @db.Timestamptz(3)
+  week      Int?
+  venue     String      @default("")
+  status    MatchStatus @default(SCHEDULED)
+  homeScore Int?
+  awayScore Int?
+  sets      Json? // voleybol set skorları: [[25,21],[23,25],...]
+  articleId Int? // maç haberi ya da canlı anlatım
+  updatedAt DateTime    @updatedAt @db.Timestamptz(3)
+  league    League      @relation(fields: [leagueId], references: [id], onDelete: Cascade)
+  home      Team        @relation("HomeTeam", fields: [homeId], references: [id], onDelete: Cascade)
+  away      Team        @relation("AwayTeam", fields: [awayId], references: [id], onDelete: Cascade)
+  article   Article?    @relation(fields: [articleId], references: [id], onDelete: SetNull)
+
+  @@index([leagueId, startAt])
+  @@index([startAt])
 }

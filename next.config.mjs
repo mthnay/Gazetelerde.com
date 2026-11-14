@@ -8,6 +8,10 @@ export const imageHosts = (process.env.NEXT_PUBLIC_IMAGE_HOSTS || 'images.unspla
 const nextConfig = {
   // Docker için: sadece gereken dosyaları içeren küçük bir sunucu paketi üretir (.next/standalone)
   output: 'standalone',
+  // Paylaşım kartı yazı tipleri dosyadan okunduğu için standalone pakete dahil edilmeli
+  outputFileTracingIncludes: {
+    '/**': ['./node_modules/@fontsource/fraunces/files/fraunces-latin*-800-normal.woff', './node_modules/@fontsource/inter/files/inter-latin*-{500,700}-normal.woff'],
+  },
   poweredByHeader: false,
   images: {
     // AVIF kodlaması işlemciyi çok yorar (sunucuda görsel başına saniyeler); WebP hem hızlı hem yeterince küçük

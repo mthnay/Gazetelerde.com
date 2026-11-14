@@ -25,6 +25,7 @@ export default async function EditArticlePage({ params }) {
         publishedAt: a.publishedAt?.toISOString() ?? null,
         tags: a.tags.map((t) => t.tag.name),
         imageCredit: a.imageCredit ?? '',
+        reviewNote: a.reviewNote ?? '',
     };
 
     return (

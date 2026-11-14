@@ -80,6 +80,7 @@ export default function ArticleStudio({ article = null, categories, canPublish, 
         sourceUrl: article?.sourceUrl ?? initial.sourceUrl ?? '',
         tags: article?.tags ?? initial.tags ?? [],
         imageCredit: article?.imageCredit ?? initial.imageCredit ?? '',
+        reviewNote: article?.reviewNote ?? '',
         publishedAt: toLocalInput(article?.publishedAt),
         layout: normalizeLayout(article?.layout ?? initial.layout ?? DEFAULT_LAYOUT),
     });
@@ -207,11 +208,15 @@ export default function ArticleStudio({ article = null, categories, canPublish, 
         setBusy(false);
         if (!data?.success) return flash('error', data?.message || 'Kaydedilemedi.');
         if (overrideStatus) setForm((f) => ({ ...f, status: data.article.status }));
+        // Erişilebilirlik: alternatif metni olmayan görseller için uyarı (kaydetmeyi engellemez)
+        const noAlt = (form.content.match(/<img\b(?![^>]*\balt="[^"]+")[^>]*>/gi) || []).length;
+        if (noAlt) setTimeout(() => flash('error', `${noAlt} görselin alternatif metni (açıklaması) eksik. Görme engelli okurlar ve Google için görsele tıklayıp açıklama ekleyin.`), 2500);
         setDirty(false);
         lastSent.current = snapshot(form);
         setRevs(null);
-        flash('success', !canPublish && payload.status !== 'DRAFT'
-            ? 'Taslak olarak kaydedildi; yayınlanması için editör onayı gerekiyor.'
+        flash('success', data.article.status === 'REVIEW'
+            ? 'Onaya gönderildi; editörlere bildirim gitti.'
+            : overrideStatus === 'DRAFT' && canPublish ? 'Yazara düzeltme için geri gönderildi.'
             : data.article.status === 'PUBLISHED' ? 'Yayında.' : 'Kaydedildi.');
         if (isNew) {
             try { localStorage.removeItem(NEW_DRAFT_KEY); } catch { /* yoksay */ }
@@ -415,6 +420,9 @@ export default function ArticleStudio({ article = null, categories, canPublish, 
                     {canPublish && form.status !== 'PUBLISHED' && (
                         <button type="button" className="admin-btn primary" onClick={() => save('PUBLISHED')} disabled={busy}><Send size={15} /> Yayınla</button>
                     )}
+                    {!canPublish && form.status === 'DRAFT' && (
+                        <button type="button" className="admin-btn primary" onClick={() => save('REVIEW')} disabled={busy}><Send size={15} /> Onaya gönder</button>
+                    )}
                 </div>
             </header>
 
@@ -549,9 +557,25 @@ export default function ArticleStudio({ article = null, categories, canPublish, 
                                 <Section title="Yayın">
                                     <label className="admin-field"><span>Durum</span>
                                         <select className="admin-select" value={form.status} onChange={set('status')}>
-                                            {Object.entries(STATUS_LABELS).map(([k, v]) => <option key={k} value={k} disabled={!canPublish && k !== 'DRAFT'}>{v}</option>)}
+                                            {Object.entries(STATUS_LABELS).map(([k, v]) => <option key={k} value={k} disabled={!canPublish && !['DRAFT', 'REVIEW'].includes(k)}>{v}</option>)}
                                         </select>
                                     </label>
+                                    {form.status === 'REVIEW' && canPublish && (
+                                        <div className="review-box">
+                                            <strong>Bu haber onayınızı bekliyor.</strong>
+                                            <label className="admin-field"><span>Yazara not (geri gönderirken)</span>
+                                                <textarea className="admin-textarea" rows={3} value={form.reviewNote || ''} onChange={set('reviewNote')} placeholder="ör. Başlığı kısaltın, ikinci paragrafa kaynak ekleyin." />
+                                            </label>
+                                            <div style={{ display: 'flex', gap: 8 }}>
+                                                <button type="button" className="admin-btn primary" onClick={() => save('PUBLISHED')} disabled={busy}>Onayla ve yayınla</button>
+                                                <button type="button" className="admin-btn" onClick={() => save('DRAFT')} disabled={busy || !form.reviewNote?.trim()} title={!form.reviewNote?.trim() ? 'Önce yazara bir not yazın' : undefined}>Düzeltmeye geri gönder</button>
+                                            </div>
+                                        </div>
+                                    )}
+                                    {!canPublish && form.reviewNote && form.status === 'DRAFT' && (
+                                        <div className="review-box"><strong>Editör notu:</strong><p style={{ margin: '6px 0 0', whiteSpace: 'pre-line' }}>{form.reviewNote}</p></div>
+                                    )}
+                                    {!canPublish && form.status === 'REVIEW' && <p className="st-hint">Editör onayı bekleniyor. Bu sırada düzenlemeye devam edebilirsiniz.</p>}
                                     <label className="admin-field"><span>Yayın tarihi</span>
                                         <input className="admin-input" type="datetime-local" value={form.publishedAt} onChange={set('publishedAt')} />
                                         <span className="hint">Boşsa yayınlandığı an. İleri tarih seçilirse o saatte görünür.</span>
@@ -602,6 +626,12 @@ export default function ArticleStudio({ article = null, categories, canPublish, 
                                         <input className="admin-input" type="url" value={form.sourceUrl} onChange={set('sourceUrl')} placeholder="https://" />
                                     </label>
                                 </Section>
+                                {!isNew && (
+                                    <Section title="Canlı anlatım">
+                                        <p className="st-hint" style={{ marginTop: 0 }}>Maç, seçim ya da son dakika gelişmeleri için dakika dakika güncellenen akış. Okurun sayfası kendiliğinden yenilenir.</p>
+                                        <Link href={`/admin/canli/${article.id}`} className="admin-btn" style={{ width: '100%', justifyContent: 'center' }}>Canlı anlatım masasını aç</Link>
+                                    </Section>
+                                )}
                                 {!isNew && <button type="button" onClick={remove} className="admin-btn danger" style={{ width: '100%', justifyContent: 'center' }}><Trash2 size={15} /> Haberi sil</button>}
                             </>
                         )}

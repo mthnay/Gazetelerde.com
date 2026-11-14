@@ -32,7 +32,7 @@ ${articles.map((a) => {
       <description>${xmlEscape(a.summary)}</description>
       <category>${xmlEscape(a.category.label)}</category>
       <dc:creator>${xmlEscape(a.author?.name || a.authorName || SITE_NAME)}</dc:creator>
-      <pubDate>${a.publishedAt.toUTCString()}</pubDate>${a.image ? `\n      <media:content url="${xmlEscape(a.image)}" medium="image" />` : ''}
+      <pubDate>${a.publishedAt.toUTCString()}</pubDate>${a.image ? `\n      <media:content url="${xmlEscape(a.image.startsWith('/') ? absoluteUrl(`${a.image}?w=1200&f=jpg`) : a.image)}" medium="image" type="image/jpeg" width="1200" />` : ''}
     </item>`;
     }).join('\n')}
   </channel>

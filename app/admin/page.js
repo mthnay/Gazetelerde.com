@@ -46,7 +46,7 @@ export default async function AdminDashboard() {
     const maxViews = Math.max(1, ...catRows.map((r) => r.views));
 
     const stats = [
-        { icon: FileText, label: 'Yayındaki haber', value: count('PUBLISHED'), sub: `${count('DRAFT')} taslak · ${count('ARCHIVED')} arşiv` },
+        { icon: FileText, label: 'Yayındaki haber', value: count('PUBLISHED'), sub: `${count('REVIEW')} onay bekliyor · ${count('DRAFT')} taslak · ${count('ARCHIVED')} arşiv` },
         { icon: Eye, label: 'Toplam okunma', value: views._sum.viewCount ?? 0, sub: canPublish(user) ? 'tüm haberler' : 'sizin haberleriniz' },
         { icon: MessageSquare, label: 'Yorum', value: comments, sub: `son 7 günde ${newComments}` },
         { icon: Users, label: 'Üye', value: users, sub: `son 7 günde ${newUsers}` },
@@ -62,6 +62,14 @@ export default async function AdminDashboard() {
                 </div>
                 <Link href="/admin/haberler/yeni" className="admin-btn primary"><PlusCircle size={16} /> Yeni Haber</Link>
             </header>
+
+            {count('REVIEW') > 0 && (
+                <Link href="/admin/haberler?durum=REVIEW" className="admin-msg review-alert" role="status">
+                    {canPublish(user)
+                        ? <><strong>{count('REVIEW')} haber onayınızı bekliyor.</strong> İncelemek için tıklayın →</>
+                        : <><strong>{count('REVIEW')} haberiniz editör onayında.</strong></>}
+                </Link>
+            )}
 
             <div className="admin-stats">
                 {stats.map(({ icon: Icon, label, value, sub }) => (
