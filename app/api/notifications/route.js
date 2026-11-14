@@ -12,7 +12,13 @@ export async function GET() {
         select: { notificationsSeenAt: true, follows: { select: { categoryId: true } } },
     });
     const categoryIds = user.follows.map((f) => f.categoryId);
-    if (!categoryIds.length) return ok({ following: 0, unread: 0, items: [] });
+    // Kişiye özel bildirimler (yorum yanıtı, moderasyon)
+    const [personalRows, personalUnread] = await Promise.all([
+        prisma.userNotification.findMany({ where: { userId: me.id }, orderBy: { createdAt: 'desc' }, take: 8 }),
+        prisma.userNotification.count({ where: { userId: me.id, readAt: null } }),
+    ]);
+    const personal = personalRows.map((n) => ({ id: n.id, type: n.type, text: n.text, url: n.url, createdAt: n.createdAt.toISOString(), isNew: !n.readAt }));
+    if (!categoryIds.length) return ok({ following: 0, unread: personalUnread, items: [], personal });
 
     const now = new Date();
     const base = { status: 'PUBLISHED', categoryId: { in: categoryIds }, publishedAt: { lte: now } };
@@ -26,7 +32,8 @@ export async function GET() {
 
     return ok({
         following: categoryIds.length,
-        unread,
+        unread: unread + personalUnread,
+        personal,
         items: items.map((a) => ({
             id: a.id, slug: a.slug, title: a.title, category: a.category.label,
             publishedAt: a.publishedAt.toISOString(),

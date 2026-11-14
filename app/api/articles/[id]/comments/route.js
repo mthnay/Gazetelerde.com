@@ -35,13 +35,15 @@ export async function POST(request, { params }) {
 
     // Cevaplar tek seviye: cevaba cevap verilirse ana yoruma bağlanır
     let parentId = null;
+    let replyTo = null; // yanıt verilen yorumun sahibi (bildirim için)
     if (body?.parentId) {
         const parent = await prisma.comment.findFirst({
             where: { id: Number(body.parentId), articleId: article.id, status: 'VISIBLE' },
-            select: { id: true, parentId: true },
+            select: { id: true, parentId: true, userId: true },
         });
         if (!parent) return fail('Cevap verdiğiniz yorum bulunamadı.', 404);
         parentId = parent.parentId ?? parent.id;
+        replyTo = parent.userId;
     }
 
     const comment = await prisma.comment.create({
@@ -49,5 +51,12 @@ export async function POST(request, { params }) {
         select: commentSelect,
     });
     await revalidateCommentArticle(comment.id);
+    // Yorumuna yanıt gelen kişiye site içi bildirim (kendine yanıt verene değil)
+    if (replyTo && replyTo !== me.id) {
+        const excerpt = text.length > 80 ? `${text.slice(0, 80)}…` : text;
+        await prisma.userNotification.create({
+            data: { userId: replyTo, type: 'yanit', text: `${me.name} yorumunuza yanıt verdi: “${excerpt}”`, url: `/haber/${article.slug}#yorumlar` },
+        }).catch(() => {});
+    }
     return ok({ comment }, 201);
 }

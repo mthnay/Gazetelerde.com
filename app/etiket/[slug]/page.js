@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import Story from '@/components/Story';
 import NewsGrid from '@/components/NewsGrid';
+import LoadMore from '@/components/LoadMore';
 import { getTag, getLatestNews } from '@/lib/news';
 import { absoluteUrl } from '@/lib/site';
 
@@ -34,7 +35,7 @@ export default async function TagPage({ params }) {
         <div className="container">
             <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }} />
             <header className="page-hero">
-                <span className="kicker rise">Konu · {news.length} haber</span>
+                <span className="kicker rise">Konu · {news.length === 60 ? `${news.length}+` : news.length} haber</span>
                 <div className="page-hero-row">
                     <h1 className="page-hero-title rise" style={{ '--i': 1 }}>#{tag.name}<span className="dot">.</span></h1>
                 </div>
@@ -51,6 +52,7 @@ export default async function TagPage({ params }) {
                         </div>
                     </div>
                     {rest.length > 4 && <NewsGrid items={rest.slice(4)} summary />}
+                    {news.length === 60 && <LoadMore query={{ etiket: slug }} skip={60} />}
                 </>
             )}
         </div>

@@ -30,5 +30,12 @@ export async function POST(request, { params }) {
         data: { reportCount, ...(reportCount >= AUTO_HIDE_AT ? { status: 'HIDDEN' } : {}) },
     });
     if (reportCount >= AUTO_HIDE_AT) await revalidateCommentArticle(comment.id);
+    // İlk şikayette moderatörlere haber ver (sonraki şikayetlerde tekrar bildirim gitmez)
+    if (reportCount === 1) {
+        const mods = await prisma.user.findMany({ where: { role: { in: ['EDITOR', 'ADMIN'] } }, select: { id: true } });
+        await prisma.userNotification.createMany({
+            data: mods.map((m) => ({ userId: m.id, type: 'moderasyon', text: `Bir yorum şikayet edildi${reason ? `: “${reason.slice(0, 60)}”` : ''}`, url: '/admin/yorumlar' })),
+        }).catch(() => {});
+    }
     return ok({ reported: true });
 }

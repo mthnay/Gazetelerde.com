@@ -2,12 +2,13 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { User, Settings, Trash2, Save, Lock, Bookmark, Heart, Bell, Check, Plus } from 'lucide-react';
+import { User, Settings, Trash2, Save, Lock, Bookmark, Heart, Bell, Check, Plus, Download } from 'lucide-react';
 import { articleUrl, formatDate } from '@/lib/format';
 import { useSession } from '@/components/SessionProvider';
 import Modal from '@/components/Modal';
+import TwoFactor from '@/components/TwoFactor';
 
-export default function ProfileView({ initialUser, initialTab = 'general', bookmarks = [], likes = [], categories = [], followed = [] }) {
+export default function ProfileView({ initialUser, twoFactor = false, staff = false, initialTab = 'general', bookmarks = [], likes = [], categories = [], followed = [] }) {
     const [user, setUser] = useState(initialUser);
     const [activeTab, setActiveTab] = useState(initialTab);
     const [following, setFollowing] = useState(followed);
@@ -35,7 +36,7 @@ export default function ProfileView({ initialUser, initialTab = 'general', bookm
     const handleUpdate = async (e) => {
         e.preventDefault();
         setLoading(true);
-        const data = await patchProfile({ name: user.name });
+        const data = await patchProfile(staff ? { name: user.name, title: user.title, bio: user.bio } : { name: user.name });
         setLoading(false);
         setNotice(data.success ? 'Bilgileriniz güncellendi.' : data.message);
         if (data.success) router.refresh();
@@ -117,6 +118,22 @@ export default function ProfileView({ initialUser, initialTab = 'general', bookm
                                     <input className="input" type="email" value={user.email} disabled />
                                     <span className="field-hint">E-posta adresi güvenlik nedeniyle değiştirilemez.</span>
                                 </label>
+                                {staff && (
+                                    <>
+                                        <label className="field">
+                                            <span className="field-label">Unvan</span>
+                                            <input className="input" value={user.title || ''} maxLength={80} placeholder="ör. Spor Editörü" onChange={(e) => setUser({ ...user, title: e.target.value })} />
+                                        </label>
+                                        <label className="field">
+                                            <span className="field-label">Kısa biyografi</span>
+                                            <textarea className="input" rows={4} value={user.bio || ''} maxLength={1000} onChange={(e) => setUser({ ...user, bio: e.target.value })}
+                                                placeholder="Okurlar sizi tanısın: uzmanlık alanınız, deneyiminiz…" />
+                                            <span className="field-hint">
+                                                Yazar sayfanızda görünür{user.slug ? <> — <Link href={`/yazar/${user.slug}`}>/yazar/{user.slug}</Link></> : ''}.
+                                            </span>
+                                        </label>
+                                    </>
+                                )}
                                 {notice && <div className="alert alert-success" role="status">{notice}</div>}
                                 <div><button className="btn btn-primary" disabled={loading}>{loading ? <span className="spinner" /> : <><Save size={16} /> Değişiklikleri kaydet</>}</button></div>
                             </form>
@@ -173,6 +190,17 @@ export default function ProfileView({ initialUser, initialTab = 'general', bookm
                                 {pwMsg && <div className={`alert ${pwMsg.includes('değiştirildi') ? 'alert-success' : 'alert-error'}`} role="status">{pwMsg}</div>}
                                 <div><button className="btn"><Save size={16} /> Şifreyi güncelle</button></div>
                             </form>
+
+                            <TwoFactor enabled={twoFactor} staff={staff} />
+
+                            <div className="profile-form">
+                                <h3 style={{ display: 'flex', alignItems: 'center', gap: 8 }}><Download size={18} /> Verilerim</h3>
+                                <p style={{ color: 'var(--ink-2)', margin: '0 0 12px', maxWidth: '60ch' }}>
+                                    Hesabınız, yorumlarınız, beğeni ve kayıtlarınız, bülten aboneliğiniz ve son giriş kayıtlarınızın bir kopyasını indirebilirsiniz (KVKK md. 11).
+                                    Ayrıntılar için <Link href="/gizlilik">gizlilik politikası</Link>.
+                                </p>
+                                <div><a className="btn" href="/api/profile/export" download><Download size={16} /> Verilerimi indir (JSON)</a></div>
+                            </div>
 
                             <div className="danger-zone">
                                 <h3>Hesabı sil</h3>

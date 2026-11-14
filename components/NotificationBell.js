@@ -58,6 +58,21 @@ export default function NotificationBell() {
 
             {open && (
                 <div className="notif-panel" role="dialog" aria-label="Bildirimler">
+                    {data?.personal?.length > 0 && (
+                        <>
+                            <div className="notif-head"><span className="kicker">Sana özel</span></div>
+                            <ul>
+                                {data.personal.map((n) => (
+                                    <li key={`p${n.id}`}>
+                                        <Link href={n.url} onClick={() => setOpen(false)} className={n.isNew ? 'is-new' : ''}>
+                                            <span className="notif-meta">{n.type === 'moderasyon' ? 'Moderasyon' : 'Yorum yanıtı'} · {formatShortDate(n.createdAt)}{n.isNew && <b> · Yeni</b>}</span>
+                                            <span className="notif-title">{n.text}</span>
+                                        </Link>
+                                    </li>
+                                ))}
+                            </ul>
+                        </>
+                    )}
                     <div className="notif-head"><span className="kicker">Takip ettiğin kategoriler</span></div>
                     {!data || data.following === 0 ? (
                         <p className="notif-empty">

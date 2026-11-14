@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import Story from '@/components/Story';
 import NewsGrid from '@/components/NewsGrid';
+import LoadMore from '@/components/LoadMore';
 import FollowButton from '@/components/FollowButton';
 import { getCategory, getLatestNews } from '@/lib/news';
 
@@ -32,7 +33,7 @@ export default async function CategoryPage({ params }) {
     return (
         <div className="container">
             <header className="page-hero">
-                <span className="kicker rise">Kategori · {news.length} haber</span>
+                <span className="kicker rise">Kategori · {news.length === 40 ? `${news.length}+` : news.length} haber</span>
                 <div className="page-hero-row">
                     <h1 className="page-hero-title rise" style={{ '--i': 1 }}>{titleCase(cat.label)}<span className="dot">.</span></h1>
                     <div className="rise" style={{ '--i': 2, paddingBottom: 12 }}>
@@ -53,6 +54,7 @@ export default async function CategoryPage({ params }) {
                         </div>
                     </div>
                     {rest.length > 4 && <NewsGrid items={rest.slice(4)} summary />}
+                    {news.length === 40 && <LoadMore query={{ kategori: slug }} skip={40} />}
                 </>
             )}
         </div>

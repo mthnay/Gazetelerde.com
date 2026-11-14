@@ -28,13 +28,19 @@ async function collect(show) {
         prisma.pushMessage.count({ where: { sentAt: null } }),
         prisma.media.aggregate({ _sum: { size: true }, _count: true }),
     ]);
-    return { dbOk, dbMs, size, errors, openCount, last24, pendingMail, pendingPush, media };
+    const day = new Date(Date.now() - 86400000);
+    const [staffNo2fa, failed24, lockedEmails] = await Promise.all([
+        prisma.user.findMany({ where: { role: { not: 'READER' }, totpEnabledAt: null }, select: { name: true, email: true, role: true, lastLoginAt: true } }),
+        prisma.loginAttempt.count({ where: { success: false, createdAt: { gte: day } } }),
+        prisma.loginAttempt.groupBy({ by: ['email'], where: { success: false, createdAt: { gte: day } }, _count: true, orderBy: { _count: { email: 'desc' } }, take: 5 }),
+    ]);
+    return { dbOk, dbMs, size, errors, openCount, last24, pendingMail, pendingPush, media, staffNo2fa, failed24, lockedEmails };
 }
 
 export default async function SystemPage({ searchParams }) {
     await requirePageUser(canManageUsers);
     const show = (await searchParams).goster === 'tumu' ? 'all' : 'open';
-    const { dbOk, dbMs, size, errors, openCount, last24, pendingMail, pendingPush, media } = await collect(show);
+    const { dbOk, dbMs, size, errors, openCount, last24, pendingMail, pendingPush, media, staffNo2fa, failed24, lockedEmails } = await collect(show);
     const mem = process.memoryUsage();
     const jobs = globalThis.__jobs || {};
     const limit = Number(process.env.MEMORY_LIMIT_MB) || 768;
@@ -91,6 +97,30 @@ export default async function SystemPage({ searchParams }) {
                     </ul>
                 </section>
             </div>
+
+            <section className="admin-panel" style={{ marginTop: 16 }}>
+                <h2 style={{ marginTop: 0 }}>Güvenlik</h2>
+                <div className="admin-grid-2" style={{ gridTemplateColumns: '1fr 1fr' }}>
+                    <div>
+                        <strong>İki adımlı doğrulaması kapalı personel</strong>
+                        {!staffNo2fa.length ? <p className="hint">Tüm personelde açık. ✓</p> : (
+                            <ul className="admin-list">
+                                {staffNo2fa.map((u) => <li key={u.email} className="admin-list-row"><span style={{ flex: 1 }}>{u.name}<small className="muted" style={{ display: 'block' }}>{u.email}</small></span><span className="badge warn">{u.role}</span></li>)}
+                            </ul>
+                        )}
+                        <p className="hint">Her kullanıcı Profil → Hesap ve güvenlik bölümünden açabilir.</p>
+                    </div>
+                    <div>
+                        <strong>Son 24 saatte {failed24} hatalı giriş denemesi</strong>
+                        {lockedEmails.length > 0 && (
+                            <ul className="admin-list">
+                                {lockedEmails.map((l) => <li key={l.email} className="admin-list-row"><span style={{ flex: 1 }}>{l.email}</span><strong>{l._count}</strong></li>)}
+                            </ul>
+                        )}
+                        <p className="hint">Bir hesaba 15 dakikada 8, bir IP adresinden 30 hatalı deneme olunca giriş 15 dakika kilitlenir.</p>
+                    </div>
+                </div>
+            </section>
 
             <ErrorList show={show} errors={errors.map((e) => ({
                 id: e.id, source: e.source, message: e.message, stack: e.stack, path: e.path, count: e.count, resolved: e.resolved,

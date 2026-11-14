@@ -37,17 +37,30 @@ model User {
   // Bildirim zilinin en son açıldığı an; bundan sonra çıkan haberler "yeni" sayılır
   notificationsSeenAt DateTime @default(now()) @db.Timestamptz(3)
 
-  sessions    Session[]
-  articles    Article[]
-  comments    Comment[]
-  likes       Like[]
-  bookmarks   Bookmark[]
-  follows     CategoryFollow[]
-  reports     CommentReport[]
-  media       Media[]
-  revisions   ArticleRevision[]
-  templates   ArticleTemplate[]
-  newsletters NewsletterIssue[]
+  // İki adımlı doğrulama (TOTP). Gizli anahtar AUTH_SECRET ile şifreli saklanır.
+  totpSecret    String?
+  totpEnabledAt DateTime? @db.Timestamptz(3)
+  recoveryCodes String[] // SHA-256 özetleri; her biri bir kez kullanılır
+  lastLoginAt   DateTime? @db.Timestamptz(3)
+
+  // Yazar sayfası (/yazar/<slug>)
+  slug   String? @unique
+  bio    String  @default("")
+  avatar String?
+  title  String  @default("") // ör. "Spor Editörü"
+
+  sessions      Session[]
+  articles      Article[]
+  comments      Comment[]
+  likes         Like[]
+  bookmarks     Bookmark[]
+  follows       CategoryFollow[]
+  reports       CommentReport[]
+  media         Media[]
+  revisions     ArticleRevision[]
+  templates     ArticleTemplate[]
+  newsletters   NewsletterIssue[]
+  notifications UserNotification[]
 }
 
 model Session {
@@ -92,13 +105,16 @@ model Article {
   author     User?    @relation(fields: [authorId], references: [id], onDelete: SetNull)
   authorName String? // kullanıcı hesabı olmayan yazarlar / ajanslar için
 
-  comments   Comment[]
-  tags       ArticleTag[]
-  dailyStats ArticleDailyStat[]
-  likes      Like[]
-  bookmarks  Bookmark[]
-  revisions  ArticleRevision[]
-  feedItem   FeedItem?
+  comments    Comment[]
+  imageCredit String? // görsel kaynağı / fotoğrafçı
+  // Tam metin arama: veritabanında üretilen sütun (migration'da tanımlı), elle yazılmaz
+  search      Unsupported("tsvector")?
+  tags        ArticleTag[]
+  dailyStats  ArticleDailyStat[]
+  likes       Like[]
+  bookmarks   Bookmark[]
+  revisions   ArticleRevision[]
+  feedItem    FeedItem?
 
   // İçerik dışarıdan alındıysa (RSS / link) kaynağı
   sourceUrl String?
@@ -106,6 +122,7 @@ model Article {
   // Haber sayfasının düzeni: { hero, width, aside, dropcap } (bkz. lib/layout.js)
   layout Json?
 
+  @@index([search], type: Gin)
   @@index([status, publishedAt])
   @@index([categoryId, status, publishedAt])
 }
@@ -423,4 +440,32 @@ model ErrorEvent {
   lastSeen    DateTime @default(now()) @db.Timestamptz(3)
 
   @@index([resolved, lastSeen])
+}
+
+// ---------------------------------------------------------------- Güvenlik
+// Giriş denemeleri (kilitleme ve denetim için). IP adresi açık değil, tuzlu özet olarak tutulur; 30 gün sonra silinir.
+model LoginAttempt {
+  id        Int      @id @default(autoincrement())
+  email     String
+  ipHash    String
+  success   Boolean
+  reason    String   @default("") // sifre | 2fa | kilitli | basarili
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+
+  @@index([email, createdAt])
+  @@index([ipHash, createdAt])
+}
+
+// ---------------------------------------------------------------- Okur bildirimleri (yorum yanıtı vb.)
+model UserNotification {
+  id        Int       @id @default(autoincrement())
+  userId    String
+  type      String // yanit | moderasyon
+  text      String
+  url       String
+  readAt    DateTime? @db.Timestamptz(3)
+  createdAt DateTime  @default(now()) @db.Timestamptz(3)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, readAt, createdAt])
 }

@@ -6,6 +6,7 @@ import { canEditArticle, canDeleteArticle } from '@/lib/permissions';
 import { revalidateArticle } from '@/lib/revalidate';
 import { revalidatePath } from 'next/cache';
 import { syncArticleTags } from '@/lib/tags';
+import { ensureAuthorSlug } from '@/lib/authors';
 import { queueArticlePush } from '@/lib/push';
 
 async function load(params) {
@@ -41,6 +42,7 @@ export async function PATCH(request, { params }) {
     const oldCat = await prisma.category.findUnique({ where: { id: existing.categoryId }, select: { slug: true } });
     if (oldCat) revalidatePath(`/category/${oldCat.slug}`);
     await syncArticleTags(article.id, body?.tags);
+    await ensureAuthorSlug(user.id);
     await revalidateArticle(article.id, [existing.slug]);
     await queueArticlePush(article.id);
     return ok({ article });

@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowRight, Eye, EyeOff } from 'lucide-react';
+import { ArrowRight, Eye, EyeOff, ShieldCheck } from 'lucide-react';
 import AuthShell from '@/components/AuthShell';
 import { useSession } from '@/components/SessionProvider';
 
@@ -14,6 +14,8 @@ export default function LoginPage() {
     const [showPw, setShowPw] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [needs2fa, setNeeds2fa] = useState(false);
+    const [code, setCode] = useState('');
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -23,9 +25,14 @@ export default function LoginPage() {
             const res = await fetch('/api/auth/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password }),
+                body: JSON.stringify({ email, password, ...(needs2fa ? { code } : {}) }),
             });
             const data = await res.json();
+            if (data.success && data.needs2fa) {
+                setNeeds2fa(true);
+                setLoading(false);
+                return;
+            }
             if (!data.success) {
                 setError(data.message || 'Giriş yapılamadı.');
                 setLoading(false);
@@ -65,6 +72,15 @@ export default function LoginPage() {
                         </button>
                     </span>
                 </label>
+
+                {needs2fa && (
+                    <label className="field">
+                        <span className="field-label"><ShieldCheck size={14} style={{ verticalAlign: -2 }} /> Doğrulama kodu</span>
+                        <input className="input" inputMode="numeric" autoComplete="one-time-code" autoFocus required value={code}
+                            onChange={(e) => setCode(e.target.value)} placeholder="Uygulamadaki 6 haneli kod" maxLength={9} />
+                        <span className="field-hint">Telefonunuz yanınızda değilse kurtarma kodlarınızdan birini yazabilirsiniz.</span>
+                    </label>
+                )}
 
                 {error && <div className="alert alert-error" role="alert">{error}</div>}
 

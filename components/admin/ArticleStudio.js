@@ -79,6 +79,7 @@ export default function ArticleStudio({ article = null, categories, canPublish, 
         authorName: article?.authorName ?? '',
         sourceUrl: article?.sourceUrl ?? initial.sourceUrl ?? '',
         tags: article?.tags ?? initial.tags ?? [],
+        imageCredit: article?.imageCredit ?? initial.imageCredit ?? '',
         publishedAt: toLocalInput(article?.publishedAt),
         layout: normalizeLayout(article?.layout ?? initial.layout ?? DEFAULT_LAYOUT),
     });
@@ -581,6 +582,9 @@ export default function ArticleStudio({ article = null, categories, canPublish, 
                                 </Section>
                                 <Section title="Kapak görseli">
                                     <CoverImage value={form.image || ''} onChange={(v) => update({ image: v })} />
+                                    <label className="admin-field" style={{ marginTop: 10 }}><span>Fotoğraf kaynağı</span>
+                                        <input className="admin-input" value={form.imageCredit} onChange={set('imageCredit')} maxLength={120} placeholder="ör. AA, Unsplash / Ad Soyad, Gazetelerde" />
+                                    </label>
                                 </Section>
                                 <Section title="Bilgiler">
                                     <label className="admin-field"><span>Kategori</span>

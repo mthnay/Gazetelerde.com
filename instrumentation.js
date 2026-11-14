@@ -64,7 +64,9 @@ export async function register() {
     every('temizlik', 24 * 60 * 60 * 1000, async () => {
         const { prisma } = await import('./lib/db.js');
         const errs = await prisma.errorEvent.deleteMany({ where: { resolved: true, lastSeen: { lt: new Date(Date.now() - 30 * 86400000) } } });
-        return { errors: errs.count };
+        const logins = await prisma.loginAttempt.deleteMany({ where: { createdAt: { lt: new Date(Date.now() - 30 * 86400000) } } });
+        const notes = await prisma.userNotification.deleteMany({ where: { createdAt: { lt: new Date(Date.now() - 90 * 86400000) } } });
+        return { errors: errs.count, logins: logins.count, notifications: notes.count };
     }, 5 * 60 * 1000);
 }
 

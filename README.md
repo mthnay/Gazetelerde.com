@@ -104,6 +104,16 @@ npm ci && npm run db:deploy && npm run build && npm start
   `/admin/bildirim`'den elle de gönderilir. Anahtarlar: `npx web-push generate-vapid-keys`.
 - **Hata takibi:** Sunucu (`instrumentation.js` → `onRequestError`), tarayıcı (`components/ErrorReporter.js`) ve
   arka plan işlerinin hataları `ErrorEvent` tablosunda gruplanır; `/admin/sistem` sunucu sağlığını ve işleri gösterir.
+- **Güvenlik:** Personel ve okurlar Profil → Hesap ve güvenlik'ten iki adımlı doğrulamayı (TOTP + 10 kurtarma kodu)
+  açabilir; anahtarlar `AUTH_SECRET` ile AES-GCM şifreli saklanır. Giriş denemeleri `LoginAttempt` tablosuna yazılır
+  (IP tuzlu özet), hesap başına 15 dakikada 8 / IP başına 30 hatalı denemede giriş kilitlenir.
+- **Arama:** Postgres tam metin arama (`Article.search`, veritabanında üretilen sütun + GIN indeks). Türkçe kök + kök
+  öneki eşleşmesi, tırnak / eksi sözdizimi, `ts_headline` ile vurgulu özet. Not: Prisma bu sütun için yeni
+  migration'larda `ALTER COLUMN "search" DROP DEFAULT` satırı üretir; o satırı silin.
+- **Yazar sayfaları:** `/yazar/<slug>`; unvan ve biyografi Profil'den düzenlenir. Adresler her deploy'da
+  `scripts/backfill-authors.mjs` ile tamamlanır. Görünen yazar adı elle değiştirilen haberler yazar sayfasına bağlanmaz.
+- **Deploy kapısı:** `npm run build` öncesinde birim testleri çalışır (`prebuild`); test kırılırsa build ve deploy durur.
+  CI ayrıca `scripts/smoke.mjs` ile uçtan uca duman testi yapar (`npm run smoke -- https://site-adresi` canlıda da çalışır).
 - **Deneme sınırları** (`lib/api.js`) bellekte tutulur: tek sunucu için yeterli; birden fazla sunucuda Redis gibi
   ortak bir depoya taşınmalıdır.
 

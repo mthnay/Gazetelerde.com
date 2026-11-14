@@ -4,6 +4,7 @@ import { requireStaff } from '@/lib/adminApi';
 import { parseArticleInput, uniqueSlug } from '@/lib/articleInput';
 import { revalidateArticle } from '@/lib/revalidate';
 import { syncArticleTags } from '@/lib/tags';
+import { ensureAuthorSlug } from '@/lib/authors';
 import { queueArticlePush } from '@/lib/push';
 
 export async function POST(request) {
@@ -26,6 +27,7 @@ export async function POST(request) {
         await prisma.feedItem.updateMany({ where: { id: body.feedItemId, articleId: null }, data: { articleId: article.id, status: 'DRAFTED' } });
     }
     await syncArticleTags(article.id, body?.tags);
+    await ensureAuthorSlug(user.id);
     if (article.status === 'PUBLISHED') {
         await revalidateArticle(article.id);
         await queueArticlePush(article.id);

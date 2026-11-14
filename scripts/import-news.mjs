@@ -48,6 +48,7 @@ async function importFile(file, admin) {
             summary: a.summary,
             content,
             image: await localize(a.image, a.title, admin?.id ?? null),
+            imageCredit: a.imageCredit || (a.image && !String(a.image).startsWith('/media/') && (!String(a.image).startsWith('http') || String(a.image).includes('unsplash.com')) ? 'Unsplash' : null),
             status: 'PUBLISHED',
             featured: !!a.featured,
             breaking: !!a.breaking,

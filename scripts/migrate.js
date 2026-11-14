@@ -9,4 +9,7 @@ if (!process.env.DATABASE_URL) {
 }
 console.log('[migrate] Bekleyen migration\'lar uygulanıyor...');
 const r = spawnSync('npx', ['prisma', 'migrate', 'deploy'], { stdio: 'inherit', env: process.env });
-process.exit(r.status ?? 1);
+if (r.status !== 0) process.exit(r.status ?? 1);
+// Veri düzeltmeleri (başarısız olursa deploy durmaz)
+spawnSync('node', ['scripts/backfill-authors.mjs'], { stdio: 'inherit', env: process.env });
+process.exit(0);

@@ -15,16 +15,19 @@ export default async function ProfilePage({ searchParams }) {
     const { sekme } = await searchParams;
 
     const visible = { article: { status: 'PUBLISHED' } };
-    const [bookmarks, likes, follows, categories] = await Promise.all([
+    const [bookmarks, likes, follows, categories, full] = await Promise.all([
         prisma.bookmark.findMany({ where: { userId: user.id, ...visible }, orderBy: { createdAt: 'desc' }, select: { article: { select: articleSel } } }),
         prisma.like.findMany({ where: { userId: user.id, ...visible }, orderBy: { createdAt: 'desc' }, select: { article: { select: articleSel } } }),
         prisma.categoryFollow.findMany({ where: { userId: user.id }, select: { category: { select: { slug: true } } } }),
         getCategories(),
+        prisma.user.findUnique({ where: { id: user.id }, select: { totpEnabledAt: true, title: true, bio: true, slug: true } }),
     ]);
 
     return (
         <ProfileView
-            initialUser={{ name: user.name, email: user.email }}
+            initialUser={{ name: user.name, email: user.email, title: full?.title ?? '', bio: full?.bio ?? '', slug: full?.slug ?? null }}
+            twoFactor={Boolean(full?.totpEnabledAt)}
+            staff={user.role !== 'READER'}
             initialTab={['general', 'security', 'bookmarks', 'likes', 'takip'].includes(sekme) ? sekme : 'general'}
             bookmarks={bookmarks.map((b) => toItem(b.article))}
             likes={likes.map((l) => toItem(l.article))}
