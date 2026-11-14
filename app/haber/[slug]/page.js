@@ -7,6 +7,7 @@ import ReadingProgress from '@/components/motion/ReadingProgress';
 import NewsInteractions from '@/components/NewsInteractions';
 import MostRead from '@/components/MostRead';
 import SmartImage from '@/components/SmartImage';
+import PushOptIn from '@/components/PushOptIn';
 import { prisma } from '@/lib/db';
 import { getArticleBySlug, getRelatedNews, getMostRead } from '@/lib/news';
 import { formatDate, readingTime, articleUrl } from '@/lib/format';
@@ -42,7 +43,7 @@ export async function generateMetadata({ params }) {
         openGraph: {
             title: item.title, description: item.summary, type: 'article', url,
             images, publishedTime: item.publishedAt, modifiedTime: item.updatedAt,
-            section: item.categoryLabel, authors: [item.author],
+            section: item.categoryLabel, authors: [item.author], tags: item.tags?.map((t) => t.name),
         },
         twitter: { card: 'summary_large_image', title: item.title, description: item.summary, images: item.img ? [item.img] : undefined },
     };
@@ -80,6 +81,7 @@ export default async function NewsDetail({ params }) {
         dateModified: item.updatedAt,
         mainEntityOfPage: absoluteUrl(articleUrl(item)),
         articleSection: item.categoryLabel,
+        keywords: item.tags?.map((t) => t.name).join(', ') || undefined,
         author: [{ '@type': 'Person', name: item.author }],
         publisher: { '@type': 'Organization', name: SITE_NAME, logo: { '@type': 'ImageObject', url: absoluteUrl('/icon') } },
     };
@@ -154,9 +156,15 @@ export default async function NewsDetail({ params }) {
                     <div>
                         {/* İçerik kaydedilirken sunucuda temizlendi (lib/html.js); burada tekrar temizlenir */}
                         <div id="haber-metni" className="article-body" dangerouslySetInnerHTML={{ __html: bodyHtml }} />
+                        {item.tags?.length > 0 && (
+                            <nav className="article-tags" aria-label="Konular">
+                                {item.tags.map((t) => <Link key={t.slug} href={`/etiket/${t.slug}`} className="article-tag">#{t.name}</Link>)}
+                            </nav>
+                        )}
                         {item.sourceUrl && (
                             <p className="article-source">Kaynak: <a href={item.sourceUrl} target="_blank" rel="noopener noreferrer nofollow">{new URL(item.sourceUrl).hostname.replace(/^www\./, '')}</a></p>
                         )}
+                        <div className="article-push"><PushOptIn /></div>
                         <NewsInteractions
                             articleId={item.id}
                             title={item.title}

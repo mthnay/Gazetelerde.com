@@ -3,6 +3,8 @@ import { ok, fail, readJson } from '@/lib/api';
 import { requireStaff } from '@/lib/adminApi';
 import { parseArticleInput, uniqueSlug } from '@/lib/articleInput';
 import { revalidateArticle } from '@/lib/revalidate';
+import { syncArticleTags } from '@/lib/tags';
+import { queueArticlePush } from '@/lib/push';
 
 export async function POST(request) {
     const { user, error } = await requireStaff();
@@ -23,6 +25,10 @@ export async function POST(request) {
     if (Number.isInteger(body?.feedItemId)) {
         await prisma.feedItem.updateMany({ where: { id: body.feedItemId, articleId: null }, data: { articleId: article.id, status: 'DRAFTED' } });
     }
-    if (article.status === 'PUBLISHED') await revalidateArticle(article.id);
+    await syncArticleTags(article.id, body?.tags);
+    if (article.status === 'PUBLISHED') {
+        await revalidateArticle(article.id);
+        await queueArticlePush(article.id);
+    }
     return ok({ article }, 201);
 }

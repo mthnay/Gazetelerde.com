@@ -859,3 +859,19 @@ a:hover .media img, .media:hover img { transform: scale(1.06); }
   .home-band, .cat-pair { grid-template-columns: minmax(0, 1fr); }
   .cat-pair:has(> section:only-child) .cat-pair-list { grid-template-columns: minmax(0, 1fr); }
 }
+
+/* ---------- Konu etiketleri ---------- */
+.article-tags { display: flex; flex-wrap: wrap; gap: 8px; margin: 28px 0 8px; }
+.article-tag { padding: 6px 14px; border-radius: 99px; border: 1px solid var(--border); font-family: var(--font-mono, monospace); font-size: .8rem; letter-spacing: .02em; color: var(--text-main); text-decoration: none; transition: background .2s, border-color .2s, transform .2s; }
+.article-tag:hover { background: var(--primary); border-color: var(--primary); color: #16130f; transform: translateY(-1px); }
+.topic-strip { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding: 4px 0 14px; }
+.topic-strip::-webkit-scrollbar { display: none; }
+.topic-strip .label { flex: none; align-self: center; font-family: var(--font-mono, monospace); font-size: .72rem; letter-spacing: .14em; text-transform: uppercase; color: var(--text-muted); margin-right: 4px; }
+.topic-strip .article-tag { flex: none; }
+
+/* ---------- Bildirim izni ---------- */
+.push-optin { display: flex; flex-direction: column; align-items: center; gap: 6px; margin-top: 18px; }
+.push-optin.compact .btn { background: transparent; color: inherit; border: 1px solid color-mix(in srgb, currentColor 30%, transparent); }
+.push-optin.compact .btn:hover { border-color: var(--brand); color: var(--brand); }
+.push-note { font-size: .82rem; opacity: .75; margin: 0; }
+.article-push .push-optin { align-items: flex-start; margin: 20px 0 0; }

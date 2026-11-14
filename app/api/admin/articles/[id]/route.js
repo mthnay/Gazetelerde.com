@@ -5,6 +5,8 @@ import { parseArticleInput, uniqueSlug } from '@/lib/articleInput';
 import { canEditArticle, canDeleteArticle } from '@/lib/permissions';
 import { revalidateArticle } from '@/lib/revalidate';
 import { revalidatePath } from 'next/cache';
+import { syncArticleTags } from '@/lib/tags';
+import { queueArticlePush } from '@/lib/push';
 
 async function load(params) {
     const id = await idParam(params);
@@ -38,7 +40,9 @@ export async function PATCH(request, { params }) {
     // Eski kategori sayfası da tazelensin
     const oldCat = await prisma.category.findUnique({ where: { id: existing.categoryId }, select: { slug: true } });
     if (oldCat) revalidatePath(`/category/${oldCat.slug}`);
+    await syncArticleTags(article.id, body?.tags);
     await revalidateArticle(article.id, [existing.slug]);
+    await queueArticlePush(article.id);
     return ok({ article });
 }
 

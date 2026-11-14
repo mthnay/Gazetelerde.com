@@ -4,7 +4,8 @@ import LiveFeed from '@/components/LiveFeed';
 import Story from '@/components/Story';
 import SectionHead from '@/components/SectionHead';
 import Newsletter from '@/components/Newsletter';
-import { getBreakingNews, getCategories, getLatestNews, getMostRead } from '@/lib/news';
+import Link from 'next/link';
+import { getBreakingNews, getCategories, getLatestNews, getMostRead, getTrendingTags } from '@/lib/news';
 import { absoluteUrl, SITE_NAME, SITE_DESCRIPTION } from '@/lib/site';
 import { buildSafe } from '@/lib/db';
 
@@ -23,9 +24,9 @@ const siteJsonLd = [
 const titleCase = (s) => s.charAt(0) + s.slice(1).toLocaleLowerCase('tr');
 
 export default async function Home() {
-  const [allNews, categories, breaking, mostRead] = await buildSafe(
-    () => Promise.all([getLatestNews({ take: 60 }), getCategories(), getBreakingNews(), getMostRead(5)]),
-    [[], [], { flagged: false, items: [] }, []],
+  const [allNews, categories, breaking, mostRead, topics] = await buildSafe(
+    () => Promise.all([getLatestNews({ take: 60 }), getCategories(), getBreakingNews(), getMostRead(5), getTrendingTags(12)]),
+    [[], [], { flagged: false, items: [] }, [], []],
   );
 
   if (!allNews.length) {
@@ -63,6 +64,13 @@ export default async function Home() {
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(siteJsonLd) }} />
       <BreakingTicker items={breaking.items} flagged={breaking.flagged} />
+
+      {topics.length > 0 && (
+        <nav className="container topic-strip" aria-label="Gündemdeki konular">
+          <span className="label">Gündemde</span>
+          {topics.map((t) => <Link key={t.slug} href={`/etiket/${t.slug}`} className="article-tag">#{t.name}</Link>)}
+        </nav>
+      )}
 
       {/* MANŞET */}
       <section className="container front" aria-label="Manşet">

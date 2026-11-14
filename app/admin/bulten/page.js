@@ -42,10 +42,10 @@ export default async function AdminNewsletter() {
             )}
 
             <div className="admin-stats">
-                <div className="admin-stat"><span>Onaylı abone</span><strong>{confirmed}</strong></div>
-                <div className="admin-stat"><span>Onay bekleyen</span><strong>{pending}</strong></div>
-                <div className="admin-stat"><span>Ayrılan</span><strong>{left}</strong></div>
-                <div className="admin-stat"><span>Gönderilen sayı</span><strong>{issues.filter((i) => i.status === 'SENT').length}</strong></div>
+                <div className="admin-panel admin-stat"><span className="label">Onaylı abone</span><strong className="value">{confirmed}</strong></div>
+                <div className="admin-panel admin-stat"><span className="label">Onay bekleyen</span><strong className="value">{pending}</strong></div>
+                <div className="admin-panel admin-stat"><span className="label">Ayrılan</span><strong className="value">{left}</strong></div>
+                <div className="admin-panel admin-stat"><span className="label">Gönderilen sayı</span><strong className="value">{issues.filter((i) => i.status === 'SENT').length}</strong></div>
             </div>
 
             <div className="admin-panel" style={{ padding: 0 }}>

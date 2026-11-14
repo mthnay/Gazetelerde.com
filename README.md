@@ -95,6 +95,15 @@ npm ci && npm run db:deploy && npm run build && npm start
   (`lib/newsletter/service.js`, `MAIL_RATE_PER_MINUTE` kadar e-posta/dk, hata alanlar 3 kez denenir). Her e-postada
   tek tıkla çıkış başlıkları (`List-Unsubscribe`) vardır. SMTP: `SMTP_URL` + `MAIL_FROM`; geliştirmede
   e-postalar `.mail-outbox/` klasörüne yazılır. `NEWSLETTER_AUTO=draft|send` her sabah gündemden otomatik sayı hazırlar.
+- **Etiketler / konu sayfaları:** Haber stüdyosunda eklenir, her etiketin `/etiket/<slug>` sayfası vardır. Öne çıkan
+  etiketler ana sayfadaki “Gündemde” şeridinde görünür (`/admin/etiketler`). Mevcut haberleri anahtar kelimeyle
+  etiketlemek için: `node scripts/auto-tag.mjs`.
+- **İstatistik:** Çerezsiz; IP ya da kimlik saklanmaz. `components/Analytics.js` her sayfa geçişinde `/api/t`'ye
+  sayaç gönderir, veriler günlük toplam olarak tutulur (`PageDailyStat`, `ArticleDailyStat`). Panel: `/admin/istatistik`.
+- **Web push:** “Son dakika” işaretiyle yayınlanan haber (yayından sonraki 6 saat içinde) otomatik bildirim olur;
+  `/admin/bildirim`'den elle de gönderilir. Anahtarlar: `npx web-push generate-vapid-keys`.
+- **Hata takibi:** Sunucu (`instrumentation.js` → `onRequestError`), tarayıcı (`components/ErrorReporter.js`) ve
+  arka plan işlerinin hataları `ErrorEvent` tablosunda gruplanır; `/admin/sistem` sunucu sağlığını ve işleri gösterir.
 - **Deneme sınırları** (`lib/api.js`) bellekte tutulur: tek sunucu için yeterli; birden fazla sunucuda Redis gibi
   ortak bir depoya taşınmalıdır.
 

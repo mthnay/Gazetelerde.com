@@ -10,6 +10,7 @@ import {
 import { STATUS_LABELS } from '@/lib/permissions';
 import { HERO_OPTIONS, WIDTH_OPTIONS, DEFAULT_LAYOUT, normalizeLayout } from '@/lib/layout';
 import StudioEditor from './editor/StudioEditor';
+import TagInput from './TagInput';
 import CoverImage from './CoverImage';
 import { BUILTIN_TEMPLATES } from './editor/templates';
 import { moveBlock, duplicateBlock, deleteBlock } from './editor/blocks';
@@ -77,6 +78,7 @@ export default function ArticleStudio({ article = null, categories, canPublish, 
         breaking: article?.breaking ?? false,
         authorName: article?.authorName ?? '',
         sourceUrl: article?.sourceUrl ?? initial.sourceUrl ?? '',
+        tags: article?.tags ?? initial.tags ?? [],
         publishedAt: toLocalInput(article?.publishedAt),
         layout: normalizeLayout(article?.layout ?? initial.layout ?? DEFAULT_LAYOUT),
     });
@@ -589,6 +591,9 @@ export default function ArticleStudio({ article = null, categories, canPublish, 
                                     <label className="admin-field"><span>Görünen yazar adı</span>
                                         <input className="admin-input" value={form.authorName} onChange={set('authorName')} placeholder="Boşsa hesabınızdaki ad" maxLength={80} />
                                     </label>
+                                    <div className="admin-field"><span>Etiketler</span>
+                                        <TagInput value={form.tags} onChange={(tags) => update({ tags })} />
+                                    </div>
                                     <label className="admin-field"><span>Kaynak bağlantısı</span>
                                         <input className="admin-input" type="url" value={form.sourceUrl} onChange={set('sourceUrl')} placeholder="https://" />
                                     </label>

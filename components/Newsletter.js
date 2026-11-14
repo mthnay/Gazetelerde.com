@@ -1,6 +1,7 @@
 "use client";
 import { useState } from 'react';
 import { ArrowRight } from 'lucide-react';
+import PushOptIn from './PushOptIn';
 
 export default function Newsletter() {
     const [email, setEmail] = useState('');
@@ -30,6 +31,7 @@ export default function Newsletter() {
                 <button className="btn btn-primary" disabled={busy}>{busy ? <span className="spinner" /> : <>Abone ol <ArrowRight size={16} /></>}</button>
             </form>
             {status && <p className="newsletter-status" role="status">{status}</p>}
+            <PushOptIn compact />
         </section>
     );
 }

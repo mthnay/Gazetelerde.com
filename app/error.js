@@ -2,11 +2,14 @@
 import { useEffect } from 'react';
 import Link from 'next/link';
 import { RotateCcw } from 'lucide-react';
+import { reportError } from '@/components/ErrorReporter';
 
 // Sayfa içinde beklenmeyen bir hata olursa (ör. veritabanına ulaşılamadı) gösterilir
 export default function Error({ error, reset }) {
     useEffect(() => {
         console.error('[sayfa hatası]', error?.digest || '', error);
+        // Sunucu kaynaklı hatalar (digest'li) zaten sunucuda kaydedildi
+        if (!error?.digest) reportError(error);
     }, [error]);
 
     return (

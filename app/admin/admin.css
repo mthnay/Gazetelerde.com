@@ -331,3 +331,52 @@
 .nl-progress { height: 8px; border-radius: 99px; background: var(--bg-hover); overflow: hidden; }
 .nl-progress span { display: block; height: 100%; background: var(--primary); transition: width .4s; }
 @media (max-width: 1100px) { .nl-editor { grid-template-columns: 1fr; } .nl-preview { position: static; } }
+
+/* ---------- Etiket girişi ---------- */
+.tag-input { position: relative; }
+.tag-chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.tag-chips .admin-input { flex: 1; min-width: 120px; }
+.tag-chip { display: inline-flex; align-items: center; gap: 4px; padding: 4px 6px 4px 10px; border-radius: 99px; background: var(--bg-hover); border: 1px solid var(--border); font-size: .82rem; font-weight: 600; }
+.tag-chip button { display: grid; place-items: center; width: 18px; height: 18px; border: 0; border-radius: 50%; background: transparent; color: inherit; cursor: pointer; }
+.tag-chip button:hover { background: var(--border); }
+.tag-suggest { position: absolute; z-index: 20; left: 0; right: 0; top: calc(100% + 4px); display: grid; padding: 4px; border: 1px solid var(--border); border-radius: 10px; background: var(--a-panel); box-shadow: 0 10px 30px rgb(0 0 0 / .12); }
+.tag-suggest button { display: flex; justify-content: space-between; padding: 7px 10px; border: 0; border-radius: 7px; background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.tag-suggest button:hover { background: var(--bg-hover); }
+.tag-suggest small { color: var(--text-muted); }
+.linklike { border: 0; background: none; padding: 0; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.linklike:hover { color: var(--text-main); text-decoration: underline; }
+.admin-icon-btn.active { color: var(--a-warn); }
+
+/* ---------- İstatistik ---------- */
+.admin-stat .sub.up { color: var(--a-ok); } .admin-stat .sub.down { color: var(--a-danger); }
+.admin-bar-row { grid-template-columns: 130px 1fr auto; }
+.admin-bar-row > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.admin-bar-row small { font-weight: 500; }
+.st-chart { display: flex; align-items: flex-end; gap: 3px; height: 220px; padding-top: 8px; }
+.st-col { flex: 1; min-width: 0; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 6px; }
+.st-col > span { font-size: .68rem; color: var(--text-muted); white-space: nowrap; height: 14px; }
+.st-bar { width: 100%; max-width: 38px; min-height: 2px; border-radius: 6px 6px 2px 2px; background: color-mix(in srgb, var(--brand) 35%, transparent); display: flex; align-items: flex-end; overflow: hidden; transform-origin: bottom; animation: col-grow .9s var(--ease-out) both; }
+.st-bar-in { width: 100%; background: var(--brand); }
+.st-col:hover .st-bar { outline: 2px solid var(--text-main); }
+@keyframes col-grow { from { transform: scaleY(0); } }
+.st-key { display: inline-block; width: 10px; height: 10px; border-radius: 3px; background: color-mix(in srgb, var(--brand) 35%, transparent); margin: 0 4px 0 10px; vertical-align: -1px; }
+.st-key.in { background: var(--brand); }
+.st-chart:has(.st-col:nth-child(31)) .st-col > span { font-size: .6rem; }
+.push-preview { display: grid; gap: 2px; margin: 4px 0 14px; padding: 12px 14px; border-radius: 14px; background: var(--bg-hover); border: 1px solid var(--border); font-size: .85rem; max-width: 380px; }
+.push-preview small { color: var(--text-muted); font-size: .72rem; }
+
+/* ---------- Sistem / hata takibi ---------- */
+.sys-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--a-ok); box-shadow: 0 0 0 4px color-mix(in srgb, var(--a-ok) 18%, transparent); }
+.sys-warn .sys-dot { background: var(--a-warn); box-shadow: 0 0 0 4px color-mix(in srgb, var(--a-warn) 18%, transparent); }
+.sys-danger .sys-dot { background: var(--a-danger); box-shadow: 0 0 0 4px color-mix(in srgb, var(--a-danger) 18%, transparent); animation: sys-pulse 1.4s ease-in-out infinite; }
+@keyframes sys-pulse { 50% { box-shadow: 0 0 0 8px color-mix(in srgb, var(--a-danger) 0%, transparent); } }
+.err-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.err-list li { border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.err-list li.is-resolved { opacity: .55; }
+.err-head { display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px 14px; border: 0; background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.err-head:hover { background: var(--bg-hover); }
+.err-msg { flex: 1; min-width: 0; font-weight: 600; font-size: .9rem; overflow-wrap: anywhere; }
+.err-msg small { display: block; font-weight: 400; color: var(--text-muted); font-size: .76rem; margin-top: 3px; }
+.err-count { font-family: var(--font-mono, monospace); }
+.err-body { padding: 0 14px 14px; display: grid; gap: 10px; }
+.err-body pre { margin: 0; padding: 12px; max-height: 320px; overflow: auto; border-radius: 8px; background: #16130f; color: #e8e2d6; font-size: .75rem; line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; }

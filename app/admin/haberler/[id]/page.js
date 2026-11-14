@@ -13,7 +13,7 @@ export default async function EditArticlePage({ params }) {
     if (!Number.isInteger(n)) notFound();
 
     const [a, categories] = await Promise.all([
-        prisma.article.findUnique({ where: { id: n }, include: { category: { select: { slug: true } } } }),
+        prisma.article.findUnique({ where: { id: n }, include: { category: { select: { slug: true } }, tags: { select: { tag: { select: { name: true } } } } } }),
         prisma.category.findMany({ orderBy: { sortOrder: 'asc' }, select: { slug: true, label: true } }),
     ]);
     if (!a) notFound();
@@ -23,6 +23,7 @@ export default async function EditArticlePage({ params }) {
         id: a.id, slug: a.slug, title: a.title, summary: a.summary, content: a.content, image: a.image,
         status: a.status, featured: a.featured, breaking: a.breaking, sourceUrl: a.sourceUrl, layout: a.layout, updatedAt: a.updatedAt.toISOString(), authorName: a.authorName, category: a.category.slug,
         publishedAt: a.publishedAt?.toISOString() ?? null,
+        tags: a.tags.map((t) => t.tag.name),
     };
 
     return (

@@ -26,27 +26,27 @@ enum CommentStatus {
 }
 
 model User {
-  id           String    @id @default(cuid())
+  id           String   @id @default(cuid())
   name         String
-  email        String    @unique
+  email        String   @unique
   passwordHash String
-  role         Role      @default(READER)
-  createdAt    DateTime @db.Timestamptz(3)  @default(now())
-  updatedAt    DateTime @db.Timestamptz(3)  @updatedAt
+  role         Role     @default(READER)
+  createdAt    DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt    DateTime @updatedAt @db.Timestamptz(3)
 
   // Bildirim zilinin en son açıldığı an; bundan sonra çıkan haberler "yeni" sayılır
-  notificationsSeenAt DateTime @db.Timestamptz(3) @default(now())
+  notificationsSeenAt DateTime @default(now()) @db.Timestamptz(3)
 
-  sessions  Session[]
-  articles  Article[]
-  comments  Comment[]
-  likes     Like[]
-  bookmarks Bookmark[]
-  follows   CategoryFollow[]
-  reports   CommentReport[]
-  media     Media[]
-  revisions ArticleRevision[]
-  templates ArticleTemplate[]
+  sessions    Session[]
+  articles    Article[]
+  comments    Comment[]
+  likes       Like[]
+  bookmarks   Bookmark[]
+  follows     CategoryFollow[]
+  reports     CommentReport[]
+  media       Media[]
+  revisions   ArticleRevision[]
+  templates   ArticleTemplate[]
   newsletters NewsletterIssue[]
 }
 
@@ -55,17 +55,17 @@ model Session {
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   expiresAt DateTime @db.Timestamptz(3)
-  createdAt DateTime @db.Timestamptz(3) @default(now())
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
 
   @@index([userId])
 }
 
 model Category {
-  id          Int       @id @default(autoincrement())
-  slug        String    @unique
+  id          Int              @id @default(autoincrement())
+  slug        String           @unique
   label       String
-  description String    @default("")
-  sortOrder   Int       @default(0)
+  description String           @default("")
+  sortOrder   Int              @default(0)
   articles    Article[]
   followers   CategoryFollow[]
   feeds       FeedSource[]
@@ -76,27 +76,29 @@ model Article {
   slug        String        @unique
   title       String
   summary     String
-  content     String        // paragraflar boş satırla ayrılır
+  content     String // paragraflar boş satırla ayrılır
   image       String?
   status      ArticleStatus @default(DRAFT)
   featured    Boolean       @default(false)
   breaking    Boolean       @default(false) // son dakika şeridinde gösterilir
   viewCount   Int           @default(0)
-  publishedAt DateTime? @db.Timestamptz(3)
-  createdAt   DateTime @db.Timestamptz(3)      @default(now())
-  updatedAt   DateTime @db.Timestamptz(3)      @updatedAt
+  publishedAt DateTime?     @db.Timestamptz(3)
+  createdAt   DateTime      @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime      @updatedAt @db.Timestamptz(3)
 
   categoryId Int
   category   Category @relation(fields: [categoryId], references: [id])
   authorId   String?
   author     User?    @relation(fields: [authorId], references: [id], onDelete: SetNull)
-  authorName String?  // kullanıcı hesabı olmayan yazarlar / ajanslar için
+  authorName String? // kullanıcı hesabı olmayan yazarlar / ajanslar için
 
-  comments  Comment[]
-  likes     Like[]
-  bookmarks Bookmark[]
-  revisions ArticleRevision[]
-  feedItem  FeedItem?
+  comments   Comment[]
+  tags       ArticleTag[]
+  dailyStats ArticleDailyStat[]
+  likes      Like[]
+  bookmarks  Bookmark[]
+  revisions  ArticleRevision[]
+  feedItem   FeedItem?
 
   // İçerik dışarıdan alındıysa (RSS / link) kaynağı
   sourceUrl String?
@@ -112,7 +114,7 @@ model Comment {
   id        Int           @id @default(autoincrement())
   text      String
   status    CommentStatus @default(VISIBLE)
-  createdAt DateTime @db.Timestamptz(3)      @default(now())
+  createdAt DateTime      @default(now()) @db.Timestamptz(3)
 
   articleId Int
   article   Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
@@ -125,7 +127,7 @@ model Comment {
   replies  Comment[] @relation("Replies")
 
   reports     CommentReport[]
-  reportCount Int @default(0)
+  reportCount Int             @default(0)
 
   @@index([articleId, createdAt])
   @@index([parentId])
@@ -135,7 +137,7 @@ model CommentReport {
   commentId Int
   userId    String
   reason    String   @default("")
-  createdAt DateTime @db.Timestamptz(3) @default(now())
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
   comment   Comment  @relation(fields: [commentId], references: [id], onDelete: Cascade)
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -145,7 +147,7 @@ model CommentReport {
 model CategoryFollow {
   userId     String
   categoryId Int
-  createdAt  DateTime @db.Timestamptz(3) @default(now())
+  createdAt  DateTime @default(now()) @db.Timestamptz(3)
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
 
@@ -182,7 +184,7 @@ model NewsletterIssue {
   subject     String
   preheader   String           @default("") // e-posta listesinde konunun yanında görünen kısa metin
   intro       String           @default("")
-  articleIds  Int[]            // sıralı haber listesi
+  articleIds  Int[] // sıralı haber listesi
   status      NewsletterStatus @default(DRAFT)
   auto        Boolean          @default(false) // sabah bülteni otomatik oluşturduysa
   scheduledAt DateTime?        @db.Timestamptz(3)
@@ -225,7 +227,7 @@ model NewsletterDelivery {
 model Like {
   userId    String
   articleId Int
-  createdAt DateTime @db.Timestamptz(3) @default(now())
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   article   Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
 
@@ -236,7 +238,7 @@ model Like {
 model Bookmark {
   userId    String
   articleId Int
-  createdAt DateTime @db.Timestamptz(3) @default(now())
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   article   Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
 
@@ -247,24 +249,24 @@ model Bookmark {
 // Yüklenen görseller veritabanında tutulur (yedeklemeyle birlikte gelir, ek depolama gerektirmez).
 // Yüklemede WebP'ye çevrilip en fazla 2000 px'e küçültülür.
 model Media {
-  id         String   @id @default(cuid())
-  mime       String
-  width      Int
-  height     Int
-  bytes      Bytes
-  size       Int
-  alt        String   @default("")
-  createdAt  DateTime @default(now()) @db.Timestamptz(3)
+  id           String   @id @default(cuid())
+  mime         String
+  width        Int
+  height       Int
+  bytes        Bytes
+  size         Int
+  alt          String   @default("")
+  createdAt    DateTime @default(now()) @db.Timestamptz(3)
   uploadedById String?
-  uploadedBy User?    @relation(fields: [uploadedById], references: [id], onDelete: SetNull)
+  uploadedBy   User?    @relation(fields: [uploadedById], references: [id], onDelete: SetNull)
 
   @@index([createdAt])
 }
 
 enum RevisionKind {
-  SAVE      // editör "Kaydet"e bastı
-  AUTOSAVE  // otomatik kayıt (yayındaki haberi değiştirmez)
-  RESTORE   // eski sürüm geri yüklendi
+  SAVE // editör "Kaydet"e bastı
+  AUTOSAVE // otomatik kayıt (yayındaki haberi değiştirmez)
+  RESTORE // eski sürüm geri yüklendi
 }
 
 model ArticleRevision {
@@ -295,7 +297,7 @@ model FeedSource {
 
   // Bu kaynaktan gelen taslaklar varsayılan olarak bu kategoriye düşer
   categoryId Int?
-  category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  category   Category?  @relation(fields: [categoryId], references: [id], onDelete: SetNull)
   items      FeedItem[]
 }
 
@@ -335,4 +337,90 @@ model ArticleTemplate {
   createdAt   DateTime @default(now()) @db.Timestamptz(3)
   createdById String?
   createdBy   User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
+}
+
+// ---------------------------------------------------------------- Etiketler / konu sayfaları
+model Tag {
+  id          Int          @id @default(autoincrement())
+  slug        String       @unique
+  name        String
+  description String       @default("")
+  featured    Boolean      @default(false) // menüde / ana sayfada öne çıkan konu
+  createdAt   DateTime     @default(now()) @db.Timestamptz(3)
+  articles    ArticleTag[]
+}
+
+model ArticleTag {
+  articleId Int
+  tagId     Int
+  article   Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  tag       Tag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([articleId, tagId])
+  @@index([tagId])
+}
+
+// ---------------------------------------------------------------- İstatistik (çerezsiz, kişisel veri tutulmaz)
+// Günlük toplamlar: tek tek ziyaret değil, gün + haber başına sayaç
+model ArticleDailyStat {
+  articleId Int
+  day       DateTime @db.Date
+  views     Int      @default(0)
+  article   Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+
+  @@id([articleId, day])
+  @@index([day])
+}
+
+// Gün + yol türü + kaynak başına sayfa görüntüleme (kaynak: google, facebook, bulten, dogrudan…)
+model PageDailyStat {
+  day    DateTime @db.Date
+  kind   String // haber | kategori | anasayfa | etiket | diger
+  source String
+  device String // mobil | masaustu
+  views  Int      @default(0)
+
+  @@id([day, kind, source, device])
+}
+
+// ---------------------------------------------------------------- Web push
+model PushSubscription {
+  id         Int       @id @default(autoincrement())
+  endpoint   String    @unique
+  p256dh     String
+  auth       String
+  categories String[] // boşsa tüm son dakika bildirimleri
+  failures   Int       @default(0)
+  createdAt  DateTime  @default(now()) @db.Timestamptz(3)
+  lastSentAt DateTime? @db.Timestamptz(3)
+}
+
+model PushMessage {
+  id          Int       @id @default(autoincrement())
+  title       String
+  body        String
+  url         String
+  articleId   Int?      @unique // bir haber için en fazla bir kez bildirim
+  sent        Int       @default(0)
+  failed      Int       @default(0)
+  createdAt   DateTime  @default(now()) @db.Timestamptz(3)
+  sentAt      DateTime? @db.Timestamptz(3) // gönderim başladığında dolar (iki kez gönderilmesin)
+  createdById String?
+}
+
+// ---------------------------------------------------------------- Hata takibi
+// Aynı hata (parmak izi) tek satırda toplanır, sayısı ve son görülme zamanı güncellenir
+model ErrorEvent {
+  id          Int      @id @default(autoincrement())
+  fingerprint String   @unique
+  source      String // sunucu | tarayici | is (arka plan)
+  message     String
+  stack       String   @default("")
+  path        String   @default("")
+  count       Int      @default(1)
+  resolved    Boolean  @default(false)
+  firstSeen   DateTime @default(now()) @db.Timestamptz(3)
+  lastSeen    DateTime @default(now()) @db.Timestamptz(3)
+
+  @@index([resolved, lastSeen])
 }

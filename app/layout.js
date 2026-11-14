@@ -4,6 +4,8 @@ import ThemeToggle from "@/components/ThemeToggle";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import NavProgress from "@/components/motion/NavProgress";
+import Analytics from "@/components/Analytics";
+import ErrorReporter from "@/components/ErrorReporter";
 import { getCategories } from "@/lib/news";
 import { buildSafe } from "@/lib/db";
 import { SessionProvider } from "@/components/SessionProvider";
@@ -60,6 +62,8 @@ export default async function RootLayout({ children }) {
             <ThemeToggle />
           </SessionProvider>
         </ThemeProvider>
+        <Analytics />
+        <ErrorReporter />
       </body>
     </html>
   );
