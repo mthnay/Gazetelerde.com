@@ -28,7 +28,7 @@ export default function StandingsTable({ rows, sport = 'voleybol', compact = fal
                             <td>{r.played}</td><td>{r.won}</td>{!compact && <td>{r.lost}</td>}
                             {!volley && !compact && <td>{r.drawn}</td>}
                             {!compact && <td className="hide-sm">{r.for}:{r.against}</td>}
-                            <td className="pts">{r.points}</td>
+                            <td className="pts">{r.points}{r.penalty > 0 && <sup title={`${r.penalty} ceza puanı düşüldü`} aria-label={`${r.penalty} ceza puanı`}>*</sup>}</td>
                             {!compact && <td className="hide-sm"><span className="form">{r.form.map((f, k) => <i key={k} className={`f-${f}`} title={f === 'G' ? 'Galibiyet' : f === 'M' ? 'Mağlubiyet' : 'Beraberlik'}>{f}</i>)}</span></td>}
                         </tr>
                     ))}

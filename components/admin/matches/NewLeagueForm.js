@@ -6,7 +6,7 @@ import { api } from './api';
 
 export default function NewLeagueForm({ sports }) {
     const router = useRouter();
-    const [f, setF] = useState({ name: '', season: '2025-26', sport: 'voleybol', kind: 'lig', gender: 'kadin', featured: true });
+    const [f, setF] = useState({ name: '', season: (() => { const d = new Date(), y = d.getMonth() >= 7 ? d.getFullYear() : d.getFullYear() - 1; return `${y}-${String((y + 1) % 100).padStart(2, '0')}`; })(), sport: 'voleybol', kind: 'lig', gender: 'kadin', featured: true });
     const [msg, setMsg] = useState('');
     const submit = async (e) => {
         e.preventDefault();

@@ -20,7 +20,7 @@ export default async function AdminLeague({ params }) {
     return (
         <LeagueAdmin
             league={{ id: l.id, slug: l.slug, name: l.name, season: l.season, sport: l.sport, active: l.active, featured: l.featured, kind: l.kind }}
-            teams={l.teams.map((t) => ({ id: t.id, name: t.name, shortName: t.shortName, logo: t.logo }))}
+            teams={l.teams.map((t) => ({ id: t.id, name: t.name, shortName: t.shortName, logo: t.logo, penalty: t.penalty }))}
             matches={l.matches.map((m) => ({
                 id: m.id, homeId: m.homeId, awayId: m.awayId, startAt: m.startAt.toISOString(), week: m.week, venue: m.venue, status: m.status,
                 homeScore: m.homeScore, awayScore: m.awayScore, sets: Array.isArray(m.sets) ? m.sets : [], articleSlug: m.article?.slug ?? '', broadcaster: m.broadcaster, round: m.round, group: m.group,

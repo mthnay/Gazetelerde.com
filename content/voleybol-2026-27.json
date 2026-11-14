@@ -1,0 +1,941 @@
+{
+ "source": "TVF (tvf.org.tr) haftalık sonuç haberleri ve haber ajansı derlemeleri; puan durumu 14 Kasım 2026 TVF tablosuyla doğrulandı",
+ "leagues": [
+  {
+   "name": "Vodafone Sultanlar Ligi",
+   "season": "2026-27",
+   "gender": "kadin",
+   "kind": "lig",
+   "sortOrder": 1,
+   "teams": [
+    "VakıfBank",
+    "Fenerbahçe Medicana",
+    "Eczacıbaşı Peron İstanbul",
+    "Aras Kargo",
+    "Türk Hava Yolları",
+    "Kuzeyboru",
+    "Galatasaray Daikin",
+    "Göztepe Yuppo",
+    "Nilüfer Belediyespor Eker",
+    "Beşiktaş",
+    "Zeren Spor",
+    "İlbank",
+    "Sinnada Hotels Afyon Belediye Yüntaş",
+    "Manisa Büyükşehir Belediye Spor"
+   ],
+   "matches": [
+    [
+     1,
+     "2026-10-03",
+     "Nilüfer Belediyespor Eker",
+     "Eczacıbaşı Peron İstanbul",
+     "25-20,25-19,18-25,19-25,12-15"
+    ],
+    [
+     1,
+     "2026-10-03",
+     "VakıfBank",
+     "Beşiktaş",
+     "25-16,25-18,23-25,25-19"
+    ],
+    [
+     1,
+     "2026-10-04",
+     "Fenerbahçe Medicana",
+     "Manisa Büyükşehir Belediye Spor",
+     "25-12,25-17,25-14"
+    ],
+    [
+     1,
+     "2026-10-04",
+     "Kuzeyboru",
+     "Sinnada Hotels Afyon Belediye Yüntaş",
+     "22-25,25-19,23-25,25-23,13-15"
+    ],
+    [
+     1,
+     "2026-10-04",
+     "İlbank",
+     "Göztepe Yuppo",
+     "25-22,25-22,25-27,25-17"
+    ],
+    [
+     1,
+     "2026-10-04",
+     "Aras Kargo",
+     "Zeren Spor",
+     "25-16,25-20,25-20"
+    ],
+    [
+     1,
+     "2026-10-04",
+     "Türk Hava Yolları",
+     "Galatasaray Daikin",
+     "23-25,19-25,25-23,25-22,15-13"
+    ],
+    [
+     2,
+     "2026-10-10",
+     "Galatasaray Daikin",
+     "Nilüfer Belediyespor Eker",
+     "25-21,25-15,17-25,25-20"
+    ],
+    [
+     2,
+     "2026-10-10",
+     "Sinnada Hotels Afyon Belediye Yüntaş",
+     "Türk Hava Yolları",
+     "25-22,18-25,18-25,20-25"
+    ],
+    [
+     2,
+     "2026-10-10",
+     "Zeren Spor",
+     "İlbank",
+     "28-30,25-21,32-30,25-21"
+    ],
+    [
+     2,
+     "2026-10-10",
+     "Manisa Büyükşehir Belediye Spor",
+     "Kuzeyboru",
+     "25-18,26-28,25-21,25-22"
+    ],
+    [
+     2,
+     "2026-10-10",
+     "Eczacıbaşı Peron İstanbul",
+     "Aras Kargo",
+     "25-14,25-16,25-17"
+    ],
+    [
+     2,
+     "2026-10-10",
+     "Göztepe Yuppo",
+     "VakıfBank",
+     "20-25,22-25,19-25"
+    ],
+    [
+     2,
+     "2026-10-10",
+     "Beşiktaş",
+     "Fenerbahçe Medicana",
+     "25-20,25-23,16-25,23-25,12-15"
+    ],
+    [
+     3,
+     "2026-10-14",
+     "Aras Kargo",
+     "Galatasaray Daikin",
+     "22-25,16-25,25-18,25-20,15-9"
+    ],
+    [
+     3,
+     "2026-10-14",
+     "VakıfBank",
+     "Zeren Spor",
+     "25-23,25-19,27-25"
+    ],
+    [
+     3,
+     "2026-10-14",
+     "Kuzeyboru",
+     "Türk Hava Yolları",
+     "18-25,25-19,25-20,25-22"
+    ],
+    [
+     3,
+     "2026-10-14",
+     "Nilüfer Belediyespor Eker",
+     "Sinnada Hotels Afyon Belediye Yüntaş",
+     "25-20,25-20,25-14"
+    ],
+    [
+     3,
+     "2026-10-14",
+     "İlbank",
+     "Eczacıbaşı Peron İstanbul",
+     "23-25,17-25,14-25"
+    ],
+    [
+     3,
+     "2026-10-14",
+     "Manisa Büyükşehir Belediye Spor",
+     "Beşiktaş",
+     "26-24,15-25,22-25,22-25"
+    ],
+    [
+     3,
+     "2026-10-14",
+     "Fenerbahçe Medicana",
+     "Göztepe Yuppo",
+     "ERTELENDI"
+    ],
+    [
+     4,
+     "2026-10-16",
+     "Beşiktaş",
+     "Kuzeyboru",
+     "16-25,25-22,24-26,25-18,12-15"
+    ],
+    [
+     4,
+     "2026-10-16",
+     "Sinnada Hotels Afyon Belediye Yüntaş",
+     "Aras Kargo",
+     "25-22,21-25,20-25,23-25"
+    ],
+    [
+     4,
+     "2026-10-16",
+     "Zeren Spor",
+     "Fenerbahçe Medicana",
+     "12-25,17-25,18-25"
+    ],
+    [
+     4,
+     "2026-10-16",
+     "Türk Hava Yolları",
+     "Nilüfer Belediyespor Eker",
+     "25-13,18-25,25-11,25-19"
+    ],
+    [
+     4,
+     "2026-10-16",
+     "Göztepe Yuppo",
+     "Manisa Büyükşehir Belediye Spor",
+     "25-15,25-20,25-16"
+    ],
+    [
+     4,
+     "2026-10-16",
+     "Eczacıbaşı Peron İstanbul",
+     "VakıfBank",
+     "25-14,25-18,18-25,22-25,9-15"
+    ],
+    [
+     4,
+     "2026-10-16",
+     "Galatasaray Daikin",
+     "İlbank",
+     "21-25,25-21,25-23,25-15"
+    ],
+    [
+     5,
+     "2026-10-23",
+     "Beşiktaş",
+     "Göztepe Yuppo",
+     "18-25,25-18,19-25,24-26"
+    ],
+    [
+     5,
+     "2026-10-23",
+     "Kuzeyboru",
+     "Nilüfer Belediyespor Eker",
+     "20-25,25-27,25-17,25-18,15-13"
+    ],
+    [
+     5,
+     "2026-10-23",
+     "VakıfBank",
+     "Galatasaray Daikin",
+     "25-20,25-20,25-22"
+    ],
+    [
+     5,
+     "2026-10-23",
+     "İlbank",
+     "Sinnada Hotels Afyon Belediye Yüntaş",
+     "25-17,28-26,19-25,25-21"
+    ],
+    [
+     5,
+     "2026-10-23",
+     "Aras Kargo",
+     "Türk Hava Yolları",
+     "22-25,16-25,25-23,21-25"
+    ],
+    [
+     5,
+     "2026-10-23",
+     "Manisa Büyükşehir Belediye Spor",
+     "Zeren Spor",
+     "23-25,25-18,23-25,25-18,11-15"
+    ],
+    [
+     5,
+     "2026-10-23",
+     "Fenerbahçe Medicana",
+     "Eczacıbaşı Peron İstanbul",
+     "25-27,27-25,25-21,25-22"
+    ],
+    [
+     6,
+     "2026-10-30",
+     "Sinnada Hotels Afyon Belediye Yüntaş",
+     "VakıfBank",
+     "20-25,35-33,19-25,17-25"
+    ],
+    [
+     6,
+     "2026-10-30",
+     "Zeren Spor",
+     "Beşiktaş",
+     "23-25,28-26,25-22,24-26,8-15"
+    ],
+    [
+     6,
+     "2026-10-30",
+     "Nilüfer Belediyespor Eker",
+     "Aras Kargo",
+     "25-20,25-21,22-25,24-26,10-15"
+    ],
+    [
+     6,
+     "2026-10-30",
+     "Göztepe Yuppo",
+     "Kuzeyboru",
+     "20-25,25-22,25-23,25-21"
+    ],
+    [
+     6,
+     "2026-10-30",
+     "Eczacıbaşı Peron İstanbul",
+     "Manisa Büyükşehir Belediye Spor",
+     "30-28,25-11,25-20"
+    ],
+    [
+     6,
+     "2026-10-30",
+     "Türk Hava Yolları",
+     "İlbank",
+     "25-20,25-22,25-20"
+    ],
+    [
+     6,
+     "2026-10-30",
+     "Galatasaray Daikin",
+     "Fenerbahçe Medicana",
+     "22-25,18-25,18-25"
+    ],
+    [
+     7,
+     "2026-11-04",
+     "Manisa Büyükşehir Belediye Spor",
+     "Galatasaray Daikin",
+     "29-31,22-25,25-27"
+    ],
+    [
+     7,
+     "2026-11-04",
+     "Göztepe Yuppo",
+     "Zeren Spor",
+     "16-25,25-20,25-20,19-25,15-12"
+    ],
+    [
+     7,
+     "2026-11-04",
+     "Kuzeyboru",
+     "Aras Kargo",
+     "21-25,25-18,21-25,25-20,15-7"
+    ],
+    [
+     7,
+     "2026-11-04",
+     "Beşiktaş",
+     "Eczacıbaşı Peron İstanbul",
+     "15-25,16-25,16-25"
+    ],
+    [
+     7,
+     "2026-11-04",
+     "VakıfBank",
+     "Türk Hava Yolları",
+     "25-21,25-22,25-11"
+    ],
+    [
+     7,
+     "2026-11-05",
+     "Fenerbahçe Medicana",
+     "Sinnada Hotels Afyon Belediye Yüntaş",
+     "25-10,25-15,25-18"
+    ],
+    [
+     7,
+     "2026-11-05",
+     "İlbank",
+     "Nilüfer Belediyespor Eker",
+     "17-25,22-25,13-25"
+    ],
+    [
+     8,
+     "2026-11-08",
+     "Galatasaray Daikin",
+     "Beşiktaş",
+     "25-20,17-25,25-17,25-18"
+    ],
+    [
+     8,
+     "2026-11-08",
+     "Sinnada Hotels Afyon Belediye Yüntaş",
+     "Manisa Büyükşehir Belediye Spor",
+     "29-27,21-25,25-20,20-25,15-13"
+    ],
+    [
+     8,
+     "2026-11-08",
+     "Eczacıbaşı Peron İstanbul",
+     "Göztepe Yuppo",
+     "25-20,25-18,25-18"
+    ],
+    [
+     8,
+     "2026-11-08",
+     "Zeren Spor",
+     "Kuzeyboru",
+     "24-26,24-26,23-25"
+    ],
+    [
+     8,
+     "2026-11-08",
+     "Nilüfer Belediyespor Eker",
+     "VakıfBank",
+     "18-25,22-25,14-25"
+    ],
+    [
+     8,
+     "2026-11-08",
+     "Aras Kargo",
+     "İlbank",
+     "25-22,25-22,25-18"
+    ],
+    [
+     8,
+     "2026-11-08",
+     "Türk Hava Yolları",
+     "Fenerbahçe Medicana",
+     "18-25,17-25,20-25"
+    ]
+   ],
+   "upcoming": [
+    [
+     9,
+     "2026-11-15",
+     "13:00",
+     "Fenerbahçe Medicana",
+     "Nilüfer Belediyespor Eker",
+     "TVF Burhan Felek Vestel",
+     "TRT Spor"
+    ],
+    [
+     9,
+     "2026-11-15",
+     "14:00",
+     "Zeren Spor",
+     "Eczacıbaşı Peron İstanbul",
+     "TVF Ziraat Bankkart",
+     "TRT Spor Yıldız"
+    ],
+    [
+     9,
+     "2026-11-15",
+     "14:00",
+     "VakıfBank",
+     "Aras Kargo",
+     "VakıfBank Spor Sarayı",
+     "TVF Voleybol TV"
+    ],
+    [
+     9,
+     "2026-11-15",
+     "16:00",
+     "Manisa Büyükşehir Belediye Spor",
+     "Türk Hava Yolları",
+     "Muradiye",
+     "TVF Voleybol TV"
+    ],
+    [
+     9,
+     "2026-11-15",
+     "16:00",
+     "Göztepe Yuppo",
+     "Galatasaray Daikin",
+     "TVF Atatürk",
+     "TRT Spor"
+    ],
+    [
+     9,
+     "2026-11-15",
+     "17:00",
+     "Kuzeyboru",
+     "İlbank",
+     "Aksaray Spor Salonu",
+     "TRT Spor Yıldız"
+    ],
+    [
+     9,
+     "2026-11-15",
+     "19:00",
+     "Beşiktaş",
+     "Sinnada Hotels Afyon Belediye Yüntaş",
+     "TVF Burhan Felek Vestel",
+     "TVF Voleybol TV"
+    ]
+   ],
+   "official": {
+    "VakıfBank": [
+     8,
+     23
+    ],
+    "Fenerbahçe Medicana": [
+     7,
+     20
+    ],
+    "Eczacıbaşı Peron İstanbul": [
+     8,
+     18
+    ],
+    "Aras Kargo": [
+     8,
+     14
+    ],
+    "Türk Hava Yolları": [
+     8,
+     14
+    ],
+    "Kuzeyboru": [
+     8,
+     13
+    ],
+    "Galatasaray Daikin": [
+     8,
+     14
+    ],
+    "Göztepe Yuppo": [
+     7,
+     11
+    ],
+    "Nilüfer Belediyespor Eker": [
+     8,
+     9
+    ],
+    "Beşiktaş": [
+     8,
+     7
+    ],
+    "Zeren Spor": [
+     8,
+     7
+    ],
+    "İlbank": [
+     8,
+     6
+    ],
+    "Sinnada Hotels Afyon Belediye Yüntaş": [
+     8,
+     4
+    ],
+    "Manisa Büyükşehir Belediye Spor": [
+     8,
+     5
+    ]
+   },
+   "penalties": {}
+  },
+  {
+   "name": "SMS Grup Efeler Ligi",
+   "season": "2026-27",
+   "gender": "erkek",
+   "kind": "lig",
+   "sortOrder": 2,
+   "teams": [
+    "Ziraat Bankkart",
+    "Halkbank",
+    "Galatasaray Madeş Mobilya",
+    "Gebze Belediyesi Spor",
+    "Fenerbahçe Medicana",
+    "On Hotels Alanya Belediyespor",
+    "Spor Toto",
+    "İBB Spor Kulübü",
+    "Altekma",
+    "Gaziantep Gençlik Spor",
+    "Akedaş Onikişubat Belediye Spor",
+    "İstanbul Gençlik",
+    "Sungurlu Belediyesi Spor",
+    "Sultanbeyli Belediye Spor"
+   ],
+   "matches": [
+    [
+     1,
+     "2026-10-17",
+     "Sungurlu Belediyesi Spor",
+     "İBB Spor Kulübü",
+     "21-25,14-25,25-23,22-25"
+    ],
+    [
+     1,
+     "2026-10-17",
+     "Altekma",
+     "Spor Toto",
+     "27-29,21-25,25-9,27-25,15-13"
+    ],
+    [
+     1,
+     "2026-10-17",
+     "Akedaş Onikişubat Belediye Spor",
+     "Gebze Belediyesi Spor",
+     "23-25,30-28,16-25,20-25"
+    ],
+    [
+     1,
+     "2026-10-17",
+     "Halkbank",
+     "Galatasaray Madeş Mobilya",
+     "23-25,25-20,27-25,25-23"
+    ],
+    [
+     1,
+     "2026-10-17",
+     "Fenerbahçe Medicana",
+     "Ziraat Bankkart",
+     "22-25,21-25,22-25"
+    ],
+    [
+     1,
+     "2026-10-17",
+     "Sultanbeyli Belediye Spor",
+     "On Hotels Alanya Belediyespor",
+     "HUKMEN 0-3"
+    ],
+    [
+     1,
+     "2026-11-03",
+     "İstanbul Gençlik",
+     "Gaziantep Gençlik Spor",
+     "23-25,25-18,25-23,22-25,17-19"
+    ],
+    [
+     2,
+     "2026-10-21",
+     "Galatasaray Madeş Mobilya",
+     "Akedaş Onikişubat Belediye Spor",
+     "25-14,25-20,31-29"
+    ],
+    [
+     2,
+     "2026-10-21",
+     "Gebze Belediyesi Spor",
+     "Sungurlu Belediyesi Spor",
+     "25-19,25-19,25-12"
+    ],
+    [
+     2,
+     "2026-10-21",
+     "Gaziantep Gençlik Spor",
+     "Fenerbahçe Medicana",
+     "25-23,25-19,21-25,22-25,13-15"
+    ],
+    [
+     2,
+     "2026-10-21",
+     "On Hotels Alanya Belediyespor",
+     "İstanbul Gençlik",
+     "25-19,25-19,25-21"
+    ],
+    [
+     2,
+     "2026-10-21",
+     "Spor Toto",
+     "Halkbank",
+     "27-25,23-25,25-20,33-35,9-15"
+    ],
+    [
+     2,
+     "2026-10-21",
+     "İBB Spor Kulübü",
+     "Sultanbeyli Belediye Spor",
+     "25-15,17-25,20-25,25-21,15-12"
+    ],
+    [
+     2,
+     "2026-10-21",
+     "Ziraat Bankkart",
+     "Altekma",
+     "14-25,25-21,22-25,25-15,15-10"
+    ],
+    [
+     3,
+     "2026-10-25",
+     "İstanbul Gençlik",
+     "İBB Spor Kulübü",
+     "20-25,25-20,25-19,26-28,15-11"
+    ],
+    [
+     3,
+     "2026-10-25",
+     "Altekma",
+     "Halkbank",
+     "20-25,12-25,22-25"
+    ],
+    [
+     3,
+     "2026-10-25",
+     "Sultanbeyli Belediye Spor",
+     "Gebze Belediyesi Spor",
+     "17-25,18-25,22-25"
+    ],
+    [
+     3,
+     "2026-10-25",
+     "Sungurlu Belediyesi Spor",
+     "Galatasaray Madeş Mobilya",
+     "24-26,19-25,25-19,21-25"
+    ],
+    [
+     3,
+     "2026-10-25",
+     "Fenerbahçe Medicana",
+     "On Hotels Alanya Belediyespor",
+     "25-23,25-20,25-18"
+    ],
+    [
+     3,
+     "2026-10-25",
+     "Akedaş Onikişubat Belediye Spor",
+     "Spor Toto",
+     "17-25,25-19,25-21,15-25,15-12"
+    ],
+    [
+     3,
+     "2026-10-25",
+     "Ziraat Bankkart",
+     "Gaziantep Gençlik Spor",
+     "25-21,24-26,25-17,25-18"
+    ],
+    [
+     4,
+     "2026-10-30",
+     "Halkbank",
+     "Akedaş Onikişubat Belediye Spor",
+     "25-15,25-20,25-17"
+    ],
+    [
+     4,
+     "2026-10-30",
+     "Gebze Belediyesi Spor",
+     "İstanbul Gençlik",
+     "25-21,25-19,17-25,25-23"
+    ],
+    [
+     4,
+     "2026-10-30",
+     "Spor Toto",
+     "Sungurlu Belediyesi Spor",
+     "25-20,20-25,25-23,25-19"
+    ],
+    [
+     4,
+     "2026-10-30",
+     "On Hotels Alanya Belediyespor",
+     "Ziraat Bankkart",
+     "25-19,19-25,27-25,25-27,7-15"
+    ],
+    [
+     4,
+     "2026-10-30",
+     "Gaziantep Gençlik Spor",
+     "Altekma",
+     "29-31,23-25,23-25"
+    ],
+    [
+     4,
+     "2026-10-30",
+     "İBB Spor Kulübü",
+     "Fenerbahçe Medicana",
+     "25-21,18-25,21-25,15-25"
+    ],
+    [
+     4,
+     "2026-10-30",
+     "Galatasaray Madeş Mobilya",
+     "Sultanbeyli Belediye Spor",
+     "25-23,25-17,25-22"
+    ],
+    [
+     11,
+     "2026-11-02",
+     "Ziraat Bankkart",
+     "Sungurlu Belediyesi Spor",
+     "25-21,25-22,25-22"
+    ],
+    [
+     5,
+     "2026-11-06",
+     "İstanbul Gençlik",
+     "Galatasaray Madeş Mobilya",
+     "25-18,15-25,26-28,23-25"
+    ],
+    [
+     5,
+     "2026-11-06",
+     "Ziraat Bankkart",
+     "İBB Spor Kulübü",
+     "25-20,25-17,26-24"
+    ],
+    [
+     5,
+     "2026-11-06",
+     "Gaziantep Gençlik Spor",
+     "On Hotels Alanya Belediyespor",
+     "25-18,25-23,22-25,21-25,15-10"
+    ],
+    [
+     5,
+     "2026-11-06",
+     "Sultanbeyli Belediye Spor",
+     "Spor Toto",
+     "21-25,25-21,25-18,20-25,13-15"
+    ],
+    [
+     5,
+     "2026-11-06",
+     "Altekma",
+     "Akedaş Onikişubat Belediye Spor",
+     "17-25,27-25,19-25,25-22,15-13"
+    ],
+    [
+     5,
+     "2026-11-06",
+     "Sungurlu Belediyesi Spor",
+     "Halkbank",
+     "17-25,23-25,21-25"
+    ],
+    [
+     5,
+     "2026-11-06",
+     "Fenerbahçe Medicana",
+     "Gebze Belediyesi Spor",
+     "25-21,24-26,25-23,25-18"
+    ],
+    [
+     6,
+     "2026-11-14",
+     "On Hotels Alanya Belediyespor",
+     "Altekma",
+     "25-15,25-16,25-17"
+    ],
+    [
+     6,
+     "2026-11-14",
+     "Gebze Belediyesi Spor",
+     "Ziraat Bankkart",
+     "28-30,25-22,20-25,20-25"
+    ],
+    [
+     6,
+     "2026-11-14",
+     "Spor Toto",
+     "İstanbul Gençlik",
+     "31-29,25-22,25-19"
+    ],
+    [
+     6,
+     "2026-11-14",
+     "İBB Spor Kulübü",
+     "Gaziantep Gençlik Spor",
+     "25-17,25-18,25-22"
+    ]
+   ],
+   "upcoming": [
+    [
+     6,
+     "2026-11-14",
+     "16:00",
+     "Akedaş Onikişubat Belediye Spor",
+     "Sungurlu Belediyesi Spor",
+     "Merkez 1 Spor Salonu",
+     "TVF Voleybol TV"
+    ],
+    [
+     6,
+     "2026-11-14",
+     "19:00",
+     "Galatasaray Madeş Mobilya",
+     "Fenerbahçe Medicana",
+     "TVF Burhan Felek Vestel",
+     "TRT Spor"
+    ],
+    [
+     6,
+     "2026-11-14",
+     "19:00",
+     "Halkbank",
+     "Sultanbeyli Belediye Spor",
+     "TVF Ziraat Bankkart",
+     "TVF Voleybol TV"
+    ]
+   ],
+   "official": {
+    "Ziraat Bankkart": [
+     7,
+     19
+    ],
+    "Halkbank": [
+     5,
+     14
+    ],
+    "Galatasaray Madeş Mobilya": [
+     5,
+     12
+    ],
+    "Gebze Belediyesi Spor": [
+     6,
+     12
+    ],
+    "Fenerbahçe Medicana": [
+     5,
+     11
+    ],
+    "On Hotels Alanya Belediyespor": [
+     6,
+     11
+    ],
+    "Spor Toto": [
+     6,
+     11
+    ],
+    "İBB Spor Kulübü": [
+     6,
+     9
+    ],
+    "Altekma": [
+     6,
+     8
+    ],
+    "Gaziantep Gençlik Spor": [
+     6,
+     5
+    ],
+    "Akedaş Onikişubat Belediye Spor": [
+     5,
+     3
+    ],
+    "İstanbul Gençlik": [
+     6,
+     3
+    ],
+    "Sungurlu Belediyesi Spor": [
+     6,
+     0
+    ],
+    "Sultanbeyli Belediye Spor": [
+     5,
+     -1
+    ]
+   },
+   "penalties": {
+    "Sultanbeyli Belediye Spor": 3
+   }
+  }
+ ]
+}

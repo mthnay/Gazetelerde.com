@@ -14,6 +14,7 @@ export async function PATCH(request, { params }) {
     const data = {};
     if (b.name !== undefined) data.name = String(b.name).trim().slice(0, 80) || team.name;
     if (b.shortName !== undefined) data.shortName = String(b.shortName).trim().slice(0, 6);
+    if (b.penalty !== undefined) data.penalty = Math.max(0, Math.min(99, Number(b.penalty) || 0));
     if (b.logo !== undefined) data.logo = /^(\/media\/[a-z0-9]+|https:\/\/\S+)$/i.test(String(b.logo)) ? String(b.logo) : null;
     await prisma.team.update({ where: { id }, data });
     await revalidateLeague(team.leagueId);

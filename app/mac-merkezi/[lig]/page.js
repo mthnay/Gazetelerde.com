@@ -77,7 +77,7 @@ export default async function LeaguePage({ params }) {
                             <StandingsTable rows={g.standings} sport={league.sport} label={`${g.name} puan durumu`} />
                         </div>
                     ))}
-                    {volley && (standings.length > 0 || groups.length > 0) && <p className="field-hint" style={{ marginTop: 8 }}>3-0 ve 3-1 galibiyet 3 puan, 3-2 galibiyet 2 puan, 2-3 mağlubiyet 1 puan.</p>}
+                    {volley && (standings.length > 0 || groups.length > 0) && <p className="field-hint" style={{ marginTop: 8 }}>3-0 ve 3-1 galibiyet 3 puan, 3-2 galibiyet 2 puan, 2-3 mağlubiyet 1 puan. Sıralama önce galibiyet sayısına, sonra puana göre. * Ceza puanı düşüldü.</p>}
                 </section>
 
                 <section aria-labelledby="fikstur">

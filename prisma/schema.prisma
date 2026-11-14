@@ -539,6 +539,7 @@ model Team {
   followers TeamFollow[]
   clubId    Int?
   club      Club?        @relation(fields: [clubId], references: [id], onDelete: SetNull)
+  penalty   Int          @default(0) // ceza puanı (ör. hükmen yenilgi), puan durumundan düşülür
 
   @@unique([leagueId, name])
 }

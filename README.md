@@ -145,7 +145,7 @@ npm ci && npm run db:deploy && npm run build && npm start
   istemlerini ve şemaları kullanır; sonuç ayrıca şemaya göre denetlenir. Kullanım `/admin/sistem`'de.
 - **Voleybol veri merkezi:** `/admin/voleybol` (kulüpler, oyuncular, toplu kadro yapıştırma, transferler).
   Kulüp lig takımlarıyla aynı adla eklenirse maçları otomatik bağlanır. Sayfalar: `/voleybol`, `/oyuncu/<slug>`,
-  `/takim/<slug>`, `/oyuncular`, `/transfer`, `/mac/<id>`, `/rehber`. Sezon: `VOLLEY_SEASON` (varsayılan 2025-26).
+  `/takim/<slug>`, `/oyuncular`, `/transfer`, `/mac/<id>`, `/rehber`. Sezon tarihten hesaplanır (Ağustos'ta yeni sezon), `VOLLEY_SEASON` ile sabitlenebilir.
 - **Maç istatistiği:** `/admin/mac/<id>`; elle ya da yapıştırılan tabloyu yapay zekâyla ayrıştırarak. İstatistik
   liderleri lig ve voleybol sayfalarında.
 - **Canlı skor:** `/admin/mac/<id>/canli` sayı sayı (A / L / Z kısayolları). Kurallar `lib/volleyScore.js`

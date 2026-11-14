@@ -1,7 +1,7 @@
 import Link from 'next/link';
 
 const STATUS = { SCHEDULED: '', LIVE: 'CANLI', FINISHED: 'MS', POSTPONED: 'Ertelendi' };
-const time = (iso) => new Intl.DateTimeFormat('tr-TR', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Istanbul' }).format(new Date(iso));
+const time = (iso) => { const t = new Intl.DateTimeFormat('tr-TR', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Istanbul' }).format(new Date(iso)); return t === '00:00' ? 'Saat belli değil' : t; };
 const day = (iso) => new Intl.DateTimeFormat('tr-TR', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'Europe/Istanbul' }).format(new Date(iso));
 
 function Team({ t, score, win, align }) {

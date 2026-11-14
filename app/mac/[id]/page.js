@@ -19,7 +19,11 @@ const load = (id) => prisma.match.findUnique({
         stats: { orderBy: { points: 'desc' }, include: { player: { select: { slug: true, name: true, position: true } } } },
     },
 });
-const fmt = (d) => new Intl.DateTimeFormat('tr-TR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Istanbul' }).format(d);
+// Saati bilinmeyen maçlar 00:00 (İstanbul) kaydedilir; o durumda yalnızca tarih gösterilir
+const fmt = (d) => {
+    const noTime = new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit', hourCycle: 'h23', timeZone: 'Europe/Istanbul' }).format(d) === '00:00';
+    return new Intl.DateTimeFormat('tr-TR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', ...(noTime ? {} : { hour: '2-digit', minute: '2-digit' }), timeZone: 'Europe/Istanbul' }).format(d);
+};
 
 export async function generateMetadata({ params }) {
     const id = Number((await params).id);

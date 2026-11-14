@@ -161,6 +161,8 @@ export default function LeagueAdmin({ league, teams, matches }) {
                             {teams.map((t) => (
                                 <li key={t.id} className="admin-list-row">
                                     <span style={{ flex: 1 }}>{t.name}{t.shortName && <small className="muted"> · {t.shortName}</small>}</span>
+                                    <input className="admin-input" type="number" min="0" max="99" defaultValue={t.penalty || 0} title="Ceza puanı (puan durumundan düşülür)" aria-label={`${t.name} ceza puanı`} style={{ width: 64 }}
+                                        onBlur={async (e) => { if (Number(e.target.value) !== (t.penalty || 0)) { const d = await api(`/api/admin/teams/${t.id}`, 'PATCH', { penalty: e.target.value }); if (d.success) done(); else err(d.message); } }} />
                                     <button type="button" className="admin-icon-btn danger" onClick={() => removeTeam(t)} aria-label={`${t.name} takımını sil`}><Trash2 size={14} /></button>
                                 </li>
                             ))}
