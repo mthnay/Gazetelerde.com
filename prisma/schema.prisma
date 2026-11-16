@@ -866,3 +866,11 @@ model PredictionGroupMember {
   @@id([groupId, userId])
   @@index([userId])
 }
+
+// Panelden düzenlenen site ayarları (anahtar → JSON). Ör. "home.layout": ana sayfa blokları
+model SiteSetting {
+  key         String   @id
+  value       Json
+  updatedAt   DateTime @updatedAt @db.Timestamptz(3)
+  updatedById String?
+}

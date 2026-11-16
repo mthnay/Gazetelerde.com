@@ -1,7 +1,7 @@
 "use client";
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { LayoutDashboard, FileText, MessageSquare, Users, Rss, Mail, Volleyball, Megaphone, HeartHandshake, Vote, Trophy, CalendarDays, Images, Tags, BarChart3, BellRing, Activity, LogOut, ExternalLink } from 'lucide-react';
+import { LayoutDashboard, LayoutTemplate, FileText, MessageSquare, Users, Rss, Mail, Volleyball, Megaphone, HeartHandshake, Vote, Trophy, CalendarDays, Images, Tags, BarChart3, BellRing, Activity, LogOut, ExternalLink } from 'lucide-react';
 import { canModerate, canManageUsers, canPublish, ROLE_LABELS } from '@/lib/permissions';
 import { useSession } from '@/components/SessionProvider';
 
@@ -13,6 +13,7 @@ export default function AdminShell({ user, children }) {
     const items = [
         { href: '/admin', icon: LayoutDashboard, label: 'Genel Bakış', exact: true },
         { href: '/admin/haberler', icon: FileText, label: 'Haberler' },
+        canPublish(user) && { href: '/admin/ana-sayfa', icon: LayoutTemplate, label: 'Ana Sayfa' },
         { href: '/admin/takvim', icon: CalendarDays, label: 'Yayın Takvimi' },
         { href: '/admin/gorseller', icon: Images, label: 'Görseller' },
         { href: '/admin/icerik-cek', icon: Rss, label: 'İçerik Çek' },
