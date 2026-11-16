@@ -191,7 +191,7 @@ export default async function Home() {
         )))}
       </div>
 
-      <div className="container" style={{ marginTop: 'clamp(40px, 6vw, 72px)' }}>
+      <div className="container" style={{ marginTop: 'clamp(28px, 4vw, 44px)' }}>
         <AdSlot place="ana-orta" />
         <Newsletter />
       </div>

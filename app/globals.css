@@ -852,9 +852,16 @@ a:hover .media img, .media:hover img { transform: scale(1.06); }
 .article-body li > p:last-child { margin-bottom: 0; }
 
 /* ---------- Ana sayfa: boşluksuz düzen ---------- */
-.home-band { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(18px, 2.5vw, 32px); align-items: stretch; padding-bottom: clamp(36px, 5vw, 56px); }
+.home-band { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(18px, 2.5vw, 32px); align-items: stretch; padding-bottom: clamp(20px, 3vw, 32px); }
 .home-band > * { height: 100%; }
-.home-cats { display: flex; flex-direction: column; gap: clamp(44px, 6vw, 72px); padding-top: clamp(40px, 6vw, 72px); }
+.home-cats { display: flex; flex-direction: column; gap: clamp(28px, 3.5vw, 44px); padding-top: clamp(24px, 3.5vw, 40px); }
+/* Ana sayfa: bölümler arası boşluklar sıkılaştırıldı */
+.volley-home.section, .home-band.section { padding-top: clamp(24px, 3.5vw, 40px); }
+.volley-home.section { padding-bottom: clamp(20px, 3vw, 32px); }
+.home-band .section-head, .home-cats .section-head, .volley-home .section-head { margin-bottom: 18px; }
+.marquee-band { padding: 10px 0; }
+.marquee-band-track { font-size: clamp(32px, 5vw, 64px); }
+.front-strip { margin-top: clamp(20px, 3vw, 32px); }
 .cat-row .cat-block { align-items: start; }
 .cat-row .cat-block-list .story--row:not(:first-child) { padding-top: 18px; border-top: 1px solid var(--line); }
 .cat-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(24px, 3.5vw, 48px); }

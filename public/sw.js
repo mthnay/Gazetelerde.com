@@ -3,9 +3,11 @@
 // - Çevrimdışı okuma: ziyaret edilen sayfalar önbelleğe alınır (önce ağ, ağ yoksa önbellek)
 // - Statik dosyalar (JS/CSS/yazı tipi) ve görseller: önce önbellek
 // Yönetim paneli ve API istekleri asla önbelleğe alınmaz.
-const PAGES = 'gz-sayfalar-v1';
-const ASSETS = 'gz-dosyalar-v1';
-const MEDIA = 'gz-gorseller-v1';
+// Sürüm artınca eski önbellekler (ve içlerindeki hatalı "çevrimdışı" yanıtları) silinir
+const PAGES = 'gz-sayfalar-v2';
+const ASSETS = 'gz-dosyalar-v2';
+const MEDIA = 'gz-gorseller-v2';
+const SLOW_MS = 6000; // ağ bu kadar yavaşsa ve sayfanın kopyası varsa önce kopya gösterilir
 const OFFLINE = '/cevrimdisi';
 const MAX_PAGES = 60, MAX_MEDIA = 150;
 
@@ -35,19 +37,26 @@ self.addEventListener('fetch', (event) => {
     if (url.origin !== location.origin) return;
     if (url.pathname.startsWith('/admin') || url.pathname.startsWith('/api/') || url.pathname.startsWith('/login') || url.searchParams.has('_rsc')) return;
 
-    // Sayfalar: önce ağ (3 sn zaman aşımı), olmazsa önbellek, o da yoksa çevrimdışı sayfası
+    // Sayfalar: önce ağ. "Bağlantı yok" sayfası YALNIZCA ağ isteği gerçekten başarısız olursa gösterilir;
+    // yavaş bağlantıda (ilk açılış, giriş sonrası, mobil veri) beklenir, kopyası olan sayfada SLOW_MS sonra kopya gösterilir.
     if (req.mode === 'navigate') {
         event.respondWith((async () => {
-            try {
-                const preload = await event.preloadResponse;
-                const res = preload || await Promise.race([fetch(req), new Promise((_, rej) => setTimeout(() => rej(new Error('zaman aşımı')), 3000))]);
+            const network = (async () => {
+                const res = (await event.preloadResponse.catch(() => null)) || await fetch(req);
                 if (res.ok && !url.pathname.startsWith('/profile')) {
                     const copy = res.clone();
                     event.waitUntil(caches.open(PAGES).then((c) => c.put(url.pathname, copy)).then(() => trim(PAGES, MAX_PAGES)));
                 }
                 return res;
+            })();
+            const cached = caches.match(url.pathname, { cacheName: PAGES });
+            const slow = new Promise((resolve) => setTimeout(async () => resolve(await cached), SLOW_MS));
+            try {
+                // Ağ yanıtı ya da (yavaşsa) önbellekteki kopya; kopya yoksa ağ beklenmeye devam edilir
+                const first = await Promise.race([network, slow]);
+                return first || await network;
             } catch {
-                return (await caches.match(url.pathname)) || (await caches.match(OFFLINE)) || Response.error();
+                return (await cached) || (await caches.match(OFFLINE)) || Response.error();
             }
         })());
         return;
