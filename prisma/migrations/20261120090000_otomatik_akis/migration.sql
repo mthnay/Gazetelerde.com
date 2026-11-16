@@ -12,7 +12,12 @@ ADD COLUMN     "include" TEXT NOT NULL DEFAULT '',
 ADD COLUMN     "exclude" TEXT NOT NULL DEFAULT '',
 ADD COLUMN     "breaking" BOOLEAN NOT NULL DEFAULT false,
 ADD COLUMN     "rewrite" BOOLEAN NOT NULL DEFAULT true,
-ADD COLUMN     "sport" TEXT NOT NULL DEFAULT 'voleybol';
+ADD COLUMN     "sport" TEXT NOT NULL DEFAULT 'voleybol',
+ADD COLUMN     "preset" TEXT,
+ADD COLUMN     "keepDays" INTEGER NOT NULL DEFAULT 0;
+
+-- CreateIndex
+CREATE UNIQUE INDEX "FeedSource_preset_key" ON "FeedSource"("preset");
 
 -- AlterTable
 ALTER TABLE "FeedItem" ADD COLUMN     "error" TEXT;

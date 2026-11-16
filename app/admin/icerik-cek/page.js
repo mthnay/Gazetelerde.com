@@ -5,6 +5,8 @@ import { canPublish } from '@/lib/permissions';
 import FeedImporter from '@/components/admin/FeedImporter';
 import FeedInbox from '@/components/admin/FeedInbox';
 import FeedSources from '@/components/admin/FeedSources';
+import FeedPresets from '@/components/admin/FeedPresets';
+import { PRESETS, PRESET_DEFAULTS } from '@/lib/feedPresets';
 
 export const metadata = { title: 'İçerik Çek | Yönetim' };
 
@@ -18,10 +20,14 @@ export default async function ImportPage({ searchParams }) {
         prisma.feedItem.groupBy({ by: ['status'], _count: true }),
         prisma.feedSource.findMany({
             orderBy: { createdAt: 'asc' },
-            select: { id: true, name: true, url: true, active: true, kind: true, mode: true, sport: true, linkPattern: true, include: true, exclude: true, breaking: true, rewrite: true, lastFetchedAt: true, lastError: true, category: { select: { slug: true, label: true } }, _count: { select: { items: true } } },
+            select: { id: true, name: true, url: true, active: true, kind: true, mode: true, sport: true, linkPattern: true, include: true, exclude: true, breaking: true, rewrite: true, preset: true, keepDays: true, lastFetchedAt: true, lastError: true, category: { select: { slug: true, label: true } }, _count: { select: { items: true } } },
         }),
         prisma.category.findMany({ orderBy: { sortOrder: 'asc' }, select: { slug: true, label: true } }),
     ]);
+    // Hazır kaynak başına yayında olan haber sayısı
+    const published = tab === 'kaynaklar' ? Object.fromEntries((await prisma.feedItem.groupBy({
+        by: ['sourceId'], where: { article: { is: { status: 'PUBLISHED' } } }, _count: true,
+    })).map((r) => [r.sourceId, r._count])) : {};
     const count = (s) => counts.find((c) => c.status === s)?._count ?? 0;
 
     const items = tab === 'gelen' ? await prisma.feedItem.findMany({
@@ -75,6 +81,15 @@ export default async function ImportPage({ searchParams }) {
                         sourceName: i.source.name,
                         category: i.source.category?.slug ?? '',
                     }))}
+                />
+            )}
+            {tab === 'kaynaklar' && (
+                <FeedPresets
+                    canManage={canPublish(user)}
+                    presets={PRESETS.map((p) => {
+                        const s = sources.find((x) => x.preset === p.key);
+                        return { key: p.key, name: p.name, description: p.description, active: Boolean(s?.active), keepDays: s?.keepDays || PRESET_DEFAULTS.keepDays, lastError: s?.lastError || null, published: published[s?.id] || 0 };
+                    })}
                 />
             )}
             {tab === 'kaynaklar' && (

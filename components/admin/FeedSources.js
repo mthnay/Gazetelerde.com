@@ -104,7 +104,7 @@ export default function FeedSources({ sources, categories, canManage }) {
                             <tbody>
                                 {sources.map((s) => (
                                     <tr key={s.id}>
-                                        <td className="title-cell">{s.name}<div style={{ fontWeight: 400, fontSize: 12, color: 'var(--muted)', wordBreak: 'break-all' }}>{s.kind === 'HTML' ? 'Web sayfası · ' : ''}{s.sport === 'spor' ? 'Genel spor · ' : 'Voleybol · '}{s.url}</div>
+                                        <td className="title-cell">{s.name}<div style={{ fontWeight: 400, fontSize: 12, color: 'var(--muted)', wordBreak: 'break-all' }}>{s.preset ? 'Hazır kaynak · ' : ''}{s.kind === 'HTML' ? 'Web sayfası · ' : ''}{s.sport === 'spor' ? 'Genel spor · ' : 'Voleybol · '}{s.url}</div>
                                             {(s.include || s.exclude) && <div style={{ fontWeight: 400, fontSize: 12, color: 'var(--muted)' }}>{s.include && `+ ${s.include}`} {s.exclude && `− ${s.exclude}`}</div>}
                                             {s.lastError && <div style={{ fontWeight: 400, fontSize: 12, color: 'var(--a-danger)', display: 'flex', gap: 4, alignItems: 'center', marginTop: 4 }}><AlertTriangle size={12} /> {s.lastError}</div>}
                                         </td>
@@ -120,6 +120,7 @@ export default function FeedSources({ sources, categories, canManage }) {
                                             </select>
                                             <div style={{ display: 'flex', gap: 10, marginTop: 6, fontSize: 12 }}>
                                                 <label><input type="checkbox" checked={s.breaking} disabled={!canManage || busy === s.id} onChange={(e) => patch(s, { breaking: e.target.checked })} /> Son dakika</label>
+                                                <label title="Bu kaynaktan yayımlanan haberler kaç gün sonra arşivlensin (0 = hiç)">Arşiv <input type="number" min="0" max="365" defaultValue={s.keepDays} disabled={!canManage || busy === s.id} onBlur={(e) => { const v = Number(e.target.value); if (Number.isInteger(v) && v !== s.keepDays) patch(s, { keepDays: v }); }} style={{ width: 48 }} /> gün</label>
                                                 <label title="Yapay zekâ açıksa metin özgün habere dönüştürülür"><input type="checkbox" checked={s.rewrite} disabled={!canManage || busy === s.id} onChange={(e) => patch(s, { rewrite: e.target.checked })} /> AI ile yeniden yaz</label>
                                             </div>
                                         </td>

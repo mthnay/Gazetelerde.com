@@ -352,6 +352,10 @@ model FeedSource {
   rewrite       Boolean   @default(true) // yapay zekâ açıksa metni özgün habere dönüştür
   // Kategori bulunamazsa: voleybol haberleri için lig tahmini yapılır, spor kaynakları "spor"a düşer
   sport         String    @default("voleybol")
+  // Hazır kaynak anahtarı (lib/feedPresets.js); elle eklenen kaynaklarda boş
+  preset        String?   @unique
+  // Bu kaynaktan yayımlanan haberler kaç gün sonra arşivlenir (0 = arşivleme)
+  keepDays      Int       @default(0)
   lastFetchedAt DateTime? @db.Timestamptz(3)
   lastError     String?
   createdAt     DateTime  @default(now()) @db.Timestamptz(3)
