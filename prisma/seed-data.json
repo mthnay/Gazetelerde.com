@@ -83,5 +83,48 @@
       "category": "spor",
       "authorName": "Spor Servisi"
     }
+  ],
+  "feedSources": [
+    {
+      "name": "TVF Haberler",
+      "url": "https://tvf.org.tr/icerikler/haberler",
+      "kind": "HTML",
+      "linkPattern": "/icerik/",
+      "sport": "voleybol",
+      "mode": "REVIEW",
+      "category": null
+    },
+    {
+      "name": "FIVB",
+      "url": "https://www.fivb.com/feed/",
+      "kind": "RSS",
+      "sport": "voleybol",
+      "mode": "REVIEW",
+      "category": null
+    },
+    {
+      "name": "Voleybol Plus",
+      "url": "https://www.voleybolplus.com/feed",
+      "kind": "RSS",
+      "sport": "voleybol",
+      "mode": "REVIEW",
+      "category": null
+    },
+    {
+      "name": "AA Spor",
+      "url": "https://www.aa.com.tr/tr/rss/default?cat=spor",
+      "kind": "RSS",
+      "sport": "spor",
+      "mode": "REVIEW",
+      "category": null
+    },
+    {
+      "name": "TRT Haber Spor",
+      "url": "https://www.trthaber.com/spor_articles.rss",
+      "kind": "RSS",
+      "sport": "spor",
+      "mode": "REVIEW",
+      "category": null
+    }
   ]
 }

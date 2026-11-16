@@ -4,7 +4,7 @@ import { SITE_NAME, SITE_DESCRIPTION } from '@/lib/site';
 // iPhone'da bildirimler yalnızca ana ekrana eklenmiş sitede çalışır.
 export default function manifest() {
     return {
-        name: `${SITE_NAME} — Son dakika haberler`,
+        name: `${SITE_NAME} — Voleybol haberleri`,
         short_name: SITE_NAME,
         description: SITE_DESCRIPTION,
         lang: 'tr',
@@ -22,7 +22,7 @@ export default function manifest() {
             { src: '/apple-icon', sizes: '180x180', type: 'image/png' },
         ],
         shortcuts: [
-            { name: 'Son dakika', url: '/?utm_source=uygulama-kisayol', description: 'En yeni haberler' },
+            { name: 'Son dakika', url: '/?utm_source=uygulama-kisayol', description: 'En yeni voleybol ve spor haberleri' },
             { name: 'Maç Merkezi', url: '/mac-merkezi?utm_source=uygulama-kisayol', description: 'Canlı skorlar ve puan durumu' },
             { name: 'Kaydettiklerim', url: '/profile?sekme=bookmarks', description: 'Sonra okumak için kaydettiğiniz haberler' },
         ],

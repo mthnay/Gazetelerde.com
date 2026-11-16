@@ -133,8 +133,11 @@ model Article {
   revisions   ArticleRevision[]
   feedItem    FeedItem?
 
-  // İçerik dışarıdan alındıysa (RSS / link) kaynağı
-  sourceUrl String?
+  // İçerik dışarıdan alındıysa (RSS / link / otomatik akış) kaynağı
+  sourceUrl  String?
+  sourceName String?
+  // Dış yayın akışından (POST /api/ingest/articles) gelen haberin kimliği: tekrar gönderilince güncellenir
+  externalId String?  @unique
 
   // Haber sayfasının düzeni: { hero, width, aside, dropcap } (bkz. lib/layout.js)
   layout Json?
@@ -320,11 +323,35 @@ model ArticleRevision {
   @@index([articleId, createdAt])
 }
 
+enum FeedKind {
+  RSS // RSS 2.0 / Atom akışı
+  HTML // akışı olmayan siteler (ör. TVF): liste sayfasındaki haber bağlantıları toplanır
+}
+
+// Kaynaktan gelen yeni haberlere ne yapılacağı
+enum FeedMode {
+  INBOX // yalnızca gelen kutusuna düşer (elle taslak yapılır)
+  DRAFT // otomatik taslak haber oluşturulur
+  REVIEW // otomatik oluşturulur, editör onayına düşer
+  PUBLISH // otomatik yayımlanır
+}
+
 model FeedSource {
   id            Int       @id @default(autoincrement())
   name          String
   url           String    @unique
   active        Boolean   @default(true)
+  kind          FeedKind  @default(RSS)
+  mode          FeedMode  @default(INBOX)
+  // HTML kaynaklarda haber bağlantılarının içermesi gereken yol parçası (ör. "/icerik/")
+  linkPattern   String    @default("")
+  // Virgülle ayrılmış anahtar kelimeler: include doluysa en az biri geçmeli; exclude'dan biri geçerse atlanır
+  include       String    @default("")
+  exclude       String    @default("")
+  breaking      Boolean   @default(false) // bu kaynaktan gelen her haber son dakika sayılır
+  rewrite       Boolean   @default(true) // yapay zekâ açıksa metni özgün habere dönüştür
+  // Kategori bulunamazsa: voleybol haberleri için lig tahmini yapılır, spor kaynakları "spor"a düşer
+  sport         String    @default("voleybol")
   lastFetchedAt DateTime? @db.Timestamptz(3)
   lastError     String?
   createdAt     DateTime  @default(now()) @db.Timestamptz(3)
@@ -350,6 +377,7 @@ model FeedItem {
   image       String?
   publishedAt DateTime?      @db.Timestamptz(3)
   status      FeedItemStatus @default(NEW)
+  error       String? // otomatik işleme hatası
   createdAt   DateTime       @default(now()) @db.Timestamptz(3)
 
   sourceId  Int

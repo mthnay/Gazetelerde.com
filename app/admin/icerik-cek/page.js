@@ -18,7 +18,7 @@ export default async function ImportPage({ searchParams }) {
         prisma.feedItem.groupBy({ by: ['status'], _count: true }),
         prisma.feedSource.findMany({
             orderBy: { createdAt: 'asc' },
-            select: { id: true, name: true, url: true, active: true, lastFetchedAt: true, lastError: true, category: { select: { slug: true, label: true } }, _count: { select: { items: true } } },
+            select: { id: true, name: true, url: true, active: true, kind: true, mode: true, sport: true, linkPattern: true, include: true, exclude: true, breaking: true, rewrite: true, lastFetchedAt: true, lastError: true, category: { select: { slug: true, label: true } }, _count: { select: { items: true } } },
         }),
         prisma.category.findMany({ orderBy: { sortOrder: 'asc' }, select: { slug: true, label: true } }),
     ]);
@@ -42,7 +42,7 @@ export default async function ImportPage({ searchParams }) {
             <header className="admin-header">
                 <div>
                     <h1>İçerik Çek</h1>
-                    <p>Tanımlı kaynaklar düzenli olarak taranır; yeni haberler gelen kutusuna düşer. Hiçbir şey otomatik yayınlanmaz.</p>
+                    <p>Tanımlı kaynaklar (RSS ya da akışı olmayan siteler için haber listesi sayfası) düzenli olarak taranır. Her kaynak için yeni haberlerin gelen kutusuna mı düşeceğini, taslak / onaya mı gideceğini yoksa doğrudan mı yayımlanacağını seçin. Dış otomasyonlar için: POST /api/ingest/articles.</p>
                 </div>
             </header>
             <div className="admin-toolbar">

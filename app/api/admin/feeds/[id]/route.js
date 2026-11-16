@@ -2,15 +2,14 @@ import { prisma } from '@/lib/db';
 import { ok, fail, readJson } from '@/lib/api';
 import { requireStaff, idParam } from '@/lib/adminApi';
 import { canPublish } from '@/lib/permissions';
-import { pollSource } from '@/lib/feeds';
+import { pollSource, feedSettings } from '@/lib/feeds';
 
 export async function PATCH(request, { params }) {
     const { error } = await requireStaff(canPublish);
     if (error) return error;
     const id = await idParam(params);
     const body = await readJson(request);
-    const data = {};
-    if (typeof body?.active === 'boolean') data.active = body.active;
+    const data = feedSettings(body);
     if (body?.category !== undefined) {
         const c = body.category ? await prisma.category.findUnique({ where: { slug: String(body.category) } }) : null;
         data.categoryId = c?.id ?? null;

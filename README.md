@@ -47,6 +47,34 @@ Tam liste ve açıklamalar: [`.env.example`](.env.example). En önemlileri:
 | `NEXT_PUBLIC_IMAGE_HOSTS` | Optimize edilecek görsel alan adları (virgülle) |
 | `COMPANY_*`, `CONTACT_*`, `KVKK_EMAIL`, `HOSTING_PROVIDER` | Künye / KVKK / İletişim sayfalarındaki kurum bilgileri |
 
+## Otomatik haber akışı
+
+Site yalnızca voleybol ve spor haberi yayımlar. Haberler iki yoldan otomatik gelir:
+
+1. **Kaynak tarama** (`/admin/icerik-cek` → Kaynaklar): RSS/Atom akışları ya da akışı olmayan siteler
+   (ör. TVF, tür: *Web sayfası*, bağlantı kalıbı `/icerik/`) `FEED_POLL_MINUTES` dakikada bir taranır.
+   Her kaynak için yeni haberlere ne olacağı seçilir: *Gelen kutusu*, *Taslak*, *Onaya gönder* ya da *Otomatik yayımla*.
+   Kategori metinden bulunur (Sultanlar / Efeler / Milli / Avrupa / Transfer / Alt ligler / Plaj, voleybol dışı → Spor, `lib/classify.js`).
+   Yapay zekâ anahtarı tanımlıysa metin özgün habere dönüştürülür; değilse otomatik yayında yalnızca kısa özet + kaynak bağlantısı yayımlanır.
+   Hazır kaynaklar `db:seed` ile **kapalı** eklenir (TVF, FIVB, Voleybol Plus, AA Spor, TRT Haber Spor).
+2. **Dış otomasyon** (n8n, kendi botunuz): `POST /api/ingest/articles`, başlık `Authorization: Bearer $INGEST_SECRET`.
+   Gövde tek haber ya da `{ "articles": [...] }`; aynı `externalId` tekrar gelirse haber güncellenir.
+
+```bash
+curl -X POST https://gazetelerde.com/api/ingest/articles \
+  -H "Authorization: Bearer $INGEST_SECRET" -H "Content-Type: application/json" \
+  -d '{"externalId":"tvf-123","title":"Filenin Sultanları kampa giriyor","summary":"…","paragraphs":["…"],
+       "sourceName":"TVF","sourceUrl":"https://tvf.org.tr/icerik/…","breaking":false,"status":"REVIEW"}'
+```
+
+| Değişken | Açıklama |
+|---|---|
+| `INGEST_SECRET` | Dış akış anahtarı (en az 16 karakter; boşsa uç kapalı) |
+| `INGEST_DEFAULT_STATUS` | Gövdede `status` yoksa: `DRAFT`, `REVIEW` (varsayılan) ya da `PUBLISH` |
+| `FEED_POLL_MINUTES` | Kaynak tarama sıklığı (varsayılan 30, 0 = kapalı) |
+| `FEED_AUTO_PER_RUN` | Bir taramada kaynak başına en fazla kaç haber işlenir (varsayılan 8) |
+| `AUTO_AUTHOR_NAME` | Otomatik haberlerde görünen yazar adı (varsayılan "Gazetelerde Spor") |
+
 ## Yayına alma
 
 ### Docker (önerilen)

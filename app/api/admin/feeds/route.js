@@ -3,7 +3,7 @@ import { ok, fail, readJson } from '@/lib/api';
 import { requireStaff } from '@/lib/adminApi';
 import { canPublish } from '@/lib/permissions';
 import { validatePublicUrl } from '@/lib/safeFetch';
-import { pollSource } from '@/lib/feeds';
+import { pollSource, feedSettings } from '@/lib/feeds';
 
 // Kaynak ekle (editör / yönetici)
 export async function POST(request) {
@@ -17,7 +17,7 @@ export async function POST(request) {
     const category = body?.category ? await prisma.category.findUnique({ where: { slug: String(body.category) } }) : null;
     const exists = await prisma.feedSource.findUnique({ where: { url } });
     if (exists) return fail('Bu akış zaten ekli.', 409);
-    const source = await prisma.feedSource.create({ data: { name, url, categoryId: category?.id ?? null } });
+    const source = await prisma.feedSource.create({ data: { ...feedSettings(body), name, url, categoryId: category?.id ?? null } });
     const first = await pollSource(source); // eklerken bir kez tara: adres çalışıyor mu hemen görülsün
     return ok({ source, poll: first }, 201);
 }

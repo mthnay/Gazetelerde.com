@@ -32,7 +32,7 @@ const bootScript = `(function(){var d=document.documentElement;try{var t=localSt
 
 export const metadata = {
   metadataBase: new URL(SITE_URL),
-  title: "Gazetelerde | Geleceğin Haberciliği",
+  title: "Gazetelerde | Voleybol Haberleri ve Canlı Skor",
   description: SITE_DESCRIPTION,
   applicationName: SITE_NAME,
   // iPhone ana ekran uygulaması

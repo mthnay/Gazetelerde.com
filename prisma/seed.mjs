@@ -14,6 +14,12 @@ async function main() {
     }
     const cats = Object.fromEntries((await prisma.category.findMany()).map((c) => [c.slug, c.id]));
 
+    // Hazır haber kaynakları kapalı (active: false) eklenir; yönetim panelinden açılır.
+    // Var olan kaynağa dokunulmaz (panelde yapılan ayarlar korunur).
+    for (const { category, ...f } of data.feedSources || []) {
+        await prisma.feedSource.upsert({ where: { url: f.url }, update: {}, create: { ...f, active: false, categoryId: category ? cats[category] ?? null : null } });
+    }
+
     // Gerçek sitede örnek (uydurma) haberler yüklenmesin: SEED_DEMO_ARTICLES=0
     const demo = process.env.SEED_DEMO_ARTICLES !== '0';
     if (!demo) data.articles = [];

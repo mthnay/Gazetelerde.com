@@ -5,7 +5,7 @@ import { getLatestNews } from '@/lib/news';
 import { buildSafe } from '@/lib/db';
 
 export const revalidate = 120;
-export const metadata = { title: 'Foto Galeri | Gazetelerde', description: 'Gazetelerde foto galerileri: günün olayları fotoğraflarla.', alternates: { canonical: '/galeri' } };
+export const metadata = { title: 'Foto Galeri | Gazetelerde', description: 'Gazetelerde foto galerileri: maçlardan ve voleybol dünyasından kareler.', alternates: { canonical: '/galeri' } };
 
 export default async function Page() {
     const news = await buildSafe(() => getLatestNews({ format: 'galeri', take: 24 }), []);

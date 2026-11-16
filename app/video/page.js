@@ -5,7 +5,7 @@ import { getLatestNews } from '@/lib/news';
 import { buildSafe } from '@/lib/db';
 
 export const revalidate = 120;
-export const metadata = { title: 'Video | Gazetelerde', description: 'Gazetelerde video haberleri: maç özetleri, röportajlar ve son dakika görüntüleri.', alternates: { canonical: '/video' } };
+export const metadata = { title: 'Video | Gazetelerde', description: 'Gazetelerde video haberleri: voleybol maç özetleri, röportajlar ve en güzel sayılar.', alternates: { canonical: '/video' } };
 
 export default async function Page() {
     const news = await buildSafe(() => getLatestNews({ format: 'video', take: 24 }), []);
