@@ -80,6 +80,7 @@ curl -X POST https://gazetelerde.com/api/ingest/articles \
 | `FEED_BREAKING_HOURS` | Akış haberi kaç saat son dakika sayılır (varsayılan 24) |
 | `FEED_PUSH` | Akıştan gelen son dakikalar telefona bildirim olarak gider; `0` ile kapatılır |
 | `FEED_PUSH_PER_HOUR` | Akış bildirimleri için saatlik üst sınır (varsayılan 4) |
+| `DB_POOL` | Uygulamanın açacağı en fazla veritabanı bağlantısı (varsayılan 5; yayın sırasında sınır aşılmasın) |
 | `FEATURED_HOURS` | Manşet işareti kaç saat sonra kalkar (varsayılan 48, 0 = kalkmaz) |
 | `MANUAL_ARCHIVE_DAYS` | Elle yazılan haberler kaç gün sonra kalıcı silinir (varsayılan 0 = silinmez) |
 | `MOST_READ_DAYS` | "Çok Okunanlar" son kaç günden seçilir (varsayılan 3) |
