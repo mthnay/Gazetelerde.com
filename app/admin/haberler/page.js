@@ -15,12 +15,15 @@ export default async function AdminArticles({ searchParams }) {
     const status = ['PUBLISHED', 'REVIEW', 'DRAFT', 'ARCHIVED'].includes(sp.durum) ? sp.durum : undefined;
     const q = String(sp.q || '').trim().slice(0, 100);
     const page = Math.max(1, Number(sp.sayfa) || 1);
+    // Kaynak süzgeci: "elle" = elle yazılanlar, sayı = o akış kaynağından gelenler
+    const kaynak = sp.kaynak === 'elle' ? 'elle' : Number.isInteger(Number(sp.kaynak)) && Number(sp.kaynak) > 0 ? Number(sp.kaynak) : undefined;
 
     const scope = canPublish(user) ? {} : { authorId: user.id };
     const where = {
         ...scope,
         ...(status ? { status } : {}),
         ...(q ? { title: { contains: q, mode: 'insensitive' } } : {}),
+        ...(kaynak === 'elle' ? { feedSourceId: null, externalId: null } : kaynak ? { feedSourceId: kaynak } : {}),
     };
 
     const [rows, total, counts] = await Promise.all([
@@ -29,18 +32,20 @@ export default async function AdminArticles({ searchParams }) {
             select: {
                 id: true, slug: true, title: true, status: true, publishedAt: true, updatedAt: true, viewCount: true, featured: true, authorId: true,
                 authorName: true, author: { select: { name: true } }, category: { select: { label: true } },
+                sourceName: true, sourceUrl: true, feedSource: { select: { id: true, name: true } },
                 _count: { select: { comments: true } },
             },
         }),
         prisma.article.count({ where }),
         prisma.article.groupBy({ by: ['status'], where: scope, _count: true }),
     ]);
+    const sources = await prisma.feedSource.findMany({ where: { articles: { some: {} } }, orderBy: { name: 'asc' }, select: { id: true, name: true } });
 
     const countOf = (s) => (s ? counts.find((c) => c.status === s)?._count ?? 0 : counts.reduce((n, c) => n + c._count, 0));
     const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
     const href = (o) => {
         const p = new URLSearchParams();
-        const v = { durum: status, q, sayfa: undefined, ...o };
+        const v = { durum: status, q, kaynak, sayfa: undefined, ...o };
         Object.entries(v).forEach(([k, val]) => val && p.set(k, val));
         const s = p.toString();
         return `/admin/haberler${s ? `?${s}` : ''}`;
@@ -67,7 +72,15 @@ export default async function AdminArticles({ searchParams }) {
                 </nav>
                 <form className="admin-search" action="/admin/haberler">
                     {status && <input type="hidden" name="durum" value={status} />}
+                    {sources.length > 0 && (
+                        <select className="admin-select" name="kaynak" defaultValue={kaynak ?? ''} aria-label="Kaynağa göre süz" style={{ width: 'auto' }}>
+                            <option value="">Tüm kaynaklar</option>
+                            <option value="elle">Elle yazılanlar</option>
+                            {sources.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+                        </select>
+                    )}
                     <input className="admin-input" type="search" name="q" defaultValue={q} placeholder="Başlıkta ara..." aria-label="Başlıkta ara" />
+                    {sources.length > 0 && <button className="admin-btn">Süz</button>}
                 </form>
             </div>
 
@@ -76,7 +89,7 @@ export default async function AdminArticles({ searchParams }) {
                     <div className="admin-table-wrap">
                         <table className="admin-table">
                             <thead>
-                                <tr><th>Başlık</th><th>Kategori</th><th>Yazar</th><th>Durum</th><th>Tarih</th><th>Okunma</th><th></th></tr>
+                                <tr><th>Başlık</th><th>Kategori</th><th>Kaynak</th><th>Yazar</th><th>Durum</th><th>Tarih</th><th>Okunma</th><th></th></tr>
                             </thead>
                             <tbody>
                                 {rows.map((a) => {
@@ -89,6 +102,10 @@ export default async function AdminArticles({ searchParams }) {
                                                 {a.featured && <span className="badge" style={{ marginLeft: 8 }}>Manşet</span>}
                                             </td>
                                             <td className="muted">{a.category.label}</td>
+                                            <td className="muted">
+                                                {a.feedSource ? <Link href={href({ kaynak: a.feedSource.id })}>{a.feedSource.name}</Link>
+                                                    : a.sourceName || (a.sourceUrl ? (() => { try { return new URL(a.sourceUrl).hostname.replace(/^www\./, ''); } catch { return '—'; } })() : 'Elle')}
+                                            </td>
                                             <td className="muted">{a.author?.name || a.authorName || '—'}</td>
                                             <td><span className={`badge ${scheduled ? 'SCHEDULED' : a.status}`}>{scheduled ? 'Zamanlandı' : STATUS_LABELS[a.status]}</span></td>
                                             <td className="muted">{formatShortDate(a.publishedAt || a.updatedAt)}</td>

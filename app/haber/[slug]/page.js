@@ -6,6 +6,7 @@ import ShareRail from '@/components/ShareRail';
 import ReadingProgress from '@/components/motion/ReadingProgress';
 import NewsInteractions from '@/components/NewsInteractions';
 import MostRead from '@/components/MostRead';
+import SourceCredit from '@/components/SourceCredit';
 import SmartImage from '@/components/SmartImage';
 import PushOptIn from '@/components/PushOptIn';
 import LiveBlog from '@/components/LiveBlog';
@@ -216,7 +217,7 @@ export default async function NewsDetail({ params }) {
                             </nav>
                         )}
                         {item.sourceUrl && (
-                            <p className="article-source">Kaynak: <a href={item.sourceUrl} target="_blank" rel="noopener noreferrer nofollow">{new URL(item.sourceUrl).hostname.replace(/^www\./, '')}</a></p>
+                            <SourceCredit url={item.sourceUrl} name={item.sourceName} icon={item.sourceIcon} />
                         )}
                         {polls.map((p) => <PollWidget key={p.id} pollId={p.id} />)}
                         {!item.sponsored && <AdSlot place="haber-ici" />}

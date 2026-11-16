@@ -24,6 +24,7 @@ export default function SmartImage({ src, alt, sizes, priority = false, classNam
         // eslint-disable-next-line @next/next/no-img-element
         <img
             src={src} alt={alt} loading={priority ? 'eager' : 'lazy'} decoding="async"
+            referrerPolicy="no-referrer" // kaynak sitelerin "başka siteden görsel çekme" engeline takılmasın
             {...common} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', ...common.style }}
         />
     );

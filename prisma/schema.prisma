@@ -136,6 +136,9 @@ model Article {
   // İçerik dışarıdan alındıysa (RSS / link / otomatik akış) kaynağı
   sourceUrl  String?
   sourceName String?
+  // Otomatik akıştan geldiyse hangi kaynaktan (kaynak silinse de sourceName/sourceUrl kalır)
+  feedSourceId Int?
+  feedSource   FeedSource? @relation(fields: [feedSourceId], references: [id], onDelete: SetNull)
   // Dış yayın akışından (POST /api/ingest/articles) gelen haberin kimliği: tekrar gönderilince güncellenir
   externalId String?  @unique
 
@@ -145,6 +148,7 @@ model Article {
   @@index([search], type: Gin)
   @@index([status, publishedAt])
   @@index([categoryId, status, publishedAt])
+  @@index([feedSourceId, status])
 }
 
 model Comment {
@@ -353,6 +357,7 @@ model FeedSource {
   // Kategori bulunamazsa: voleybol haberleri için lig tahmini yapılır, spor kaynakları "spor"a düşer
   sport         String    @default("voleybol")
   note          String    @default("") // panelde gösterilen kısa açıklama
+  iconUrl       String? // kaynak sitenin simgesi (haber altındaki kaynak satırında, bağlantıyla gösterilir)
   // Bu kaynaktan yayımlanan haberler kaç gün sonra arşivlenir (0 = arşivleme)
   keepDays      Int       @default(7)
   lastFetchedAt DateTime? @db.Timestamptz(3)
@@ -363,6 +368,7 @@ model FeedSource {
   categoryId Int?
   category   Category?  @relation(fields: [categoryId], references: [id], onDelete: SetNull)
   items      FeedItem[]
+  articles   Article[]
 }
 
 enum FeedItemStatus {

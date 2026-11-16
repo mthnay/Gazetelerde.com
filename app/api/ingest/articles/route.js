@@ -28,7 +28,7 @@ export async function POST(request) {
             if (!a?.externalId) throw new Error('externalId zorunlu.');
             const sourceUrl = a.sourceUrl ? validatePublicUrl(a.sourceUrl).href : null;
             const image = a.image ? validatePublicUrl(a.image).href : null;
-            const r = await upsertExternalArticle({ ...a, sourceUrl, image, status: a.status || process.env.INGEST_DEFAULT_STATUS || 'REVIEW' });
+            const r = await upsertExternalArticle({ ...a, feedSourceId: undefined, sourceUrl, image, status: a.status || process.env.INGEST_DEFAULT_STATUS || 'REVIEW' });
             results.push({ externalId: a.externalId, ok: true, id: r.id, slug: r.slug, status: r.status, category: r.category, created: r.created });
         } catch (e) {
             results.push({ externalId: a?.externalId ?? null, ok: false, error: String(e?.message || e).slice(0, 200) });
