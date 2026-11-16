@@ -382,6 +382,11 @@ model FeedItem {
   status      FeedItemStatus @default(NEW)
   error       String? // otomatik işleme hatası
   attempts    Int            @default(0) // otomatik işleme deneme sayısı
+  // Kaynakta değişen haberi bizde de güncellemek için:
+  sourceHash  String? // kaynaktaki başlık + metnin parmak izi
+  syncedHash  String? // bizim yazdığımız başlık + metnin parmak izi (editör elle değiştirdiyse farklı olur)
+  checkedAt   DateTime?      @db.Timestamptz(3) // kaynak en son ne zaman yeniden kontrol edildi
+  updatedFromSource Int      @default(0) // kaynaktaki değişiklikle kaç kez güncellendi
   createdAt   DateTime       @default(now()) @db.Timestamptz(3)
 
   sourceId  Int

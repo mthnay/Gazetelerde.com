@@ -30,7 +30,11 @@ ON CONFLICT ("url") DO NOTHING;
 
 -- AlterTable
 ALTER TABLE "FeedItem" ADD COLUMN     "error" TEXT,
-ADD COLUMN     "attempts" INTEGER NOT NULL DEFAULT 0;
+ADD COLUMN     "attempts" INTEGER NOT NULL DEFAULT 0,
+ADD COLUMN     "sourceHash" TEXT,
+ADD COLUMN     "syncedHash" TEXT,
+ADD COLUMN     "checkedAt" TIMESTAMPTZ(3),
+ADD COLUMN     "updatedFromSource" INTEGER NOT NULL DEFAULT 0;
 
 -- AlterTable
 ALTER TABLE "Article" ADD COLUMN     "sourceName" TEXT,

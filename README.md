@@ -54,6 +54,8 @@ Site yalnızca voleybol ve spor haberi yayımlar. Haberler iki yoldan otomatik g
 1. **Kaynak tarama** (`/admin/icerik-cek` → Kaynaklar): RSS/Atom akışları ya da akışı olmayan siteler
    (ör. TVF, tür: *Web sayfası*, bağlantı kalıbı `/icerik/`) `FEED_POLL_MINUTES` dakikada bir taranır.
    Her kaynak için yeni haberlere ne olacağı seçilir: *Gelen kutusu*, *Taslak*, *Onaya gönder* ya da *Otomatik yayımla*.
+   Yayımlanan haberin kaynaktaki hâli 48 saat boyunca izlenir; kaynakta başlık ya da metin değişirse bizdeki haber de
+   güncellenir (kategori, yayın tarihi ve son dakika durumu korunur). Editör haberi elle düzenlediyse üzerine yazılmaz.
    Kategori metinden bulunur (Sultanlar / Efeler / Milli / Avrupa / Transfer / Alt ligler / Plaj, voleybol dışı → Spor, `lib/classify.js`).
    Yapay zekâ anahtarı tanımlıysa metin özgün habere dönüştürülür; değilse otomatik yayında yalnızca kısa özet + kaynak bağlantısı yayımlanır.
    **Hazır kaynaklar** (TVF, FIVB, Voleybol Plus, AA Spor, TRT Haber Spor; liste: `lib/feedPresets.js`) aynı sayfada
@@ -78,6 +80,8 @@ curl -X POST https://gazetelerde.com/api/ingest/articles \
 | `FEED_BREAKING_HOURS` | Akış haberi kaç saat son dakika sayılır (varsayılan 24) |
 | `FEED_PUSH` | Akıştan gelen son dakikalar telefona bildirim olarak gider; `0` ile kapatılır |
 | `FEED_PUSH_PER_HOUR` | Akış bildirimleri için saatlik üst sınır (varsayılan 4) |
+| `FEED_UPDATE_HOURS` | Kaynakta değişen haber kaç saat boyunca takip edilip bizde de güncellenir (varsayılan 48, 0 = kapalı) |
+| `FEED_UPDATE_PER_RUN` | Bir taramada kaynak başına kaç haber yeniden kontrol edilir (varsayılan 5) |
 | `AUTO_AUTHOR_NAME` | Otomatik haberlerde görünen yazar adı (varsayılan "Gazetelerde Spor") |
 
 ## Yayına alma
