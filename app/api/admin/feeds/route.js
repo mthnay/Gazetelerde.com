@@ -3,7 +3,7 @@ import { ok, fail, readJson } from '@/lib/api';
 import { requireStaff } from '@/lib/adminApi';
 import { canPublish } from '@/lib/permissions';
 import { validatePublicUrl } from '@/lib/safeFetch';
-import { pollSource, feedSettings } from '@/lib/feeds';
+import { pollSource, processNewItems, feedSettings } from '@/lib/feeds';
 
 // Kaynak ekle (editör / yönetici)
 export async function POST(request) {
@@ -18,6 +18,8 @@ export async function POST(request) {
     const exists = await prisma.feedSource.findUnique({ where: { url } });
     if (exists) return fail('Bu akış zaten ekli.', 409);
     const source = await prisma.feedSource.create({ data: { ...feedSettings(body), name, url, categoryId: category?.id ?? null } });
-    const first = await pollSource(source); // eklerken bir kez tara: adres çalışıyor mu hemen görülsün
+    // Eklerken bir kez oku: adres çalışıyor mu hemen görülsün. Otomatik işleme (yapay zekâ) arka planda.
+    const first = await pollSource({ ...source, mode: 'INBOX' });
+    if (source.mode !== 'INBOX') processNewItems(source).catch((e) => console.error('[kaynak eklendi]', name, e?.message));
     return ok({ source, poll: first }, 201);
 }

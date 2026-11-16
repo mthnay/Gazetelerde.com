@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
 import NewsGrid from '@/components/NewsGrid';
 import SectionHead from '@/components/SectionHead';
 import ShareRail from '@/components/ShareRail';
@@ -56,10 +56,20 @@ export async function generateMetadata({ params }) {
     };
 }
 
+// Arşive kaldırılan haberin eski bağlantısı kırık kalmasın: kalıcı olarak kategorisine yönlendir
+async function archivedTarget(slug) {
+    const a = await prisma.article.findFirst({ where: { slug, status: 'ARCHIVED' }, select: { category: { select: { slug: true } } } });
+    return a ? `/category/${a.category.slug}` : null;
+}
+
 export default async function NewsDetail({ params }) {
     const { slug } = await params;
     const item = await getArticleBySlug(slug);
-    if (!item) notFound();
+    if (!item) {
+        const to = await archivedTarget(slug);
+        if (to) permanentRedirect(to);
+        notFound();
+    }
 
     const [related, mostRead, comments, liveEntries, matches, polls] = await Promise.all([
         getRelatedNews(item),

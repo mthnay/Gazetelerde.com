@@ -342,20 +342,19 @@ model FeedSource {
   url           String    @unique
   active        Boolean   @default(true)
   kind          FeedKind  @default(RSS)
-  mode          FeedMode  @default(INBOX)
+  mode          FeedMode  @default(PUBLISH)
   // HTML kaynaklarda haber bağlantılarının içermesi gereken yol parçası (ör. "/icerik/")
   linkPattern   String    @default("")
   // Virgülle ayrılmış anahtar kelimeler: include doluysa en az biri geçmeli; exclude'dan biri geçerse atlanır
   include       String    @default("")
   exclude       String    @default("")
-  breaking      Boolean   @default(false) // bu kaynaktan gelen her haber son dakika sayılır
+  breaking      Boolean   @default(true) // bu kaynaktan gelen yeni haberler son dakika sayılır
   rewrite       Boolean   @default(true) // yapay zekâ açıksa metni özgün habere dönüştür
   // Kategori bulunamazsa: voleybol haberleri için lig tahmini yapılır, spor kaynakları "spor"a düşer
   sport         String    @default("voleybol")
-  // Hazır kaynak anahtarı (lib/feedPresets.js); elle eklenen kaynaklarda boş
-  preset        String?   @unique
+  note          String    @default("") // panelde gösterilen kısa açıklama
   // Bu kaynaktan yayımlanan haberler kaç gün sonra arşivlenir (0 = arşivleme)
-  keepDays      Int       @default(0)
+  keepDays      Int       @default(7)
   lastFetchedAt DateTime? @db.Timestamptz(3)
   lastError     String?
   createdAt     DateTime  @default(now()) @db.Timestamptz(3)
@@ -382,6 +381,7 @@ model FeedItem {
   publishedAt DateTime?      @db.Timestamptz(3)
   status      FeedItemStatus @default(NEW)
   error       String? // otomatik işleme hatası
+  attempts    Int            @default(0) // otomatik işleme deneme sayısı
   createdAt   DateTime       @default(now()) @db.Timestamptz(3)
 
   sourceId  Int

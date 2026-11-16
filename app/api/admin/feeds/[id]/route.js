@@ -16,6 +16,11 @@ export async function PATCH(request, { params }) {
     }
     const res = await prisma.feedSource.updateMany({ where: { id: id ?? -1 }, data });
     if (!res.count) return fail('Kaynak bulunamadı.', 404);
+    // Açılınca hemen bir kez tara; yapay zekâyla yeniden yazma uzun sürebileceği için isteği bekletmeden
+    if (data.active === true && !body?.poll) {
+        const s = await prisma.feedSource.findUnique({ where: { id } });
+        pollSource(s).catch((e) => console.error('[kaynak açıldı]', s.name, e?.message));
+    }
     if (body?.poll) {
         const s = await prisma.feedSource.findUnique({ where: { id } });
         return ok({ poll: await pollSource(s) });

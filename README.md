@@ -76,7 +76,8 @@ curl -X POST https://gazetelerde.com/api/ingest/articles \
 | `FEED_POLL_MINUTES` | Kaynak tarama sıklığı (varsayılan 30, 0 = kapalı) |
 | `FEED_AUTO_PER_RUN` | Bir taramada kaynak başına en fazla kaç haber işlenir (varsayılan 8) |
 | `FEED_BREAKING_HOURS` | Akış haberi kaç saat son dakika sayılır (varsayılan 24) |
-| `FEED_PUSH` | `1` ise akıştan gelen son dakikalar için telefon bildirimi de gönderilir (varsayılan kapalı) |
+| `FEED_PUSH` | Akıştan gelen son dakikalar telefona bildirim olarak gider; `0` ile kapatılır |
+| `FEED_PUSH_PER_HOUR` | Akış bildirimleri için saatlik üst sınır (varsayılan 4) |
 | `AUTO_AUTHOR_NAME` | Otomatik haberlerde görünen yazar adı (varsayılan "Gazetelerde Spor") |
 
 ## Yayına alma

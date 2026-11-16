@@ -8,7 +8,7 @@ const when = (d) => d ? new Date(d).toLocaleString('tr-TR', { day: 'numeric', mo
 
 export default function FeedSources({ sources, categories, canManage }) {
     const router = useRouter();
-    const [form, setForm] = useState({ name: '', url: '', category: '', kind: 'RSS', mode: 'REVIEW', sport: 'voleybol', linkPattern: '' });
+    const [form, setForm] = useState({ name: '', url: '', category: '', kind: 'RSS', mode: 'PUBLISH', sport: 'voleybol', linkPattern: '', note: '', breaking: true, keepDays: 7 });
     const [busy, setBusy] = useState(null);
     const [msg, setMsg] = useState(null);
 
@@ -65,6 +65,15 @@ export default function FeedSources({ sources, categories, canManage }) {
                     <label className="admin-field" style={{ margin: 0 }}><span>{form.kind === 'HTML' ? 'Haber listesi sayfası' : 'RSS / Atom adresi'}</span>
                         <input className="admin-input" type="url" required value={form.url} onChange={(e) => setForm({ ...form, url: e.target.value })} placeholder={form.kind === 'HTML' ? 'https://tvf.org.tr/icerikler/haberler' : 'https://…/rss'} />
                     </label>
+                    <label className="admin-field" style={{ margin: 0 }}><span>Açıklama (isteğe bağlı)</span>
+                        <input className="admin-input" value={form.note} onChange={(e) => setForm({ ...form, note: e.target.value })} placeholder="ör. Federasyon duyuruları" />
+                    </label>
+                    <label className="admin-field" style={{ margin: 0 }}><span>Arşiv (gün, 0 = hiç)</span>
+                        <input className="admin-input" type="number" min="0" max="365" value={form.keepDays} onChange={(e) => setForm({ ...form, keepDays: Number(e.target.value) })} />
+                    </label>
+                    <label className="admin-field" style={{ margin: 0, flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                        <input type="checkbox" checked={form.breaking} onChange={(e) => setForm({ ...form, breaking: e.target.checked })} /> <span>Son dakika</span>
+                    </label>
                     <label className="admin-field" style={{ margin: 0 }}><span>Tür</span>
                         <select className="admin-select" value={form.kind} onChange={(e) => setForm({ ...form, kind: e.target.value })}>
                             <option value="RSS">RSS / Atom</option><option value="HTML">Web sayfası (akışsız)</option>
@@ -104,7 +113,7 @@ export default function FeedSources({ sources, categories, canManage }) {
                             <tbody>
                                 {sources.map((s) => (
                                     <tr key={s.id}>
-                                        <td className="title-cell">{s.name}<div style={{ fontWeight: 400, fontSize: 12, color: 'var(--muted)', wordBreak: 'break-all' }}>{s.preset ? 'Hazır kaynak · ' : ''}{s.kind === 'HTML' ? 'Web sayfası · ' : ''}{s.sport === 'spor' ? 'Genel spor · ' : 'Voleybol · '}{s.url}</div>
+                                        <td className="title-cell">{s.name}<div style={{ fontWeight: 400, fontSize: 12, color: 'var(--muted)', wordBreak: 'break-all' }}>{s.kind === 'HTML' ? 'Web sayfası · ' : ''}{s.sport === 'spor' ? 'Genel spor · ' : 'Voleybol · '}{s.url}</div>
                                             {(s.include || s.exclude) && <div style={{ fontWeight: 400, fontSize: 12, color: 'var(--muted)' }}>{s.include && `+ ${s.include}`} {s.exclude && `− ${s.exclude}`}</div>}
                                             {s.lastError && <div style={{ fontWeight: 400, fontSize: 12, color: 'var(--a-danger)', display: 'flex', gap: 4, alignItems: 'center', marginTop: 4 }}><AlertTriangle size={12} /> {s.lastError}</div>}
                                         </td>

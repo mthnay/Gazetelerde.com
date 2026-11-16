@@ -5,8 +5,7 @@ import { canPublish } from '@/lib/permissions';
 import FeedImporter from '@/components/admin/FeedImporter';
 import FeedInbox from '@/components/admin/FeedInbox';
 import FeedSources from '@/components/admin/FeedSources';
-import FeedPresets from '@/components/admin/FeedPresets';
-import { PRESETS, PRESET_DEFAULTS } from '@/lib/feedPresets';
+import FeedToggles from '@/components/admin/FeedToggles';
 
 export const metadata = { title: 'İçerik Çek | Yönetim' };
 
@@ -20,7 +19,7 @@ export default async function ImportPage({ searchParams }) {
         prisma.feedItem.groupBy({ by: ['status'], _count: true }),
         prisma.feedSource.findMany({
             orderBy: { createdAt: 'asc' },
-            select: { id: true, name: true, url: true, active: true, kind: true, mode: true, sport: true, linkPattern: true, include: true, exclude: true, breaking: true, rewrite: true, preset: true, keepDays: true, lastFetchedAt: true, lastError: true, category: { select: { slug: true, label: true } }, _count: { select: { items: true } } },
+            select: { id: true, name: true, url: true, active: true, kind: true, mode: true, sport: true, linkPattern: true, include: true, exclude: true, breaking: true, rewrite: true, note: true, keepDays: true, lastFetchedAt: true, lastError: true, category: { select: { slug: true, label: true } }, _count: { select: { items: true } } },
         }),
         prisma.category.findMany({ orderBy: { sortOrder: 'asc' }, select: { slug: true, label: true } }),
     ]);
@@ -84,12 +83,9 @@ export default async function ImportPage({ searchParams }) {
                 />
             )}
             {tab === 'kaynaklar' && (
-                <FeedPresets
+                <FeedToggles
                     canManage={canPublish(user)}
-                    presets={PRESETS.map((p) => {
-                        const s = sources.find((x) => x.preset === p.key);
-                        return { key: p.key, name: p.name, description: p.description, active: Boolean(s?.active), keepDays: s?.keepDays || PRESET_DEFAULTS.keepDays, lastError: s?.lastError || null, published: published[s?.id] || 0 };
-                    })}
+                    sources={sources.map((s) => ({ id: s.id, name: s.name, note: s.note, active: s.active, mode: s.mode, breaking: s.breaking, keepDays: s.keepDays, lastError: s.lastError, published: published[s.id] || 0 }))}
                 />
             )}
             {tab === 'kaynaklar' && (
