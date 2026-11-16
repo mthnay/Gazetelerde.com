@@ -68,6 +68,7 @@ export default function FeedInbox({ items, status, hasSources }) {
                                         <td className="title-cell">
                                             {i.title}
                                             {i.summary && <div style={{ fontWeight: 400, fontSize: 13, color: 'var(--muted)', marginTop: 4, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{i.summary}</div>}
+                                            {i.note && <div style={{ fontWeight: 400, fontSize: 12, color: 'var(--muted)', marginTop: 4, fontStyle: 'italic' }}>{i.note}</div>}
                                             {i.article && <div style={{ fontSize: 12, marginTop: 4 }}>→ <Link href={`/admin/haberler/${i.article.id}`} style={{ textDecoration: 'underline' }}>Taslağa git</Link></div>}
                                         </td>
                                         <td className="muted">{i.sourceName}</td>

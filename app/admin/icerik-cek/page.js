@@ -34,7 +34,7 @@ export default async function ImportPage({ searchParams }) {
         orderBy: [{ publishedAt: { sort: 'desc', nulls: 'last' } }, { createdAt: 'desc' }],
         take: 100,
         select: {
-            id: true, title: true, link: true, summary: true, image: true, publishedAt: true, createdAt: true, status: true,
+            id: true, title: true, link: true, summary: true, image: true, publishedAt: true, createdAt: true, status: true, error: true,
             source: { select: { name: true, category: { select: { slug: true } } } },
             article: { select: { id: true, title: true } },
         },
@@ -78,6 +78,7 @@ export default async function ImportPage({ searchParams }) {
                         publishedAt: i.publishedAt?.toISOString() ?? null,
                         createdAt: i.createdAt.toISOString(),
                         sourceName: i.source.name,
+                        note: i.error || '',
                         category: i.source.category?.slug ?? '',
                     }))}
                 />
