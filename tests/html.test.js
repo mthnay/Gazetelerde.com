@@ -52,3 +52,10 @@ test('geçersiz kutu içeriği korunarak açılır, komşu kutular bozulmaz', ()
     const out = sanitizeArticleHtml('<aside class="callout"><p>n</p></aside><aside class="kotu"><p>k</p></aside><div class="hack"><p>t</p></div>');
     assert.equal(out, '<aside class="callout"><p>n</p></aside><p>k</p><p>t</p>');
 });
+
+test('karakter kodları çözülür (RSS)', async () => {
+    const { decodeEntities } = await import('../lib/html.js');
+    assert.equal(decodeEntities('Gülmezoğlu&#8217;nun &#8220;karar&#8221; &amp; &hellip;'), 'Gülmezoğlu’nun “karar” & …');
+    assert.equal(decodeEntities('&amp;#8217; &#x2019; &amp;quot;x&amp;quot;'), '’ ’ "x"');
+    assert.equal(decodeEntities('&bilinmeyen; 3 &lt; 5'), '&bilinmeyen; 3 < 5');
+});

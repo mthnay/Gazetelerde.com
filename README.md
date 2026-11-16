@@ -60,7 +60,7 @@ Site yalnızca voleybol ve spor haberi yayımlar. Haberler iki yoldan otomatik g
    Yapay zekâ anahtarı tanımlıysa metin özgün habere dönüştürülür; değilse otomatik yayında yalnızca kısa özet + kaynak bağlantısı yayımlanır.
    **Hazır kaynaklar** (TVF, FIVB, Voleybol Plus, AA Spor, TRT Haber Spor; liste: `lib/feedPresets.js`) aynı sayfada
    tek tıkla açılıp kapatılır. Açık hazır kaynağın yeni haberleri otomatik yayımlanır ve `FEED_BREAKING_HOURS` saat
-   son dakika şeridinde kalır; 7 günden eski olanlar arşive alınır (sitede görünmez, panelde durur). Süre kaynak başına değiştirilebilir.
+   son dakika şeridinde kalır; 7 günden eski olanlar kalıcı olarak silinir (arşiv tutulmaz; panelden "Arşiv"e alınan haber de anında silinir). Süre kaynak başına değiştirilebilir.
 2. **Dış otomasyon** (n8n, kendi botunuz): `POST /api/ingest/articles`, başlık `Authorization: Bearer $INGEST_SECRET`.
    Gövde tek haber ya da `{ "articles": [...] }`; aynı `externalId` tekrar gelirse haber güncellenir.
 
@@ -81,7 +81,7 @@ curl -X POST https://gazetelerde.com/api/ingest/articles \
 | `FEED_PUSH` | Akıştan gelen son dakikalar telefona bildirim olarak gider; `0` ile kapatılır |
 | `FEED_PUSH_PER_HOUR` | Akış bildirimleri için saatlik üst sınır (varsayılan 4) |
 | `FEATURED_HOURS` | Manşet işareti kaç saat sonra kalkar (varsayılan 48, 0 = kalkmaz) |
-| `MANUAL_ARCHIVE_DAYS` | Elle yazılan haberler kaç gün sonra arşivlenir (varsayılan 0 = arşivlenmez) |
+| `MANUAL_ARCHIVE_DAYS` | Elle yazılan haberler kaç gün sonra kalıcı silinir (varsayılan 0 = silinmez) |
 | `MOST_READ_DAYS` | "Çok Okunanlar" son kaç günden seçilir (varsayılan 3) |
 | `FEED_UPDATE_HOURS` | Kaynakta değişen haber kaç saat boyunca takip edilip bizde de güncellenir (varsayılan 48, 0 = kapalı) |
 | `FEED_UPDATE_PER_RUN` | Bir taramada kaynak başına kaç haber yeniden kontrol edilir (varsayılan 5) |

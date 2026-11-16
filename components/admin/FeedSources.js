@@ -68,7 +68,7 @@ export default function FeedSources({ sources, categories, canManage }) {
                     <label className="admin-field" style={{ margin: 0 }}><span>Açıklama (isteğe bağlı)</span>
                         <input className="admin-input" value={form.note} onChange={(e) => setForm({ ...form, note: e.target.value })} placeholder="ör. Federasyon duyuruları" />
                     </label>
-                    <label className="admin-field" style={{ margin: 0 }}><span>Arşiv (gün, 0 = hiç)</span>
+                    <label className="admin-field" style={{ margin: 0 }}><span>Kaç gün sonra silinsin (0 = hiç)</span>
                         <input className="admin-input" type="number" min="0" max="365" value={form.keepDays} onChange={(e) => setForm({ ...form, keepDays: Number(e.target.value) })} />
                     </label>
                     <label className="admin-field" style={{ margin: 0, flexDirection: 'row', alignItems: 'center', gap: 8 }}>
@@ -129,7 +129,7 @@ export default function FeedSources({ sources, categories, canManage }) {
                                             </select>
                                             <div style={{ display: 'flex', gap: 10, marginTop: 6, fontSize: 12 }}>
                                                 <label><input type="checkbox" checked={s.breaking} disabled={!canManage || busy === s.id} onChange={(e) => patch(s, { breaking: e.target.checked })} /> Son dakika</label>
-                                                <label title="Bu kaynaktan yayımlanan haberler kaç gün sonra arşivlensin (0 = hiç)">Arşiv <input type="number" min="0" max="365" defaultValue={s.keepDays} disabled={!canManage || busy === s.id} onBlur={(e) => { const v = Number(e.target.value); if (Number.isInteger(v) && v !== s.keepDays) patch(s, { keepDays: v }); }} style={{ width: 48 }} /> gün</label>
+                                                <label title="Bu kaynaktan yayımlanan haberler kaç gün sonra kalıcı silinsin (0 = hiç)">Sil <input type="number" min="0" max="365" defaultValue={s.keepDays} disabled={!canManage || busy === s.id} onBlur={(e) => { const v = Number(e.target.value); if (Number.isInteger(v) && v !== s.keepDays) patch(s, { keepDays: v }); }} style={{ width: 48 }} /> gün</label>
                                                 <label title="Yapay zekâ açıksa metin özgün habere dönüştürülür"><input type="checkbox" checked={s.rewrite} disabled={!canManage || busy === s.id} onChange={(e) => patch(s, { rewrite: e.target.checked })} /> AI ile yeniden yaz</label>
                                             </div>
                                         </td>

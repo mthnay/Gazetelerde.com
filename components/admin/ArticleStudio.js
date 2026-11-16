@@ -213,6 +213,12 @@ export default function ArticleStudio({ article = null, categories, canPublish, 
         const data = await res?.json().catch(() => null);
         setBusy(false);
         if (!data?.success) return flash('error', data?.message || 'Kaydedilemedi.');
+        if (data.deleted) { // Arşive alınan haber kalıcı silinir
+            setDirty(false);
+            router.push('/admin/haberler');
+            router.refresh();
+            return;
+        }
         if (overrideStatus) setForm((f) => ({ ...f, status: data.article.status }));
         // Erişilebilirlik: alternatif metni olmayan görseller için uyarı (kaydetmeyi engellemez)
         const noAlt = (form.content.match(/<img\b(?![^>]*\balt="[^"]+")[^>]*>/gi) || []).length;
@@ -564,7 +570,7 @@ export default function ArticleStudio({ article = null, categories, canPublish, 
                                 <Section title="Yayın">
                                     <label className="admin-field"><span>Durum</span>
                                         <select className="admin-select" value={form.status} onChange={set('status')}>
-                                            {Object.entries(STATUS_LABELS).map(([k, v]) => <option key={k} value={k} disabled={!canPublish && !['DRAFT', 'REVIEW'].includes(k)}>{v}</option>)}
+                                            {Object.entries(STATUS_LABELS).map(([k, v]) => <option key={k} value={k} disabled={!canPublish && !['DRAFT', 'REVIEW'].includes(k)}>{k === 'ARCHIVED' ? 'Arşiv (kaydedince kalıcı silinir)' : v}</option>)}
                                         </select>
                                     </label>
                                     {form.status === 'REVIEW' && canPublish && (

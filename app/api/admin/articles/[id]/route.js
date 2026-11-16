@@ -36,6 +36,15 @@ export async function PATCH(request, { params }) {
         data: { ...parsed.data, slug },
         select: { id: true, slug: true, status: true, title: true, authorId: true, reviewNote: true },
     });
+    // "Arşiv"e alınan haber tutulmaz: anında kalıcı olarak silinir
+    if (article.status === 'ARCHIVED') {
+        if (!canDeleteArticle(user, existing)) return fail('Bu haberi silme yetkiniz yok.', 403);
+        await prisma.article.delete({ where: { id: existing.id } });
+        await revalidateArticle(existing.id, [existing.slug]);
+        const cat = await prisma.category.findUnique({ where: { id: existing.categoryId }, select: { slug: true } });
+        if (cat) revalidatePath(`/category/${cat.slug}`);
+        return ok({ article, deleted: true });
+    }
     await notifyStatusChange({ article, before: existing.status, actor: user });
     await prisma.articleRevision.create({
         data: { kind: 'SAVE', articleId: article.id, userId: user.id, title: parsed.data.title, summary: parsed.data.summary, content: parsed.data.content, image: parsed.data.image },
