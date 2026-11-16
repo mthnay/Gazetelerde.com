@@ -69,7 +69,7 @@ export default async function Home() {
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(siteJsonLd) }} />
       {/* Ekran okuyucular ve arama motorları için sayfa başlığı (görsel tasarımda logo bu görevi görüyor) */}
-      <h1 className="sr-only">Gazetelerde: son dakika haberleri, gündem, spor ve ekonomi</h1>
+      <h1 className="sr-only">Gazetelerde: voleybol haberleri, canlı skorlar, Sultanlar Ligi ve Efeler Ligi</h1>
       <BreakingTicker items={breaking.items} flagged={breaking.flagged} />
 
       {topics.length > 0 && (

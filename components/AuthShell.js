@@ -1,6 +1,6 @@
 import Link from 'next/link';
 
-const WORDS = ['Gündem', 'Dünya', 'Ekonomi', 'Spor', 'Teknoloji', 'Bilim', 'Kültür', 'Yaşam'];
+const WORDS = ['Sultanlar Ligi', 'Efeler Ligi', 'Filenin Sultanları', 'Filenin Efeleri', 'Avrupa Kupaları', 'Transfer', 'Plaj Voleybolu', 'Spor'];
 
 // Giriş / kayıt sayfalarının ortak iki sütunlu düzeni
 export default function AuthShell({ quote, children }) {
