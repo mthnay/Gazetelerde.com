@@ -5,7 +5,7 @@ export default function MostRead({ items, title = 'Çok Okunanlar' }) {
     if (!items?.length) return null;
     return (
         <section className="most-read" aria-labelledby="most-read-title" data-reveal>
-            <span className="kicker">Son 30 gün</span>
+            <span className="kicker">Son {Number(process.env.MOST_READ_DAYS || 3)} gün</span>
             <h2 id="most-read-title" className="most-read-title">{title}</h2>
             <ol>
                 {items.map((n, i) => (
