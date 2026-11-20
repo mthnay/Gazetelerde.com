@@ -69,12 +69,20 @@ export default async function Home() {
     return [b.id, null];
   })), []));
 
+  const categorySettings = blocks.find((b) => b.type === 'categories')?.settings;
+  const categoryList = categorySettings
+    ? (categorySettings.categories.length ? categorySettings.categories.map((slug) => categories.find((c) => c.slug === slug)).filter(Boolean) : categories)
+    : [];
+  const categoryNews = await buildSafe(() => Promise.all(categoryList.map(async (cat) => ({
+    cat, items: await getLatestNews({ category: cat.slug, take: categorySettings.count }),
+  }))), []);
+
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(siteJsonLd) }} />
       {/* Ekran okuyucular ve arama motorları için sayfa başlığı (görsel tasarımda logo bu görevi görüyor) */}
       <h1 className="sr-only">Gazetelerde: voleybol haberleri, canlı skorlar, Sultanlar Ligi ve Efeler Ligi</h1>
-      {blocks.map((b) => <Block key={b.id} b={b} ctx={{ allNews, categories, breaking, mostRead, topics, matchDay, standings, news: newsOf.get(b.id) || [] }} />)}
+      {blocks.map((b) => <Block key={b.id} b={b} ctx={{ allNews, categories, categoryNews, breaking, mostRead, topics, matchDay, standings, news: newsOf.get(b.id) || [] }} />)}
     </>
   );
 }
@@ -106,7 +114,7 @@ function Block({ b, ctx }) {
     }
 
     case 'lead': {
-      const items = ctx.news.length ? ctx.news : ctx.allNews;
+      const items = ctx.news;
       // Sabitlenen haber yoksa işaretli manşet, o da yoksa en yeni haber
       const lead = s.pinned.length ? items[0] : items.find((n) => n.featured) || items[0];
       if (!lead) return null;
@@ -204,7 +212,7 @@ function Block({ b, ctx }) {
     }
 
     case 'categories':
-      return <CategoryBlocks allNews={ctx.allNews} categories={ctx.categories} only={s.categories} count={s.count} />;
+      return <CategoryBlocks blocks={ctx.categoryNews} />;
 
     case 'ad':
       return <div className="container"><AdSlot place={s.place} /></div>;
@@ -218,11 +226,8 @@ function Block({ b, ctx }) {
 }
 
 // KATEGORİLER: haber sayısına göre düzen; küçük kategoriler ikişer ikişer eşleşir
-function CategoryBlocks({ allNews, categories, only, count }) {
-  const list = only?.length ? only.map((slug) => categories.find((c) => c.slug === slug)).filter(Boolean) : categories;
-  const blocks = list
-    .map((c) => ({ cat: c, items: allNews.filter((n) => n.category === c.slug).slice(0, count) }))
-    .filter((b) => b.items.length > 0);
+function CategoryBlocks({ blocks: categoryNews }) {
+  const blocks = categoryNews.filter((b) => b.items.length > 0);
   const rows = [];
   let pending = null;
   for (const b of blocks) {
@@ -253,7 +258,7 @@ function CategoryBlocks({ allNews, categories, only, count }) {
             <div className="cat-block">
               <Story item={row.items[0]} variant="feature" summary />
               <div className="cat-block-list">
-                {row.items.slice(1, 4).map((n, i) => <Story key={n.id} item={n} variant="row" index={i + 1} />)}
+                {row.items.slice(1).map((n, i) => <Story key={n.id} item={n} variant="row" index={i + 1} />)}
               </div>
             </div>
           ) : (
