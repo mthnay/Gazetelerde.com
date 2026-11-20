@@ -865,6 +865,8 @@ a:hover .media img, .media:hover img { transform: scale(1.06); }
 /* Ana sayfa: bölümler arası boşluklar sıkılaştırıldı */
 .volley-home.section, .home-band.section { padding-top: clamp(24px, 3.5vw, 40px); }
 .volley-home.section { padding-bottom: clamp(20px, 3vw, 32px); }
+.volley-home + .home-band.section,
+.volley-home + :is(.container:empty, .container:has(> .ad-slot--empty)) + .home-band.section { padding-top: 0; }
 .home-band .section-head, .home-cats .section-head, .volley-home .section-head { margin-bottom: 18px; }
 .marquee-band { padding: 10px 0; }
 .marquee-band-track { font-size: clamp(32px, 5vw, 64px); }
@@ -1248,6 +1250,9 @@ a.match-card:hover { border-color: var(--ink); transform: translateY(-2px); box-
 .volley-home .section-title a, .volley-home .group-title a { color: inherit; text-decoration: none; }
 .volley-home-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: clamp(20px, 3vw, 36px); }
 .volley-home-news { display: grid; gap: 6px; }
+.volley-home-news .story--row { gap: 12px; }
+.volley-home-news .story-media { width: 56px; }
+.volley-home-news .story-body { gap: 4px; }
 
 /* ---------- Maç öncesi kartı ---------- */
 .preview { padding: clamp(16px, 3vw, 28px); border: 1px solid var(--line); border-radius: var(--radius-lg, 20px); background: var(--surface); }

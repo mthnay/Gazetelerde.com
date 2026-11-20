@@ -168,7 +168,7 @@ function Block({ b, ctx }) {
             {ctx.news.length > 0 && (
               <div>
                 <h3 className="group-title"><Link href={s.source === 'tag' && s.tag ? `/etiket/${s.tag}` : '/voleybol'}>Son voleybol haberleri</Link></h3>
-                <div className="volley-home-news">{ctx.news.map((n, i) => <Story key={n.id} item={n} variant="row" index={i} />)}</div>
+                <div className="volley-home-news">{ctx.news.map((n, i) => <Story key={n.id} item={n} variant="row" sizes="56px" index={i} />)}</div>
               </div>
             )}
           </div>
