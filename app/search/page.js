@@ -12,7 +12,7 @@ const PER_PAGE = 20;
 export default async function SearchPage({ searchParams }) {
     const sp = await searchParams;
     const query = String(sp.q || '').slice(0, 100).trim();
-    const page = Math.max(1, Math.min(50, Number(sp.sayfa) || 1));
+    const page = Math.max(1, Math.min(50, Math.trunc(Number(sp.sayfa)) || 1));
     const { items, total } = await searchNews(query, { take: PER_PAGE, skip: (page - 1) * PER_PAGE });
     const pages = Math.ceil(total / PER_PAGE);
     const href = (p) => `/search?${new URLSearchParams({ q: query, ...(p > 1 ? { sayfa: String(p) } : {}) })}`;
@@ -51,7 +51,7 @@ export default async function SearchPage({ searchParams }) {
                                     {/* Vurgulu parça veritabanından gelir; lib/news.js'te <mark> dışındaki her şey kaçırılır */}
                                     <span className="search-snippet" dangerouslySetInnerHTML={{ __html: n.snippet || n.summary.replace(/&/g, '&amp;').replace(/</g, '&lt;') }} />
                                 </span>
-                                {n.img && <span className="search-hit-img"><SmartImage src={n.img} alt="" sizes="160px" /></span>}
+                                <span className="search-hit-img"><SmartImage cover src={n.img} alt="" sizes="160px" /></span>
                             </Link>
                         </li>
                     ))}

@@ -1,5 +1,6 @@
 import { prisma, buildSafe } from '@/lib/db';
 import { absoluteUrl } from '@/lib/site';
+import { xmlEscape } from '@/lib/xml';
 import { GUIDES } from '@/lib/guides';
 
 export const revalidate = 300;
@@ -40,7 +41,7 @@ export default async function sitemap() {
             lastModified: a.updatedAt,
             changeFrequency: 'daily',
             priority: 0.8,
-            ...(a.image ? { images: [a.image] } : {}),
+            ...(a.image ? { images: [xmlEscape(a.image.startsWith('/') ? absoluteUrl(a.image) : a.image)] } : {}),
         })),
     ];
 }

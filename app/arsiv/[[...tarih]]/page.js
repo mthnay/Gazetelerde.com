@@ -15,9 +15,9 @@ const pad = (n) => String(n).padStart(2, '0');
 function parse(tarih = []) {
     const [y, m, d] = tarih.map(Number);
     if (tarih.length > 3 || tarih.some((x) => !/^\d+$/.test(x))) return null;
-    if (y && (y < 2000 || y > 2100)) return null;
-    if (m && (m < 1 || m > 12)) return null;
-    if (d && (d < 1 || d > new Date(Date.UTC(y, m, 0)).getUTCDate())) return null;
+    if (y !== undefined && (y < 2000 || y > 2100)) return null;
+    if (m !== undefined && (m < 1 || m > 12)) return null;
+    if (d !== undefined && (d < 1 || d > new Date(Date.UTC(y, m, 0)).getUTCDate())) return null;
     return { y, m, d };
 }
 

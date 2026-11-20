@@ -14,7 +14,7 @@ import { articleUrl } from '@/lib/format';
 export default function Story({ item, variant = 'card', summary = false, priority = false, sizes, reveal = true, index = 0, as: Tag = 'article', level = 3 }) {
     const href = articleUrl(item);
     const H = `h${level}`;
-    const showImage = variant !== 'text' && item.img;
+    const showImage = variant !== 'text';
     const defaultSizes = {
         lead: '(max-width: 860px) 100vw, 760px',
         feature: '(max-width: 860px) 100vw, 640px',
@@ -29,9 +29,9 @@ export default function Story({ item, variant = 'card', summary = false, priorit
             style={reveal ? { '--i': index } : undefined}
         >
             <Link href={href} aria-label={item.title}>
-                {(showImage || variant === 'lead') && (
+                {showImage && (
                     <div className="media story-media">
-                        {showImage && <SmartImage src={item.img} alt="" sizes={sizes || defaultSizes} priority={priority} />}
+                        <SmartImage cover src={item.img} alt="" sizes={sizes || defaultSizes} priority={priority} />
                     </div>
                 )}
                 <div className="story-body">

@@ -172,7 +172,7 @@ export default async function NewsDetail({ params }) {
                 {layout.hero === 'immersive' && item.img && !video && !gallery ? (
                     <section className="article-hero--immersive">
                         <div className="media">
-                            <SmartImage src={item.img} alt={item.title} sizes="100vw" priority />
+                            <SmartImage cover src={item.img} alt={item.title} sizes="100vw" priority />
                             {item.imageCredit && <span className="image-credit image-credit--overlay">Fotoğraf: {item.imageCredit}</span>}
                         </div>
                         <div className="container" style={{ width: '100%' }}>{head('left')}</div>
@@ -181,7 +181,7 @@ export default async function NewsDetail({ params }) {
                     <section className="article-hero--split">
                         {head('left')}
                         <div className="media">
-                            <SmartImage src={item.img} alt={item.title} sizes="(max-width: 960px) 100vw, 640px" priority />
+                            <SmartImage cover src={item.img} alt={item.title} sizes="(max-width: 960px) 100vw, 640px" priority />
                             {item.imageCredit && <span className="image-credit image-credit--overlay">Fotoğraf: {item.imageCredit}</span>}
                         </div>
                     </section>
@@ -196,7 +196,7 @@ export default async function NewsDetail({ params }) {
                         {!video && !gallery && layout.hero !== 'minimal' && item.img && (
                             <figure className="container article-figure">
                                 <div className="media">
-                                    <SmartImage src={item.img} alt={item.title} sizes="(max-width: 1180px) 100vw, 1120px" priority />
+                                    <SmartImage cover src={item.img} alt={item.title} sizes="(max-width: 1180px) 100vw, 1120px" priority />
                                 </div>
                                 {item.imageCredit && <figcaption className="image-credit">Fotoğraf: {item.imageCredit}</figcaption>}
                             </figure>

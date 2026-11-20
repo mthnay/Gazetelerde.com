@@ -441,6 +441,13 @@ a:hover .media img, .media:hover img { transform: scale(1.06); }
 .story { position: relative; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
 .story > a { display: contents; }
 .story-media { border-radius: var(--radius); aspect-ratio: 16 / 10; }
+.cover-placeholder {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  color: #f4efe6; background: linear-gradient(135deg, #39332d, #171410);
+  font: 800 clamp(32px, 6vw, 80px)/1 var(--font-serif);
+}
+.cover-placeholder > span { color: var(--brand); font-size: .45em; align-self: center; margin-top: .9em; }
+.media:has(.cover-placeholder) .image-credit, .media:has(.cover-placeholder) + .image-credit { display: none; }
 .story-body { display: flex; flex-direction: column; gap: 8px; }
 .story-title { font-family: var(--font-serif); font-weight: 650; font-size: 21px; line-height: 1.18; letter-spacing: -0.018em; text-wrap: balance; font-variation-settings: 'opsz' 48; }
 .story-summary { color: var(--ink-2); font-size: 15px; line-height: 1.55; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
