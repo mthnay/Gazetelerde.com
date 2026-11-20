@@ -29,9 +29,9 @@ export default function Story({ item, variant = 'card', summary = false, priorit
             style={reveal ? { '--i': index } : undefined}
         >
             <Link href={href} aria-label={item.title}>
-                {showImage && (
+                {(showImage || variant === 'lead') && (
                     <div className="media story-media">
-                        <SmartImage src={item.img} alt="" sizes={sizes || defaultSizes} priority={priority} />
+                        {showImage && <SmartImage src={item.img} alt="" sizes={sizes || defaultSizes} priority={priority} />}
                     </div>
                 )}
                 <div className="story-body">
