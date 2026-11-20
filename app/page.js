@@ -13,10 +13,8 @@ import StandingsTable from '@/components/StandingsTable';
 import { getBreakingNews, getCategories, getLatestNews, getMostRead, getTrendingTags } from '@/lib/news';
 import { getHomeLayout, blockNews } from '@/lib/homeData';
 import { absoluteUrl, SITE_NAME, SITE_DESCRIPTION } from '@/lib/site';
-import { buildSafe } from '@/lib/db';
-
-// Ana sayfa önbellekten sunulur; 60 sn'de bir ve her yayında tazelenir
-export const revalidate = 60;
+import { unstable_cache } from 'next/cache';
+import { connection } from 'next/server';
 
 // Google'da site adı ve site içi arama kutusu için
 const siteJsonLd = [
@@ -29,26 +27,49 @@ const siteJsonLd = [
 
 const titleCase = (s) => s.charAt(0) + s.slice(1).toLocaleLowerCase('tr');
 
-export default async function Home() {
+const getHomeEdition = unstable_cache(async () => {
   // Düzen panelden gelir (Yönetim → Ana Sayfa); her blok kendi verisini yükler
   const { blocks: all } = await getHomeLayout();
   const blocks = all.filter((b) => b.enabled);
   const has = (t) => blocks.some((b) => b.type === t);
   const cfg = (t) => blocks.find((b) => b.type === t)?.settings || {};
 
-  const [allNews, categories, breaking, mostRead, topics, matchDay, standings] = await buildSafe(
-    () => Promise.all([
-      getLatestNews({ take: 60 }), getCategories(),
-      has('ticker') ? getBreakingNews(cfg('ticker').count) : { flagged: false, items: [] },
-      has('band') ? getMostRead(cfg('band').mostRead || 5) : [],
-      has('topics') ? getTrendingTags(cfg('topics').count) : [],
-      has('matches') ? getMatchDay() : { live: [], upcoming: [], results: [] },
-      has('volley') && cfg('volley').leagues ? getFeaturedStandings(cfg('volley').leagues) : [],
-    ]),
-    [[], [], { flagged: false, items: [] }, [], [], { live: [], upcoming: [], results: [] }, []],
-  );
+  const [allNews, categories, breaking, mostRead, topics, matchDay, standings] = await Promise.all([
+    getLatestNews({ take: 60 }), getCategories(),
+    has('ticker') ? getBreakingNews(cfg('ticker').count) : { flagged: false, items: [] },
+    has('band') ? getMostRead(cfg('band').mostRead || 5) : [],
+    has('topics') ? getTrendingTags(cfg('topics').count) : [],
+    has('matches') ? getMatchDay() : { live: [], upcoming: [], results: [] },
+    has('volley') && cfg('volley').leagues ? getFeaturedStandings(cfg('volley').leagues) : [],
+  ]);
 
-  if (!allNews.length) {
+  if (!allNews.length) return null;
+
+  // Haber listesi isteyen blokların verisi (sabitlenenler + seçilen kaynak)
+  const newsOf = Object.fromEntries(await Promise.all(blocks.map(async (b) => {
+    const s = b.settings;
+    if (b.type === 'lead') return [b.id, await blockNews(s, 1 + s.sideCount + s.stripCount)];
+    if (b.type === 'volley') return [b.id, s.count ? await blockNews(s, s.count) : []];
+    if (b.type === 'news') return [b.id, await blockNews(s, s.count)];
+    return [b.id, null];
+  })));
+
+  const categorySettings = blocks.find((b) => b.type === 'categories')?.settings;
+  const categoryList = categorySettings
+    ? (categorySettings.categories.length ? categorySettings.categories.map((slug) => categories.find((c) => c.slug === slug)).filter(Boolean) : categories)
+    : [];
+  const categoryNews = await Promise.all(categoryList.map(async (cat) => ({
+    cat, items: await getLatestNews({ category: cat.slug, take: categorySettings.count }),
+  })));
+
+  return { blocks, allNews, categories, categoryNews, breaking, mostRead, topics, matchDay, standings, newsOf };
+}, ['home-edition'], { revalidate: 60 });
+
+export default async function Home() {
+  // İlk baskı, veritabanının erişilebilir olduğu çalışma ortamında hazırlanır.
+  await connection();
+  const edition = await getHomeEdition();
+  if (!edition) {
     return (
       <div className="container status-page">
         <div>
@@ -60,29 +81,13 @@ export default async function Home() {
     );
   }
 
-  // Haber listesi isteyen blokların verisi (sabitlenenler + seçilen kaynak)
-  const newsOf = new Map(await buildSafe(() => Promise.all(blocks.map(async (b) => {
-    const s = b.settings;
-    if (b.type === 'lead') return [b.id, await blockNews(s, 1 + s.sideCount + s.stripCount)];
-    if (b.type === 'volley') return [b.id, s.count ? await blockNews(s, s.count) : []];
-    if (b.type === 'news') return [b.id, await blockNews(s, s.count)];
-    return [b.id, null];
-  })), []));
-
-  const categorySettings = blocks.find((b) => b.type === 'categories')?.settings;
-  const categoryList = categorySettings
-    ? (categorySettings.categories.length ? categorySettings.categories.map((slug) => categories.find((c) => c.slug === slug)).filter(Boolean) : categories)
-    : [];
-  const categoryNews = await buildSafe(() => Promise.all(categoryList.map(async (cat) => ({
-    cat, items: await getLatestNews({ category: cat.slug, take: categorySettings.count }),
-  }))), []);
-
+  const { blocks, newsOf, ...ctx } = edition;
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(siteJsonLd) }} />
       {/* Ekran okuyucular ve arama motorları için sayfa başlığı (görsel tasarımda logo bu görevi görüyor) */}
       <h1 className="sr-only">Gazetelerde: voleybol haberleri, canlı skorlar, Sultanlar Ligi ve Efeler Ligi</h1>
-      {blocks.map((b) => <Block key={b.id} b={b} ctx={{ allNews, categories, categoryNews, breaking, mostRead, topics, matchDay, standings, news: newsOf.get(b.id) || [] }} />)}
+      {blocks.map((b) => <Block key={b.id} b={b} ctx={{ ...ctx, news: newsOf[b.id] || [] }} />)}
     </>
   );
 }
